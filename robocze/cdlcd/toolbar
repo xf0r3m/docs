@@ -1,0 +1,2 @@
+prog "Terminal" utilities-terminal xterm -fg orange -bg black
+prog "Web browser" ! x-www-browser

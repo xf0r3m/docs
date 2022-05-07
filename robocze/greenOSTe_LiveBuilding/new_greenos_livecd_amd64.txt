@@ -1,0 +1,131 @@
+1. Instalacja docelowej wersji Trisquel GNU/Linux dla greenOSTe 1. W tym
+    przypadtku jest Trisquel 9 Etiona.
+
+2. Aktualizacja list pakietów:
+  # apt update
+
+3. Instalacja niezbędnego oprogramowania:
+  # apt install debootstrap squashfs-tools xorriso isolinux syslinux-efi
+    grub-pc-bin grub-efi-amd64-bin mtools dosfstools
+
+4. Utworzenie katalogu dla plików obrazu
+  # mkdir greenOSTe
+
+5. Pobranie dystrybucji Debiana 10 w wersji "minbase" za pomocą debootstrap.
+  # /sbin/debootstrap --arch=amd64  etiona greenOSTe/chroot http://mirror.linux.pizza/trisquel/packages
+  Mirror znajduje się w Szwecji.
+
+6. Zmiana katalogu głównego na pobrany obraz.
+  # chroot greenOSTe/chroot
+
+7. Aktulizacja list pakietów:
+  (chroot) # apt update
+
+8. Instalacja jądra, procesu systemd oraz live-boot:
+  (chroot) # apt install -y --no-install-recommends linux-generic live-boot systemd-sysv
+
+10. Instalacja oprogramowania dostarczanego wraz z obrazem:
+  (chroot) # apt install -y network-manager net-tools iproute2 wireless-tools wget openssh-client alsa-utils abrowser icewm xserver-xorg-core xserver-xorg xinit xterm vim-gtk3 geany iputils-ping man man-db texinfo less
+  mc mpv qmmp feh dosfstools isc-dhcp-client fdisk whiptail locales keyboard-configuration console-setup xfe rsync git conky cifs-utils neofetch hexchat mutt
+  
+11. Konfiguracja strefy czasowej
+  (chroot) # dpkg-reconfigure tzdata
+
+12. Konfiguracja locales
+  (chroot) # dpkg-reconfigure locales
+
+13. Konfiguracja klawiatury oraz konsoli, instalator podczas instalacji pakietu
+    zapyta język klawiatury, warto jednak wykonać konfigurację jescze raz po
+    zmianie locales.
+  (chroot) # dpkg-reconfigure keyboard-configuration
+  (chroot) # dpkg-reconfigure console-setup
+
+14. Przekopiowanie konfiguracji środowiska graficznego:
+  (chroot) # cd
+  (chroot) # mkdir .icewm
+  (chroot) # cp -prvv /usr/share/icewm/* .icewm
+
+15. Pobranie paczki z plikami bazowymi dostoswanym dla tej dystrybucji:
+  (chroot) # cd / <- WAŻNE !
+  (chroot) # wget http://ftp.morketsmerke.net/greenOS/greenOSTe_base-files.tgz
+  (chroot) # tar -xzvf greenOS_base-files.tgz
+  (chroot) # rm greenOS_base-files.tgz
+  (chroot) # rm README
+
+16. Dopisanie wywołania neofetch do pliku .bashrc uzytkownika root.
+  (chroot) # echo "/usr/bin/neofetch" >> /root/.bashrc
+
+17. Ustawienie hasła dla użytkownika root
+  (chroot) # passwd
+
+18. Uruchomienie NetworkManagera wraz ze startem systemu
+  (chroot) # systemctl enable NetworkManager
+
+18. Przed opuszczenie katalogu głównego obrazu warto się upewnić czy
+    czy ustawione są odpowiednie locales dla Polski, tj. głównie
+    układ klawiatury oraz czcionka konsoli.
+  (chroot) # locale
+  (chroot) # dpkg-reconfigure console-setup
+  (chroot) # dpkg-reconfigure keyboard-configuration
+
+18. Opuszenie katalogu głównego obrazu:
+  (chroot) # exit
+
+19. Pobranie plików konfiguracyjnych gruba oraz isolinux
+  # cd greenOSTe
+  # wget http://ftp.morketsmerke.net/greenOS/greenOSTe_boot-cfg.tgz
+  # tar -xzvf greenOSTe_boot-cfg.tgz
+
+20. Utworzenie struktury katalogowej dla stworzenia obrazu
+  # mkdir -p /root/greenOS/{staging/{EFI/boot,boot/grub/x86_64-efi,isolinux,live},tmp}
+
+21. Utworzenie pliku squashfs
+  # mksquashfs /root/greenOSTe/chroot /root/greenOSTe/staging/live/filesystem.squashfs -e boot
+
+22. Przekopiowanie plików jądra oraz ramdysku z pobranego obrazu
+  # cp /root/greenOSTe/chroot/boot/vmlinuz-* /root/greenOSTe/staging/live/vmlinuz
+  # cp /root/greenOSTe/chroot/boot/initrd.img-* /root/greenOSTe/staging/live/initrd
+
+23. Przekopiowanie pliku konfiguracjynego isolinux.
+  # cp isolinux.cfg /root/greenOSTe/staging/isolinux
+  # cp black_screen.png /root/greenOSTe/staging/isolinux;
+
+24. Przekopiowanie plików konfiguracyjnych GRUB-a
+  # cp grub.cfg /root/greenOSTe/staging/boot/grub
+  # cp font.pf2 /root/greenOSTe/staging/boot/grub
+
+25. Utworzenie pliku konfiguracji grub-standalone
+  # vim /root/greenOSTe/tmp/grub-standalone.cfg
+    search --set=root --file /GREENOS
+    set prefix=($root)/boot/grub
+    configfile /boot/grub/grub.cfg
+
+26. Utworzenie specjalnego pliku, po którym GRUB rozpozna partycję z głównym 
+    katalogiem
+  # touch /root/greenOSTe/staging/GREENOS
+
+27. Przekopiowanie plików isolinux
+  # cp /usr/lib/ISOLINUX/isolinux.bin /root/greenOSTe/staging/isolinux;
+  # cp /usr/lib/syslinux/modules/bios/* /root/greenOSTe/staging/isolinux;
+
+28. Przekopiowanie pozostałych plików GRUB-a
+  # cp -r /usr/lib/grub/x86_64-efi/* /root/greenOSTe/staging/boot/grub/x86_64-efi
+
+29. Wygenrowanie pliku gruba:
+  # grub-mkstandalone --format=x86_64-efi --output=/root/greenOSTe/staging/EFI/boot/bootx64.efi --locales="" --fonts="" "boot/grub/grub.cfg=/root/greenOSTe/tmp/grub-standalone.cfg"
+
+30. Utworznie partycji dla EFI
+  # cd /root/greenOSTe/staging/boot/grub/
+  # dd if=/dev/zero of=efiboot.img bs=1M count=20
+  # mkfs.vfat efiboot.img
+  # mmd -i efiboot.img efi efi/boot
+  # mcopy -vi efiboot.img /root/greenOSTe/staging/EFI/boot/bootx64.efi ::efi/boot
+
+31. Utoworzenie obrazu ISO
+  # xorriso -as mkisofs -iso-level 3 -o "greenOSTe_amd64.iso" -full-iso9660-filenames -volid "GREENOSTe" -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin -eltorito-boot isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table --eltorito-catalog isolinux/isolinux.cat -eltorito-alt-boot -e /boot/grub/efiboot.img -no-emul-boot -isohybrid-gpt-basdat -append_partition 2 0xef /root/greenOSTe/staging/boot/grub/efiboot.img "/root/greenOSTe/staging"
+
+32. Przekopiowanie pliku ISO na konto zwykłego użytkownika
+  # cp /root/greenOSTe/greenOS_amd64.iso /home/user
+
+
+   

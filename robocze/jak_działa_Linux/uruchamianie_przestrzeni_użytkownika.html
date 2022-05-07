@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="https://i.ibb.co/khy45hh/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+					text-align: left;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				ul {
+					text-align: left;
+				}
+        p { text-align: justify; }
+			</style>
+		</head>
+		<body style="font-family: monospace;" >
+<pre>
+     _       _          _     _       _         _     _                  ___ 
+    | | __ _| | __   __| |___(_) __ _| | __ _  | |   (_)_ __  _   ___  _|__ \
+ _  | |/ _` | |/ /  / _` |_  / |/ _` | |/ _` | | |   | | '_ \| | | \ \/ / / /
+| |_| | (_| |   <  | (_| |/ /| | (_| | | (_| | | |___| | | | | |_| |>  < |_| 
+ \___/ \__,_|_|\_\  \__,_/___|_|\__,_|_|\__,_| |_____|_|_| |_|\__,_/_/\_\(_)
+</pre>
+<p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+	&#9760;&nbsp;<a href="https://morketsmerke.github.io">morketsmerke</a>&nbsp;&#9760;
+</p>
+			<div style="margin-left: auto; margin-right: auto; width: 80%;">
+        <h1>Uruchamianie przestrzeni użytkownika</h1>
+        <p>
+          Uruchomienie procesu <strong>init</strong> jest bardzo ważnym
+          elementem, nie tylko ze względów praktycznych, od tego
+          momentu pamięć RAM oraz procesor są nareszcie dostępne, ale również
+          mają dydaktyczne znaczenie dla nas. Teraz możemy zaobserwować jak
+          wszystkie pozostałe składowe systemu operacyjnego składają się w 
+          całość.
+        </p>
+        <p>
+          Jądro Linux-a porusza się z góry zaprogramowanymi przez
+          <em>Core Team</em> algorytmami. Przestrzeń użytkownika jest bardziej
+          modułowa. Przestrzeń użytkownika nie wymaga programowania na
+          niskim poziomie, co daje możliwość łatwiejszego modyfikowania. Każdy
+          program działa wokół ściśle określonego schematu czynności.
+          Przestrzeń użytkownika uruchamiana jest w ten sam sposób
+          a jej schemat możemy zapisać za pomocą listy.
+        </p>
+        <ol>
+          <li>Program typu <em>init</em></li>
+          <li>Najważniejsze niskopoziomowe usługi, takie jak 
+              <strong>udev</strong> i <strong>syslogd</strong>.</li>
+          <li>Konfiguracja sieci</li>
+          <li>Usługi średniego i wysokiego poziomu (<strong>cron</strong>,
+            drukowanie itp.).</li>
+          <li>Ekrany logowania, środowiska graficzne i inne aplikacje
+              wysokiego poziomu</li>
+        </ol>
+        <h2>Wprowadzenie do procesu init</h2>
+        <p>
+          Proces <em>init</em> jest programem Linux-owym, takim jak każdy inny
+          możemy znaleźć go w katalogu <em>/sbin</em>. Jego zadaniem jest
+          zarządzenie (uruchamianie i zatrzymywanie) procesami niezbędnymi do 
+          pracy sysytemu. Obecnie możemy określić trzy rozdzaje dostęnych 
+          programów typu init (nie które są narzucone).
+        </p>
+        <ul>
+          <li><strong>System V init</strong> - tradycyjna wersja obecnie
+              została zastąpiona inną wersję - <em>systemd</em> we wiodących
+              dystrybucjach. Używana przez wszystkich tych, którzy uznali że,
+              <em>systemd</em> nie jest najlepszym rozwiązaniem tego typu.
+              Zmodyfikowana wersja
+              by przypominała styl systemów z rodziny BSD używana jest w
+              dystrybucji Slackware. 
+              Sposób działania tego programu opiera
+              się na sekwencjach. Bardziej szczegółowy opis jeszcze znajdzie
+              się w tym materiale.</li>
+          <li><strong>systemd</strong> - najnowszy i najbardziej
+              rozpowszechniony standard programu typu <em>init</em>. Jest
+              wykorzystywany przez 75% wszystkich dystrybucji.</li>
+          <li><strong>OpenRC</strong> - odnowiona wersja tradycyjnego systemu
+              typu init. Metoda jego działania opiera się na tradycjnym
+              działaniu <em>System V init</em> oraz kilku rozwiązaniach z 
+              <em>systemd</em>
+              Wykorzysytywany jest w kilku odmianach ArchLinux oraz
+              dystrybucjach opartych na Gentoo jak i samym Gentoo.</li>
+        </ul>
+        <p>
+          Problemem tego klasycznego rozwiązania właśnie była ta sekwencyjność
+          nie można było uruchomić jednocześnie dwóch elementów sekcji
+          uruchomieniowej. Innym ograniczeniem jest uruchomienie tylko ściśle
+          określonego zbioru usług zdefiniowanych przez sekwencję. Gdy
+          podłączamy nowy sprzęt lub chcemy uruchomić nową usługę nie mamy
+          żadnej standardowej metody na koordynacje tych czynności z procesem
+          <em>init</em>.
+        </p>
+        <p>
+          Program <em>systemd</em> stara się poprawić wydajność umożliwając
+          uruchamianie jednocześnie wielu usług, co przekłada się na
+          przyspieszenie startu systemu. <em>Systemd</em> jest ukierunkowane
+          na konkretny cel. Cel jest definiowany z wraz ze wszystkimi
+          zależnościami oraz z momentem w którym powinien zostać zrealizowany.
+          Podczas uruchamiania <em>systemd</em> stara się rozwiązać wszystkie
+          zależności, aby zrealizować postawiony cel. Uruchomionie usługi
+          może się opóźnić, do momentu gdy stanie się naprawdę niezbędna.
+        </p>
+        <p>
+          Programy takie jak <em>systemd</em> pozwalają na wykorzystanie
+          bardziej zaawansowanych metod uruchamiania i śledzenia usług.
+          W przypadku tradycyjnego systemu usługi same uruchamiają się za
+          pomocą skryptów. Skrypt uruchamia demona, który po odłączeniu się
+          od skrypt działa już samodzielnie. Jeśli chcielibyśmy zarządzać
+          demonem w jakiś sposób musielibyśmy to zrobić metodą określoną przez
+          niego samego. W przypadku <em>systemd</em> demonem możemy zarządzać
+          już od momentu startu usługi. Dzięki temu mamy większe możliwości
+          kontroli nad tym co aktualnie jest uruchomione w naszym systemie. 
+        </p>
+        <p>
+          Projektując <em>systemd</em> pozbyto się wielu nadmiarowych elementów
+          w porównaniu do skryptów tradycyjnych programów typu <em>init</em>.
+          Sama konfiguracja usług współpracujących z <em>init</em> w wersji
+          <em>systemd</em> stała się prostsza ponieważ nie są one już 
+          zbudowane wokół skryptów.
+        </p>
+        <p>
+          <em>Systemd</em> daje również możliwość zastosowania usług
+          na żądanie, uruchamianych w zależności od potrzeb. Nie jest to
+          możliwe w przypadku <em>System V</em> ze względu na ściśle określną
+          sekwencję. Nie jest to nowa metoda, ponieważ została zimplementowana
+          w klasycznym demonie sieciowym <strong>inetd</strong>, jednak ta
+          implementacja jest bardziej zaawansowana.
+        </p>
+        <p>
+          Nowoczesne programy typu <em>init</em> zapewniają wsteczną zgodność
+          dla rozwiązań z <em>System V</em>, część starych usług projektowanych
+          z myślą o skryptach tradycjnego programu dalej działa w nowoczesnych
+          systemach.
+        </p>
+        <h2>Poziomy uruchomienia System V</h2>
+        <p>
+          W danym momencie w systemie uruchamiane są procesy bazowe takiej jak
+          <em>udevd</em>, <em>cron</em> czy <em>syslogd</em>. Przy
+          <em>System V</em> taki stan maszyny nazywa się 
+          <strong>poziomem uruchomienia</strong>
+          (ang. <em>runlevel</em>) oznaczny od <strong>0</strong> do
+          <strong>6</strong>. Kiedy system jest w pełni uruchomiony i pracujemy
+          na nim znajdujemy się na jednym z tych poziomów, w momemcie zamykania
+          systemu, lub uruchamiania go ponownie proces <em>init</em> przełącza
+          się pomiedzy tymi poziomami uruchamiając lub zamykając w ich trakcie
+          inne procesy. Poziom uruchomienia możemy sprawdzić za pomocą
+          polecenia
+        </p>
+<pre class="code-block">
+$ who -r
+</pre>
+        <p>
+          Poziomy uruchomienia mają różne zastosowania jednak najczęsciej
+          wykorzystywane są do rozróżniania etapów pracy systemu operacyjnego.
+          Dzisiaj poziomy uruchomienia wychodzą z użycia ze względu na
+          zastąpienie <em>System V</em> przez <em>systemd</em>. Zostały
+          uznane przez jego deweloperów za przestarzałe, mimo to 
+          <em>systemd</em> nadal posiada poziomy uruchomienia w celu
+          zapewnienia wstecznej zgodności dla usług nadal korzystających z
+          skrytptów w stylu <em>System V</em>
+        </p>
+        <h2>Identyfikowanie rodzaju procesu init</h2>
+        <p>
+          Zanim zaczniemy charkteryzować sobie poszczególne programy typu
+          <em>init</em> musimy dowiedzieć się w jaki sposób zidentyfikować
+          używny przez system program. Poniżej znajduje się kilka wskazówek:
+        </p>
+        <ul>
+          <li>Jeśli w systemie istnieją katalogi <em>/usr/lib/systemd</em> i
+              <em>/etc/systemd</em>, działa on z programem <em>systemd</em>.
+          </li>
+          <li>Jeśli w systemie jest widoczny plik /etc/inittab, to z pewnością
+              działa on z programem w systemu <em>System V</em>.
+          </li>
+        </ul>
+        <h2>systemd</h2>
+        <p>
+          Jest to najnowsza implementacja programu typu <em>init</em>, dla
+          dystrybucji Linux-a. Oprócz obsługi standardowego procesu
+          uruchamiania systemu program stara się zintegrować wiele klasycznych
+          UNIX-owych usług takich jak <em>cron</em> czy <em>inetd</em>.
+          Najważniejszą funkcją jaką można wymieć jest możliwość opóźnienia
+          funkcji oraz usług systemu operacjnego do momentu gdy będą
+          naprawdę potrzebne.
+        </p>
+        <p>
+          Poniżej znajduje się opis co dzieje się po uruchomieniu procesu
+          <em>systemd</em> przy starcie systemu.
+        </p>
+        <ol>
+          <li>Proces <em>systemd</em> ładuje swoją konfigurację.</li>
+          <li>Proces sprawdza cel do uruchomienia, zazwyczaj jest plik 
+              <em>default.target</em>.</li>
+          <li>Proces buduje drzewo zależności, wyszukjąc zależności celu i ich
+              zależności i tak dalej.</li>
+          <li><em>Systemd</em> rozwiązuje po koleji wszystkie zależności i
+              aktywuje sam cel</li>
+          <li>Po zakonczeniu uruchamiania systemu, <em>systemd</em> pozostaje w
+              w gotowość, może reagować na zdarzenia (np. takie jak
+              <em>uevent</em>) w ich następstwie aktywować dodatkowe
+              komponenty systemu</li>
+        </ol>
+        <p>
+          <em>Systemd</em> nie przestrzega żadnej kolejności podczas
+          uruchamiania usług. Większość konfiguracji tego procesu stara się
+          świadomie unikać sekwencji uruchomieniowych wykorzystując inne
+          metody rozwiązywania zależności.
+        </p>
+        <h3>Jednostki i typy jednostek</h3>
+        <p>
+          Jedną z ciekawszych rzeczy związanych z <em>systemd</em> są dodatkowe
+          funkcje poza obsługą procesów czy usług. Program ten może montować
+          systemy plików, gniazada sieciowe oraz uruchamiać zegary i wiele
+          więcej. Każda z takich funkcji nazywana jest
+          <strong>jednostką</strong> (ang. <em>unit</em>) i każdy z rodzajów 
+          funkcji tego typu nazywany jest <strong>typem jednostki</strong>
+          (ang. <em>unit type</em>). Operacja uruchamiania jednostki nazywana
+          jest <strong>aktywowaniem</strong>. Poniżej znajduje się lista
+          typowych jednostek wymaganych przez system UNIX-opodbne podczas
+          uruchamiania.
+        </p>
+        <ul>
+          <li><strong>Jednostki usług</strong> - obsługują demony usług w
+              w systemach UNIX-owych.</li>
+          <li><strong>Jednostki montowania</strong> - zajmują się podłączaniem
+              systemów plików do systemu operacyjnego.</li> 
+          <li><strong>Jednostki celu</strong> - zarządzają innymi jednostkami 
+              przeważanie łącząc je w grupy.</li>
+        </ul>
+        <p>
+          Rodzajów jednostek jest o wiele więcje, pozostałe możemy znaleźć na
+          stronie podręcznika <em>systemd</em>.
+        </p>
+<pre class="code-block">
+$ man 1 systemd
+</pre>
+        <p>
+          Domyślnym celem uruchamiania systemu jest jednostka docelowa 
+          grupująca
+          pewną ilość usług oraz montująca inne jednostki jako swoje zależności.
+          W związku z czym będzie mieć częsciowy obraz tego co dzieje się w 
+          systemie. Możemy przygotować za pomocą jednego polecenia dane do
+          wykonania diagramu zależności przez program <strong>dot</strong>
+          pakiety <em>graphviz</em>.
+        </p>
+<pre class="code-block">
+$ systemd-analyze dot
+</pre>
+        <p>
+          Danych jest ogromna ilość. Warto mieć jednak na uwadze to, że część 
+          jednostek z tego drzewa nie jest uruchamianych. Poniżej zamieściłem
+          uproszczony diagram dla takiego drzewa zależności.
+        </p>
+        <p>
+       <img src="https://i.ibb.co/Rpg17s6/Diagram1.png" alt="Diagram1" border="0">
+        </p>
+        <h3>Zależności systemd</h3>
+        <p>
+          Zależności występujące podczas uruchamia systemu są nieco bardziej
+          skomplikowne niż by się to mogło wydawać. Brak im odpowiedniej
+          elastyczności. Jeśli ustawimy usługi w taki sposób, że na przykład
+          po starcie bazy danych powinna uruchomić się usługa pozwalająca się
+          nam zalogować do systemu. To w przypadku gdy start bazy danych się
+          nie powiedzie, nie będziemy mogli się zalogować i tym samym naprawić
+          błedu. 
+        </p>
+        <p>
+          Różne operacje systemu w mogą tolerować wiele błedów w trakcie jego
+          uruchomiania. Mogą nawet nie zostać wykonane bez powodowania błędów
+          w standardowych usługach. Jeśli dysk z pliku <em>/etc/fstab</em>
+          zostanie usunięty z komputera, a wpis nie zostanie zmodyfikowany, to
+          system uruchomi się normalnie, z odnotowaniem takiego zdarzenia.
+          Chyba że usuniemy dysk montowany pod jednym z podkatalogów katalogu
+          głównego.
+        </p>
+        <p>
+          <em>Systemd</em> udostępnia dużą ilość rozdzajów i stylów zależności
+          co pozwala na uzyskanie podobnej elastyczności i odporności na błędy
+          jak w powyższym przykładzie. Te rozdzaje można podzielić na podstawie
+          składni i słów kluczowych, jednak tym będziemy zajmować przy okazji
+          omawiania konfiguracji <em>systemd</em>. Poniżej znajduje się lista
+          najbardziej podstawowy typów zależności.
+        </p>
+        <ul>
+          <li><strong>Requiers (wymaga)</strong> - zależność bezpośrednia
+              jednostki określone jako <em>requiers</em>, są aktywowane podczas
+              aktywacji jednoski macierzystej. Musza zostać
+              poprawnie aktywowane, w przeciwym razie jednostka macierzysta
+              zostanie zdezaktywowana.</li>
+          <li><strong>Wants (chce)</strong> - zależność na potrzeby aktywacji
+              Po aktywacji jednostki korzystającej z tej zależności,
+              <em>systemd</em> przystępuje do aktywacji jednostki określonej
+              tą zależnością.
+              Nie sprawdza jednak czy jednostka została aktywowana.</li>
+          <li><strong>Requisite (potrzebuje)</strong> - jednostki, które muszą
+              już być aktywowane podczas aktywacji jednostki z zależnościami
+              tego typu, inaczej aktywacja jakiej jednoski nie dojdzie do
+              skutku.</li>
+          <li><strong>Conflicts (konflikt)</strong> - zależność negatywana.
+              W trakcje aktywacji jednostki z zależnością tego typu, 
+              <em>systemd</em> automatycznie zdezaktywuje taką zależność.
+              Aktywacja jednostki z dwowa wzajemnie wykluczającymi się
+              zależnościami (<em>conflicts</em>) niepowiedzie się.</li>
+        </ul>
+        <p>
+          Zależności typu <em>Wants</em> nie przekazują błędów do innych
+          jednostek. Zachowanie tego typu tworzy znacznie stabliniejszy system.
+        </p>
+        <p>
+          Możliwe jest dodanie zależności z drugiej strony. Chcą dodać
+          zależność A do jednostki B, nie trzeba zmienić konfiguracji 
+          jednostki B. W konfiguracji jednostki A zapisać zależności typu
+          <strong>By</strong> (ang. <em>przez</em>) np. 
+          <strong>RequiedBy</strong> (ang. <em>wymagane przez</em> czy 
+          <strong>WantedBy</strong> (ang. <em>chciane przez</em>) wskazując w
+          nich jednostkę B. Niestety tego typu zależności są nieco bardziej
+          skomplikowane i wymagają więcej zachodu niż edycja jednego pliku. 
+          Będzie o tym w dalszej części materiału. 
+        </p>
+        <h4>Kolejność</h4>
+        <p>
+          Dotychczas prezentowane sposoby konfiguracji nie ustalają jawnie
+          kolejności aktywowania zależności. Wykorzystując typy 
+          <em>Requiers</em> i <em>Wants</em> powodują, że <em>systemd</em>
+          aktywuje te zależości w tym samym czasie co pierwszą jednostkę. Jest
+          to dobre rozwiązanie, ponieważ powoduje jak najszybsze uruchomienie
+          jak największej ilości usług. Istnieją usługi, które wymagają do
+          działania innych, dlatego też może zajść potrzeba ustalenia 
+          kolejności, by jednostka danej usługi została poprawnie aktywowana. 
+          Aby aktywować
+          jednostki w danej kolejności możemy zastosować poniższe modyfikatory
+        </p>
+        <ul>
+          <li><strong>Before (przed)</strong> - obecnie konfigurowana
+              jednostka zostanie aktywowana przed podanymi w tej opcji.</li>
+          <li><strong>After (po)</strong> - aktualna jednostka zostanie
+              jednostka zostanie akywowana po podanych tutaj.</li> 
+        </ul>
+        <h4>Zależności warunkowe</h4>
+        <p>
+          <em>Systemd</em> oferuje <strong>warunkowe słowa kluczowe</strong>,
+          dzięki którym
+          możemy jescze bardziej zawęzić kryteria aktywacji jednostek.
+          Poniżej zamieszczono kilka przykładów: 
+        </p>
+        <ul>
+          <li><strong>ConditionPathExists=p</strong> - warunek zwróci prawdę
+              jeżeli w systemie istnieje ścieżka <em>p</em>.</li>
+          <li><strong>ConditionPathIsDirectory=p</strong> - warunek zwróci
+              prawdę jeżeli <em>p</em> jest katalogiem.</li>
+          <li><strong>ConditionFileNotEmpty=p</strong> - warunek zwróci prawdę
+              jeżeli <em>p</em> jest niepustym plikiem.</li>
+        </ul>
+        <p>
+          Jeśli któreś z użytych warunków zwróci fałsz, wtedy jednostka nie
+          zostanie aktywowana, oczywiście dotyczy to jedynie jednostki, w
+          której zdefiniowano tą zależność (warunkowe słowa kluczowe to też
+          zależności). Mimo wyniku uniemożliwiającego start jednostki to
+          występujące w niej zależności i tak zostaną aktywowane.
+        </p>
+        <p>
+          Istnieje wiele innych zależności, np. 
+          <strong>RequiersOverridable</strong>, która została zdefiniowana w
+          jednostce startującej automatycznie, to jej zachowanie jest 
+          identyczne
+          z zależnością <em>Requiers</em>, ale jeśli taką jednostkę 
+          aktywujemy ręcznie, to wówczas ta zależność przyjmuje zachowanie
+          zależności <em>Wants</em>.
+        </p>
+        <h3>Konfiguracja systemd</h3>
+        <p>
+          Zanim znajmiemy konfiguracją, musimy dowiedzieć się gdzie znajdują
+          się pliki konfiguracjne. <strong>Konfiguracja globalna</strong>
+          zazwyczaj znajduje się katalogu <em>/usr/lib/systemd/system</em> 
+          zaś definicje lokalne są umieszczone w katalogu
+          <em>/etc/systemd/system</em>. Nasze zmiany właśnie będziemy 
+          umiesczać w katalogu <em>/etc/systemd/system</em>.
+        </p>
+        <h4>Pliki jednostek</h4>
+        <p>
+          Pliki jednostek swój format zawdzięczają plikom .desktop - elementom
+          specyfikacji pulpitu XDG 
+          (ang. <em>XDG Desktop Entry Specification</em>). Plik podzielony jest
+          na sekcje, których nazwy zapisywane są w nawiasach kwadratowych
+          (<strong>[]</strong>) w każdej z sekcji znajdują się opcje z 
+          przypisanymi im
+          wartościami. Dla przykładu wybierzemy sobie plik <em>media.mount</em>
+          odpowiedzialny za montowanie systemu plików <em>tmpfs</em>.
+        </p>
+<pre class="code-block">
+[Unit]
+Description=Media Directory
+Before=local-fs.target
+
+[Mount]
+What=tmpfs
+Where=/media
+Type=tmpfs
+Options=mode=755,nosuid,nodev,noexec
+</pre>
+        <p>
+          Na powyższym przykładzie widzimy dwie sekcje. Pierwsza znich 
+          <code class="code-inline">[Unit]</code> zawiera dwie pewne infomacje
+          o samej jednostce, takie jak opis (opcja 
+          <code class="code-inline">Description</code>) czy zależności
+          (opcja <code class="code-inline">Before</code>). Z zapisanych w tej
+          jednosce zależności możemy wywnioskować, że jednostka ma zostać
+          aktywowana przed jednostką 
+          <code class="code-inline">local-fs.target</code>.
+        </p>
+        <p>
+          Druga sekcja jest już specyficzna dla konkretnego rodzaju jednostki
+          w tym przypadku jest <code class="code-inline">mount</code>. Te 
+          sekcje (zazwyczaj w plikach jednostki, znajdują się trzy) opisują
+          szczegóły jednostki oraz są związane z ich zadaniem. W przypadku
+          jednostek montowania, wewnątrz tej sekcji znajduje się opcja
+          <code class="code-inline">What</code> wskazująca na urządzenie do
+          zamontowania, w przypadku naszego przykładu nie jest to klasyczne
+          urządzenie zatem nie ma tutaj typowej nazwy urządzenia poprzedzonej
+          katalogiem <em>/dev</em>. Pozostałe opcje wskazują na punkt
+          montowania (<code class="code-inline">Where</code> [ang. 
+          <em>gdzie</em>]), rozdaj systemu plików
+          (<code class="code-inline">Type</code>) oraz dodatkowe opcje
+          montowania (<code class="code-inline">Options</code>). Na tym
+          konczy się plik jednostki. Jednostki montowania są chyba 
+          najprostszymi w całym systemie. Inną jednostką jaką sobie opiszemy
+          jest jednostka usługi <em>sshd</em> - demona bezpiecznego dostępu do
+          zadalnej powłoki. Jest nieco bardziej rozbudowany przykład od
+          poprzedniego, jednak nadal nieskomplikowany.
+        </p>
+<pre class="code-block">
+[unit]
+Description=OpenSSH server daemon
+After=syslog.target network.target auditd.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/sshd
+ExecStartPre=/usr/sbin/sshd-keygen
+ExecStart=/usr/sbin/sshd -D $OPTIONS
+ExecReload=/bin/kill -HUP $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+</pre>
+        <p>
+          Po nagłówku drugiej sekcji możemy wywnioskować że mamy doczynienia z
+          z jednostką usługi. W tym przykładzie najbardziej interesować nas
+          będzie sekcja <code class="code-inline">[Install]</code>. Jeśli
+          interesują nas polecenia w sekcji 
+          <code class="code-inline">[Service]</code> to ich objaśnienie
+          znajdziemy na stronie podręcznika
+          <code class="code-inline">man 5 systemd.service</code>.
+        </p>
+        <h4>Włączanie jednostek i sekcja [Install]</h4>
+        <p>
+          Za pomoca sekcji <code class="code-inline">[Install]</code> możemy
+          włączyć jednostki bez modyfikowania żadnych plików. Sekcja ta
+          umożliwia także zrozumienie zależności <em>WantedBy</em> oraz
+          <em>RequiredBy</em>. W przypadku naszej jednostki <em>systemd</em>
+          zostaje zmuszony podczas jej uruchomienia do sprawdzenia zależności
+          <code class="code-inline">multi-user.target</code>. Efektem czego jest
+          stworzenie dowiązania symbolicznego w katalogu konfiguracji, tak jak
+          za pomocą poniższego polecenia.
+        </p>
+<pre class="code-block">
+ln -s '/usr/lib/systemd/system/sshd.service' '/etc/systemd/system/multi-user-target.wants/sshd.service' 
+</pre>
+        <p>
+          Jak mogliśmy zauważyć takie dowiąznie jest tworzone w katalogu
+          jednostki zależnej. Omawiana sekcja służy definiowania zapisów
+          w katalogach <em>.requiers</em> oraz <em>.wants</em>, w katalogu
+          konfiguracji systemu (<em>/etc/systemd/system</em>). Jeśli obawiamy
+          się nadpisania sekcji <em>[Install]</em> podczas aktualizacji
+          pakietów, możemy utworzyć ręcznie takie dowiązanie. Zadziała
+          identycznie, a nie ma potrzeby modyfikowania plików jednostki. 
+        </p>
+        <p>
+          Omawiając jednostki <em>systemd</em> trzeba zaznaczyć pewną róznicę,
+          którą teraz po opisie włączania jednostek będzie łatwiej zrozmieć. 
+          Istnieje spora różnica
+          między włączaniem a aktywowaniem jednostek. Podczas włączania
+          jednostek tworzymy trwałe zmiany, które bez problemu przetrwają
+          uruchomienie ponowne. Włączenie jednostek o ile zawiera skcję
+          <code class="code-inline">[Install]</code> wymaga wydania polecenia
+          <code class="code-inline">systemctl enable</code>. Jeśli plik
+          w pliku nie znajduje się sekcja 
+          <code class="code-inline">[Install]</code> to do jej włączenia
+          wystarczy sama obecność pliku w katalogu. 
+        </p>
+        <h4>Zmienne i specyfikatory</h4>
+        <p>
+          Przyglądając się sekcji 
+          <code class="code-inline">[service]</code>, w dwóch jej ostatnich
+          liniach możemy natrafić na elementy przypominające zmienne, są to
+          zmienne środowiskowego <em>systemd</em>, za ich pomocą możemy
+          przekazać przy użyciu poleceń obsługujących <em>systemd</em>, takich
+          jak <em>systemctl</em> opcje do uruchamianego demona, (zmienna
+          <code class="code-inline">$OPTIONS</code>), czy śledzić procesy tej
+          usługi (zmienna <code class="code-inline">$MAINPID</code>).
+        </p>
+        <p>
+          Innymi konstrukacjami <em>systemd</em> są specyfikatory. 
+          Specyfikatory
+          rozpoczynają się od procenta (<strong>%</strong>). Ich funkcja jest
+          często już z góry predefiniowana np. specyfikator <em>%n</em> jest
+          nazwą aktualnej jednostki, czy specyfikator <em>%H</em> przechowuje
+          nazwę naszego hosta.
+        </p>
+        <p>
+          Za pomocą specyfikatorów możemy tworzyć instancje danej jednostki.
+          Weźmy usługę <em>getty</em>, która powinna uruchomić się na kolejno
+          na terminalu <em>tty1</em>, <em>tty2</em>. W tym celu tworzymy plik
+          jednostki o nazwie (bardzo ważne) <strong>getty@.service</strong>,
+          co pozwoli nam na utworzenie instancji, podając przy odwoływaniu się
+          do jednoski jej nazwę po znaku mapły (<strong>@</strong>). W tym
+          przypadku znak nie wystarczy, w pliku jednostki potrzebny jest 
+          również
+          ów specyfikator <strong>%I</strong>, który będzie zmieniany właśnie
+          na tę nazwę (podaną po małpie) podczas przetwarzania pliku jednostki.
+        </p>
+        <h4>Praca z systemd</h4>
+        <p>
+           Podstawowym narzędziem przeznaczonym do pracy z <em>systemd</em>
+           jest polecenie <em>systemctl</em>, które umożliwa zarządzanie
+           jednostkami, wyświetlanie informacji o ich stanie oraz znacznie
+           więcej. Podstawowym zadaniem jakie możemy wykonać, jest pobranie
+           informacji o jednostkach. Podsumowanie dla całego systemu, wpisujące
+           nazwę jednostki, informacje o stanie samej jednostki jak demona lub
+           procesu przez nią zarządzanego oraz opisu możemy uzyskać za pomocą
+           polecenia:
+        </p> 
+<pre class="code-block">
+$ systemctl list-units
+</pre>
+        <p>
+          To zachowanie jest również domyślnym dla wydania polecenia
+          <em>systemctl</em>, bez żadnej opcji. Zwróćmy uwagę na dane zwrócone
+          przez polecenie możemy zauważyć tutaj, że wyświetlone zostały tylko
+          jednostki aktywne, aby zobaczyć wszystkie musimy dodać opcje
+          <em>--all</em>
+        </p>
+<pre class="code-block">
+$ systemctl list-units --all
+</pre>
+        <p>
+          Jednak jeśli już będziemy potrzebować informacji, to 
+          najprawdopodobniej o konkretnej jednostce. A temu służy opcja 
+          <em>status</em>:
+        </p>
+<pre class="code-block">
+$ systemctl status sshd.service
+● ssh.service - OpenBSD Secure Shell server
+   Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+   Active: active (running) since Tue 2021-12-14 17:08:26 CET; 1h 33min ago
+     Docs: man:sshd(8)
+           man:sshd_config(5)
+  Process: 572 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)
+ Main PID: 580 (sshd)
+    Tasks: 1 (limit: 4915)
+   Memory: 2.8M
+   CGroup: /system.slice/ssh.service
+           └─580 /usr/sbin/sshd -D
+
+gru 14 17:08:26 greenOS systemd[1]: Starting OpenBSD Secure Shell server...
+gru 14 17:08:26 greenOS sshd[580]: Server listening on 0.0.0.0 port 22.
+gru 14 17:08:26 greenOS sshd[580]: Server listening on :: port 22.
+gru 14 17:08:26 greenOS systemd[1]: Started OpenBSD Secure Shell server.
+</pre>
+        <p>
+          Jak możemy zauważyć na powyższym przykładzie, oprócz stanu jednostki
+          otrzymaliśmy również PID procesu, oraz polecenie odpowiedzialne za
+          uruchomienie usługi. Najciekawszym polem na powyższym przykładzie,
+          może tutaj niezbyt okazałym, jest pole 
+          <code class="code-inline">CGroup</code>, jest to 
+          <strong>grupa kontrolna</strong>
+          przedstawiająca drzewo procesów, które składają się na tę usługę.
+          Dodatkową rzeczą są tutaj informacje z plików dziennika, takie pliki
+          przechowują informacje diagnostyczne o każdej jednostce. Tutaj
+          występuje tylko kilka wierszy, ale całość dziennika możemy przejrzeć
+          za pomocą poniższego polecenia.
+        </p>
+<pre class="code-block">
+$ sudo journalctl _SYSTEMD_UNIT=ssh.service
+</pre>
+        <p>
+          Polecenie to ma nieco inną składnię oraz wymaga uprawnień
+          administratora. Składania wynika z wykorzystania różnorakich pól, aby
+          jak najlepiej wybrać interesujące nas dane, musimy wziąć pod uwagę
+          to ile w takim systemie może być jednostek. Teraz każda niech
+          wygeneruje plik dziennika, to naprawdę duża ilość danych. Pola i ich
+          znaczenie możemy znaleźć na stronie podręcznika uruchamianej
+          poniższym poleceniem.
+        </p>
+<pre class="code-block">
+$ man 7 systemd.journal-fields
+</pre>
+        <p>
+          Aktywowaniu i dezaktywowaniu, jak i ponownemu uruchamianiu służa 
+          opcje <strong>start</strong>, <strong>stop</strong>, 
+          <strong>restart</strong>. Jednak, aby zatwierdzić wprowadzone zmiany
+          w plikach jednostki należy użyć polecenia 
+          <em>systemctl reload nazwa_jednostki</em> - polecenie wczytuje
+          ponownie plik wskazanej jednostki, czy użyć polecenia, z którym każdy
+          chyba się spotkał konfigurując coś na współczesnym Linux-ie.
+          <em>systemctl daemon-reload</em> - polecenie to wczytuje ponownie
+          wszystkie pliki jednostki.
+        </p>
+        <p>
+          Wydając polecenia aktywacji czy dezaktywacji tudzież uruchomienia
+          ponownego, tworzymy tzw. <strong>zadania</strong> 
+          (ang. <em>jobs</em>).
+          Zadania prowadzą do zmiany aktualnego stanu jednostki. Listę zadań
+          możemy wypisać za pomocą polecenia:
+        </p>
+<pre class="code-block">
+$ systemctl list-jobs
+</pre>
+        <p>
+          Jeśli system jest uruchomiony od jakiegoś czasu, ta lista może być
+          pusta. Pozycje na niej będziemy mogli zauważyć, np. w momencie gdy
+          usługa jest w trakcie zamykania, jednak czeka zakończenie procesu lub
+          gdy uda nam się zalogowac do system na tyle szybko, że
+          wiele usług jest jeszcze w trakcie aktywacji. Tę listę możemy
+          przejrzeć w momecie gdy będzie oczekiwać dłuższy czas na start bądź
+          stop usługi.
+        </p>
+        <h3>Dodawanie jednostek do systemd</h3>
+        <p>
+          To zadanie polega głównie na dwóch czynnościach: tworzeniu plików
+          jednostek oraz ich aktywowaniu, opcjonalnie aktywacja jednostki
+          może wymagać włączenia. Plik umieszcza w katalogu
+          <em>/etc/systemd/system</em>, aby odróżnić je od plików pochodzących
+          z dystrybucji oraz zabezpieczyć je przed ewentualnym nadpisaniem
+          podczas aktualizacji. Dla ćwiczenia dodamy sobie jednostkę, która tak
+          naprawdę nie robi nic, jest dość proste cwiczenie i rozpoczniemy je
+          od utworzenia pliku o nazwie <em>test1.target</em>, plik ten
+          umieścimy w katalogu <em>/etc/systemd/system</em>. W pliku umieścimy
+          tylko sekcję <em>[Unit]</em>, a wewnątrz niej opis, za pomocą opcji
+          <em>Description</em>.
+        </p>
+<pre class="code-block">
+$ sudo vim /etc/systemd/system/test1.target
+[Unit]
+Description=test1
+</pre>
+        <p>
+          Teraz utworzymy plik drugiej jednostki, tym razem dodamy do niej
+          zależność wobec tej pierwszej przez nas stworzonej. W sekcji
+          <em>[Unit]</em>, oprócz opcji <em>Description</em> dodamy również
+          zależność <em>Wants</em>, która spowoduje aktywowanie jednostki
+          <em>test1</em> po aktywowaniu tej jednostki.
+        </p>
+<pre class="code-block">
+$ sudo vim /etc/systemd/system/test2.target
+[Unit]
+Description=test2
+Wants=test1.target
+</pre>
+        <p>
+          Teraz możemy wydać polecenie aktywowania, za raz po nim sprawdzimy
+          jak wygląda status naszych jednostek.
+        </p>
+<pre class="code-block">
+$ sudo systemctl start test2.target
+$ sudo systemctl status test2.target test1.target
+</pre>
+        <p>
+          Jak możemy zauważyć, na informacji zwróconej przez polecenie doszło
+          do aktywacji jednostki <code class="code-inline">test1.target</code>,
+          mimo iż wydaliśmy polecenie aktywowania jednostki
+          <code class="code-inline">test2.target</code>. Inną wariacją dla tego
+          ćwiczenia może być użycie sekcji 
+          <code class="code-inline">[Install]</code>. Dodając wymienoną
+          sekcję musimy pamiętać o tym, że jednostkę przed aktywowanie należy
+          włączyć. Do pliku jednostki <em>test1.target</em>, dopisujemy
+          sekcję <em>[Install]</em> następnie wewnątrz niej użyjemy opcji
+          z zależnością <em>WantedBy</em> gdzie wskażemy drugą naszą jednostkę
+          testową. Dodając to należy pamiętać o usunięciu żależności z 
+          jednostki <em>test2.target</em> oraz o dezaktywowaniu jednostek.
+        </p>
+<pre class="code-block">
+$ sudo systemctl stop test2.target
+$ sudo systemctl stop test1.target
+
+$ sudo vim /etc/systemd/system/test2.target
+[Unit]
+Description=test2
+
+$ sudo vim /etc/systemd/system/test1.target
+[Unit]
+Description=test1
+
+[Install]
+WantedBy=test2.target
+</pre>
+        <p>
+          Powyższe przykłady pokazują pliki, z już uwzględnionymi zmianami.
+          Teraz należy użyć polecenia <em>enable</em> aby włączyć jednostkę.
+        </p>
+<pre class="code-block">
+$ sudo systemctl enable test1.target
+</pre>
+         <p>
+            Teraz po włączniu jednostki możemy aktywować jednostkę <em>test2</em>
+            i sprawdzić stan tych jednostek testowych.
+         </p>
+<pre class="code-block">
+$ sudo systemctl start test2.target
+$ sudo systemctl status test2.target test1.target
+</pre>
+        <p>
+          Jak możemy zobaczyć na wyjściu polecenia <em>systemctl status</em>
+          obie usługi znów są aktywowane.
+        </p>
+        <h4>Usuwanie jednostek</h4>
+        <p>
+          Po wykonaniu ćwiczeń możemy posprzątać po sobie. Na początku
+          dezaktywujemy jednostkę, którą chcemy usunąć. 
+        </p>
+<pre class="code-block">
+$ sudo systemctl stop test1.target
+$ sudo systemctl stop test2.target
+</pre>
+        <p>
+          Jeśli nasze plik jednostek zawierały zależności w sekcji
+          <em>[Install]</em> lub w ogóle tę sekcję, należy jednostkę wyłączyć.
+          Wyłącznie jednostki usunie dowiązanie symboliczne w katalogu
+          <em>/usr/lib/systemd/system</em>.
+        </p>
+<pre class="code-block">
+$ sudo systemctl disable test1.target
+</pre>
+        <p>
+          Następnie możemy usunąć utworzone pliki jednostek.
+        </p>
+<pre class="code-block">
+$ sudo rm /etc/systemd/system/test1.target
+$ sudo rm /etc/systemd/system/test2.target
+</pre>
+        <h3>Śledzenie i synchronizacja procesów systemd</h3>
+        <p>
+          Pod czas pracy <em>systemd</em> stara się uzyskać jak najwięcej
+          informacji oraz niezbędną kontrolę na uruchomionymi procesami. Co
+          może być trudne ponieważ usługi mogą uruchamiać się na różne sposóby.
+          Mogą zamieniać się zamieniać się w demony, tworzyć nowe instancję.
+          lub odłączać od głównego procesu. W celu ułatwienia pracy twórcom
+          pakietów czy administratorom tworzącym pliki jednostek,
+          <em>systemd</em> wykorzystuje tzw. <strong>grupy kontorolne</strong>
+          umożliwiające lepsze śledzenie hierarchii procesów.
+        </p>
+        <p>
+          Wykorzystując <em>systemd</em> nie musimy się martwić o to czy proces
+          w ogóle się podzielił, dzięki opcji <strong>Type</strong> opisującej
+          zachowanie jednostki podczas aktywowania. Dwa podstawowe rodzaje
+          aktywowania jednostek to:
+        </p>
+        <ul>
+          <li><strong>Type=simple</strong> - proces jednostki nie dzieli się.
+              </li>
+          <li><strong>Type=forking</strong> - usługa może się dzielić, ale
+              <em>systemd</em> oczekuje, że oryginalny proces zostanie
+              zakończony. Po zakończeniu tego procesu <em>systemd</em> uznaje,
+              że usługa jest gotowa do pracy.</li>
+        </ul>
+        <p>
+          Przy <em>Type=simple</em>, nie jest brane pod uwagę to, że usługa 
+          potrzebuje trochę czasu, zanim zostanie w pełni uruchomiona.
+          <em>Systemd</em> nie wie kiedy może uruchamiać zależności wymgające
+          w pełni działające usługi. Temu można jednak zaradzić wykorzystując
+          opóźnienia w uruchamianiu. Po za powyższymi
+          stylami (bo tak się to fachowo nazwa), możemy jeszcze wskazać takie,
+          w których zakłada się że usługa sama powiadomi <em>systemd</em> o 
+          gotowości do pracy.
+        </p>
+        <ul>
+          <li><strong>Type=notify</strong> - usługa wyśle powiadomienie do
+              <em>systemd</em>, gdy będzie gotowa do pracy.</li>
+          <li><strong>Type=dbus</strong> - usługa zarejestruje się w magistrali
+              <em>D-Bus</em> (ang. <em>Desktop Bus</em>), gdy będzie gotowa do
+              pracy.</li>
+        </ul>
+        <p>
+          Innym stylem jakiego możemy użyć jest <strong>Type=oneshot</strong>,
+          przy jego użyciu proces usługi zamyka się natychmiast po zakończeniu
+          pracy. Stosując ten style, należy pamiętać o dodaniu opcji
+          <strong>RemainAfterExit=yes</strong>, dzieki niej <em>systemd</em>
+          będzie uznawał usługę za aktywna, mimo zakończenia wszystkich jej
+          procesów.
+        </p>
+        <p>
+          Ostatnim style jest <strong>Type=idle</strong>, który nakazuje
+          wstrzymać się od uruchomienia usługi do momentu oczyszczenia listy 
+          prac. Chodzi tu głównie o zmieniejszeni wykorzystania zasobów, oraz
+          nadpisania informacji z wyjścia poszczególnych usług. Po uruchomieniu
+          usługi praca <em>systemd</em> związana z tą usługą zostaje zamknięta.
+        </p>
+        <h3>Uruchamianie na żądanie i zrównoleglanie zasobów</h3>
+        <p>
+          Istotną funkcją związaną z <em>systemd</em> jest możliwość opóźnienia
+          uruchomienia jednostki do momentu gdy będzie ona niezbędna.
+          Ten rodzaj uruchomienia wykonywany jest zgodnie z poniższym 
+          schematem:
+        </p>
+        <ol>
+          <li>Tworzymy jednostke jak dla każdej innej usługi, którą chcemy
+              uruchomić (dla przedstawienia tego schematu nazwiemy ją 
+              <em>A</em>).</li>
+          <li>Definiujemy zasoby systemowe, z których ma korzystać jednostka
+              <em>A</em> w ramach swojej usługi.</li>
+          <li>Tworzymy inną jednostkę <em>systemd</em> (nazwiemy ją <em>R</em>)
+              reprezentującą wybrany zasób. Takie jednostki muszą otrzymać
+              specjalny typ jak jednostka gniazdka, jednostka ścieżki albo
+              jednostka urządzenia.</li>
+        </ol>
+        <p>
+          Praca <em>systemd</em> z taką jednostką będzie wyglądać w następujący
+          sposób.
+        </p>
+        <ol>
+          <li>Po aktywowaniu jednostki <em>R</em> <em>systemd</em> będzie
+              monitorować jej zasoby.</li>
+          <li>W momencie gdy coś będzie chciało uzyskać dostęp do tego zasobu
+              zostanie zablokowane przez <em>systemd</em>, dane wejściowe
+              zostaną zbuforowane.</li>
+          <li><em>Systemd</em> aktywuje jednostkę A.</li>
+          <li>W momencie gdy jednostka <em>A</em> jest gotowa do pracy,
+              przejmuje kontrolę nad zasobem, odczyta dane wejściowe z bufora
+              następnie będzie działać już zgodnie ze swoimi założeniami.</li>
+        </ol>
+        <p>
+          Przy pracy z tego typu jednostkami należy pamiętać o kilku problemach.
+        </p>
+        <ul>
+          <li>Musimy mieć pewność, że w jednostce uwzględniliśmy wszystkie
+              zasoby, z których korzysta usługa. Większość z nich ma 
+              przeważnie jeden punkt dostępu.</li>
+          <li>Musimy mieć pewność, że jednostka usług jest powiązana jawnie lub
+              nie z jednostką zasobów. A jest na to kilk różnych sposób.</li>
+          <li>Nie każda usług działa z jednostkami <em>systemd</em>.</li>
+        </ul>
+        <h4>Optymalizacja uruchamiania i jednostki pomocnicze</h4>
+        <p>
+          Sposób aktywowania jednostek <em>systemd</em> został 
+          zaprojektowany w taki sposób aby upraszczać sekwencje zależności oraz
+          skracać czas uruchamiania systemu. Przypomina to uruchamianie
+          jednostek na żądanie z tą różnicą, że jednostka usługi zostaje
+          uruchomiona w momencie aktywowania jednostki zasobu. Powodem
+          takiego działania jest fakt, że duże jednostki, które są 
+          wykorzystywane przez te
+          mniejsze potrzebują trochę czasu na aktywacje. <em>Systemd</em>
+          może zaoferować tym mniejszym w dość szybkim czasie ważne dla nich
+          gniazdko sieciowe, po czym aktywować samą jednostkę jak te mniejsze
+          zależne od tego zasobu. Kiedy jednostka podstawowa będzie gotowa do
+          pracy, przejmie kontrolę nad zasobem.
+        </p>
+        <p>
+          W przypadku tradycjnych systemów, usługi korzystające z zasobu dużej
+          usługi będą musiały poczekać na jej pełne uruchomienie oraz
+          udostępnienie zasobu co spowalnia całą sekwencję uruchmamiania
+          przestrzeni użytkownika.
+        </p>
+        <h4>Przykładowa jednostka i usługa gniazdka sieciowego</h4>
+        <p>
+          W ramach przykładu utworzymy prostą usługę echa sieciowego, 
+          wykorzystującą gniazdo sieciowe. Zadaniem takiej usługi będzie
+          odesłanie wszystkich danych jakie otrzyma do klienta łączącego się
+          przez gniazdko. Domyślnie usługa będzie nasłuchiwać na porcie
+          TCP/22222, nadamy jej nazwę <em>echo</em>. Uruchomimy ją razem z 
+          jednostką gniazdka sieciowego, poniższy blok kodu będzie 
+          reprezentować zawartość pliku <em>echo.socket</em>
+        </p>
+<pre class="code-block">
+$ sudo vim /etc/systemd/system/echo.socket
+
+[Unit]
+Description=echo socket
+
+[Socket]
+ListenStream=22222
+Accept=yes
+</pre>
+        <p>
+          Zwróćmy uwagę na to, że nie ma w tym pliku żadnej informacji na temat
+          jednostki usługi na rzecz której ma działać ta jednostka. Otóż plik
+          jednostki usługi otrzyma nazwę <em>echo@.service</em>, połączenie
+          powstało dzięki konwencji nazewniczej. Jeśli plik jednostki usługi
+          ma taką samą nazwę jak np. <em>.socket</em>. To <em>systemd</em> wie,
+          że musi aktywować usługę, gdy tylko pojawi się aktywność na gniazdku
+          sieciowym, egzeplarz usługi <em>echo@.service</em> zostanie utworzony
+          automatycznie gdy tylko do gniazda zaczną spływać informacje. Poniżej
+          znajduje się zawartość pliku jednostki.
+        </p>
+<pre class="code-block">
+$ sudo vim /etc/systemd/system/echo@.service
+
+[Unit]
+Description=echo service
+
+[Service]
+ExecStart=-/bin/cat
+StandardInput=socket
+</pre>
+        <p>
+          Skorzystanie z koncepcji nazewniczej jest jedną z opcji powiązania
+          jednostki usługi z jednostką pomocniczą w sposób niejawny. Nie
+          każdemu to odpowiada. Dlatego też możemy wskazać plik jednostki
+          zasobu za pomocą opcji <strong>Socket=echo.socket</strong> w sekcji
+          <code class="code-inline">[Unit]</code>. Dzięki temu usługa pomocnicza
+          przekaze swoje gniazdko usłudze podstawowej.
+        </p>
+        <p>
+          Aby uruchomić tę usługę należy wydać polecenie aktywujące jednostkę
+          gniazda.
+        </p>
+<pre class="code-block">
+$ sudo systemctl start echo.socket
+</pre>
+        <p>
+          Za pomocą <em>telenetu</em> połączymy się znim. Cokolwiek wpiszemy
+          zostanie nam to zwrócone na <em>stdout</em>.
+        </p>
+<pre class="code-block">
+$ telnet localhost 22222
+hello, world!
+hello, world!
+</pre>
+        <p>
+          Chcąc opuścić program <em>telnet</em> naciskamy kolejno:
+          <em>Ctrl + ]</em> następnie <em>Ctrl + d</em>. Program wyświetli
+          komunikat <em>Connection closed</em> i następnie powłoka zwróci
+          znak zachęty.
+        </p>
+        <h4>Instancje oraz przekazywanie</h4>
+        <p>
+          Jak pamiętamy, kilka zagadnień wcześniej omawialiśmy sobie zmienne
+          oraz modyfikatory. Wspomniane została usługa <em>getty</em> oraz
+          fakt, że dodanie znaku <strong>@</strong> do nazwy umożliwi
+          utworzenie jej instacji (swoją drogą, to znak ten ozancza możliwość
+          podania parametru). Teraz możemy zachodzić w głowę, po co nam
+          <strong>@</strong>, przy usłudze <em>echo</em>. Mogli byś dość do
+          wniosku, że dobrze by było aby każde z połączenie było obsługiwane 
+          przez inną kopię (instancje) tej usługi. Jest to jak nabardziej
+          trafne spostrzenie. Użycie <strong>@</strong> jest nawet wymagane,
+          przez użycie opcji <code class="code-inline">Accept=yes</code> w
+          pliku gniazda. Ta opcja nakazuje <em>systemd</em> nasłuchiwane na
+          podanym porcie, przyjmowanie połączeń przychodzących i przekazywanie
+          ich do jednostki usługi oraz tworzenie osobnej instancji dla każdego
+          połączenia.
+        </p>
+        <p>
+          Podczas prac związanych z jednostkami wykorzystującycmi zasoby, warto
+          zapoznać się z następującycmi stronami podręcznika:
+        </p>
+        <ul>
+          <li><em>systemd.socket(5)</em></li>
+          <li><em>systemd.path(5)</em></li>
+          <li><em>systemd.device(5)</em></li>
+          <li><em>systemd.exec(5)</em></li>
+        </ul>
+        <h3>Zgodność systemd z System V</h3>
+        <p>
+          <em>Systemd</em> jak jedyny daje możliwość śledzenia usług
+          uruchamianych przez usługi zgodne z <em>System V</em>. Możemy nawet
+          rozpisać tę funkcję za pomocą schematu w postaci listy czynności.
+        </p>
+        <ol>
+          <li><em>Systemd</em> aktywuje cel <em>runlevelX.target</em>, gdzie
+              <em>X</em> oznacza poziom uruchomienia.</li>
+          <li>Dla każdego dowiązania w <em>/etc/rcX.d</em> wyszukiwane są 
+              skrypty w katalogu <em>/etc/init.d</em>.</li>
+          <li>Następuje wiązanie nazwy skryptu z nazwą jednostki usługi
+              (np. <em>/etc/init.d/foo</em> zostanie przekształcony w 
+              <em>foo.service</em>).</li>
+          <li>Aktywacja jednostek i uruchomienie skryptu z parametrem 
+              <em>start</em> lub <em>stop</em> zależnie od nazwy katalogu
+              <em>rcX.d</em>.</li> 
+          <li>Próba powiązania procesów ze skryptu z jednostką usługi.</li>
+        </ol>
+        <h3>Programy pomocnicze systemd</h3>
+        <p>
+          W katalogu systemowym <em>/lib/systemd</em> możem znaleźć naprawdę
+          dużą liczbę programów. W wiekszosci przypadków są programy
+          wspomagające pracę jednostek. Wiele z tych programów wprowadza
+          mechanizm powiadomień, którego brakuje w standardowych narzędziach
+          systemu. Często bywa, że te programy uruchamiają inne ogólnie
+          dostępne narzędzia systemowe i przekazują ich wynik do
+          <em>systemd</em>. Jeśli przeglądając te pliki natrafimy na coś
+          niezrozumiałego, warto wtedy odwiedzić stronę podręcznika takiego
+          polecenia. 
+        </p>
+        <h2>Upstart</h2>
+        <p>
+          Obecnie program typu <em>init</em>, <strong>Upstart</strong> wyszedł
+          z użycia, dlatego zostanie pominięty w tym materiale. Jego wsparcie
+          skonczyło się wraz z Ubuntu 14.04.
+        </p>
+        <h2>Proces init System V</h2>
+        <p>
+          <em>System V</em> jest oryginalnym pochodzącym jeszcze z początków
+          Linux-a programem typu <em>init</em>. Jego głównym założeniem było
+          uporządkowanie procesu rozruch do określonych poziomów
+          uruchomieniowych, za pomocą ściśle określonych procedur. Obecnie 
+          wykorzystywany jest przez twórców, którzy mają dobrze solidne
+          argumenty za tym aby nie używać <em>systemd</em>, inną wersją
+          tego programu jest <strong>OpenRC</strong>, łączący ze sobą tradycje
+          <em>sysvinit</em> oraz kilka rozwiązań z <em>systemd</em>.
+          Wykorzystywany obecnie, w nie których dystybucjach partych na
+          ArchLinux oraz Gentoo jak i samym Gentoo. 
+        </p>
+        <p>
+          W systemie wykorzystującym <em>System V</em> znajdziemy dwa główne
+          komponenty. Główny plik konfiguracyjny oraz dużą ilość skryptów
+          rozruchowych wspomoganą przez mase dowiązań symbolicznych 
+          nazywanych
+          często <em>farmą</em>. Jeśli korzystamy z <em>System V</em> to w
+          <strong>pliku głównym - /etc/inittab</strong>, możemy natrafić na
+          taką linię 
+        </p>
+<pre class="code-block">
+id:5:initdefault
+</pre>
+        <p>
+          Linia ta oznacza, że domyślnym poziomem uruchomienia (momentu w,
+          którym proces <em>init</em> ma oddać system pod kontrolę użytkownika)
+          jest poziom 5. Potocznie określany "Uruchomieniem środowiska 
+          graficznego". 
+        </p>
+        <p>
+          Jak możemy zauważyć w pliku <em>/etc/inittab</em> każdy z wierszy w
+          pliku ma dość specyficzną formę. Składają się one z: 
+        </p>
+        <ol>
+          <li>Jednoznacznego identyfikatora (krótkie ciągu znaków, taki jak
+              <code class="code-inline">id</code> w poprzednim przykładzie).</li>
+          <li>Numeru lub numerów właściwych poziomów uruchomienia</li>
+          <li>Akcji, jaką <em>init</em> powinien wykonać, w przykładzie było to
+              przyjęcie 5 poziomu uruchomienia jako poziomu domyślnego.</li>
+          <li>Polecenia do wykonania (opcjonalnego)</li>
+        </ol>
+        <p>
+          Przyjrzyjmy się poniższemy wierszowi. Jest on dość istotny ponieważ
+          uruchamia część usług i konfiguracji systemu
+        </p>
+<pre class="code-block">
+l5:5:wait:/etc/rc.d/rc 5
+</pre>
+        <p>
+          Możemy go odczytać w następujący spoób: zaraz po wejściu na poziom
+          5, uruchom polecenie <code class="code-inline">/etc/rc.d/rc 5</code>
+          i poczekaj na zakończenie jego pracy, następnie możesze przejść do
+          innych zadań. Polecenie <code class="code-inline">rc 5</code> w dużym
+          uproszczeniu uruchamia wszystkie pliki znajdujące w katalogu
+          <em>/etc/rc5.d</em>, podwarunkiem że <strong>nazwa pliku rozpoczyna
+          się od liczby</strong> w ten sposób <em>sysvinit</em> ustala
+          kolejność uruchamianych usług. Innymi akcjami prócz
+          <code class="code-inline">wait</code> sa między innymi.
+        </p>
+        <ul>
+          <li><strong>respawn</strong>, nakazuje <em>sysvinit</em> uruchomienie
+              ponowne polecenia, kiedy to zakończy swoje działanie. Spotykane
+              najczęście przy okazji polecenia <em>getty</em> odpowiedzialnego
+              za wiersze logowania na konsolach wirtualnych. Jeśli się
+              wylogujemy <em>getty</em> zakończy swoje działanie, ale zostanie
+              uruchomione ponownie, właśnie dzięki temu wierszu może zalogować
+              się ponownie.</li>
+          <li><strong>ctrlaltdel</strong>, określa co należy zrobić jeśli w
+              konsoli wirtualne wciśniemy konbinacje klawiszy 
+              <em>Ctrl+Atl+Delete</em>. Najczęściej wykonywana jest polecenie
+              <strong>shutdown</strong> (o tym polecenie będzie, w dalszej
+              części materiału).</li>
+          <li><strong>sysinit</strong>, jest pierwsza czynność wykonywana przez
+              <em>init</em>, jeszcze przed wejściem na jakikolwiek poziom
+              uruchomienia.</li>
+        </ul>
+        <h3>Proces init w stylu System V: sekwencja poleceń rozruchowych</h3>
+        <p>
+          Ten krótki wiersz z poprzedniego przykładu uruchamia wiele różnych
+          programów. Sam skrót <em>rc</em> oznacza nic innego jak 
+          <em>run commands</em> (uruchom polecenia), co jest potocznie
+          interpretowane jako uruchamianie usług czy skryptów.
+        <p>
+        <p>
+          Liczba <code class="code-inline">5</code> oznacza poziom
+          uruchomienia sekwencji. A polecenia (skrypty) znajdziemy w katalogu
+          jemu odpowiadjącym znajdującym się w
+          <em>/etc/rc.d/rcX.d</em> lub <em>/etc/rcX/d</em>, gdzie <em>X</em> to 
+          numer poziomu uruchomienia.
+        </p>
+        <p>
+          Zawartość takiego katalogu <em>rc5.d</em>, może wyglądać w 
+          następujący sposób:
+        </p>
+<pre class="code-block">
+S10syslogd S20ppp S99gpm S12kerneld S25netstd_nfs S99httpd S18netbase
+S45pcmcia S99sshd S20acct S89atd S20logoutd S89cron S15netstd_init
+</pre>
+        <p>
+          Polecenie <code class="code-inline">rc 5</code> uruchomi te skrypt
+          w następujący sposób:
+        </p>
+<pre class="code-block">
+S10syslogd
+S12kerneld
+S15netstd_init
+S18netbase
+...
+S99sshd
+</pre>
+        <p>
+          Wielka litera "<strong>S</strong>" w nazwie pliku (polecenia),
+          oznacza że powinno być ono uruchamiane w trybie <em>start</em>.
+          Liczba po literze wskazuje na kolejność uruchomienia tego polecenia.
+          Przeglądając zawartość tego katalogu, możemy natrafić na polecenia
+          z literą "<strong>K</strong>" w nazwie, oznaczenia wzięto od słowa
+          <em>kill</em> i oznacza uruchomienie polecenia w trybie <em>stop</em>.
+          Większość tego typu poleceń będzie znajdować na 0 lub 6 poziomie
+          uruchomienia.
+        </p>
+        <h3>Farma dowiązań procesu init w stylu System V</h3>
+        <p>
+          Większość poleceń w katalog <em>rc*.d</em> to dowiązania do 
+          skryptów powłoki umieszczonych w katalog <em>/etc/init.d</em>, 
+          Jeśli poznamy zasady rządzące tymi dowiązaniami
+          będziemy mogli dowolnie dodawać, zmieniać lub usuwać usługi w
+          katalogach <em>rc*.d</em>.
+        </p>
+<pre class="code-block">
+lrwxrwxrwx   1 root root   27 12-17 11:29 K01speech-dispatcher -&gt; ../init.d/speech-dispatcher                                                                           
+lrwxrwxrwx   1 root root   37 2021-04-24  README -&gt; /usr/share/doc/sysv-rc/rc2-5d-README                                                                                 
+lrwxrwxrwx   1 root root   26 12-17 11:20 S01console-setup.sh -&gt; ../init.d/console-setup.sh                                                                             
+lrwxrwxrwx   1 root root   18 12-17 11:20 S02bootlogs -&gt; ../init.d/bootlogs               
+lrwxrwxrwx   1 root root   37 12-17 11:29 S02pulseaudio-enable-autospawn -&gt; ../init.d/pulseaudio-enable-autospawn                                                       
+lrwxrwxrwx   1 root root   17 12-17 11:20 S02rsyslog -&gt; ../init.d/rsyslog                 
+lrwxrwxrwx   1 root root   14 12-17 11:28 S02sudo -&gt; ../init.d/sudo
+lrwxrwxrwx   1 root root   17 12-17 11:27 S03anacron -&gt; ../init.d/anacron
+lrwxrwxrwx   1 root root   14 12-17 11:20 S03cron -&gt; ../init.d/cron
+lrwxrwxrwx   1 root root   14 12-17 11:28 S03dbus -&gt; ../init.d/dbus
+lrwxrwxrwx   1 root root   17 12-17 11:28 S03hddtemp -&gt; ../init.d/hddtemp
+lrwxrwxrwx   1 root root   26 12-17 11:31 S03qemu-guest-agent -&gt; ../init.d/qemu-guest-agent
+lrwxrwxrwx   1 root root   19 12-17 11:28 S03rmnologin -&gt; ../init.d/rmnologin
+lrwxrwxrwx   1 root root   13 12-17 11:34 S03ssh -&gt; ../init.d/ssh
+lrwxrwxrwx   1 root root   22 12-17 11:29 S04avahi-daemon -&gt; ../init.d/avahi-daemon
+lrwxrwxrwx   1 root root   17 12-17 11:28 S04elogind -&gt; ../init.d/elogind
+lrwxrwxrwx   1 root root   25 12-17 11:29 S04network-manager -&gt; ../init.d/network-manager
+lrwxrwxrwx   1 root root   14 12-17 11:29 S04slim -&gt; ../init.d/slim
+lrwxrwxrwx   1 root root   15 12-17 11:29 S05saned -&gt; ../init.d/saned
+lrwxrwxrwx   1 root root   18 12-17 11:29 S06rc.local -&gt; ../init.d/rc.local
+lrwxrwxrwx   1 root root   23 12-17 11:29 S06stop-bootlogd -&gt; ../init.d/stop-bootlogd
+</pre>
+        <p>
+          Sporę liczbę dowiązań symbolicznych w jednym lub w kilku folderach
+          nazywa się <strong>farmą dowiązań</strong>. To <em>sysvinit</em>
+          stosuje to rozwiązanie, aby można było te same skrypt stosować 
+          na kilku różnych poziomach uruchomienia. Nie jest to żaden wymóg, to
+          sposób na lepszą organizację plików.
+        </p>
+        <h4>Uruchamianie i zatrzymywanie usług</h4>
+        <p>
+          Podstawowe czynności wiązane z usługami w przypadku <em>sysvinit</em>
+          opierają się w całości na uruchomieniu skryptu znajdującego w
+          w katalogu <em>/etc/init.d</em> z odpowiednią opcją. Dla przykładu
+          uruchmomy i zatrzymajmy serwer WWW Apache.
+        </p>
+<pre class="code-block">
+$ sudo /etc/init.d/apache start
+$ sudo /etc/init.d/apache stop
+</pre>
+        <h4>Modyfikowanie sekwencji uruchamiania</h4>
+        <p>
+          Zmian w sekwencji uruchamiania dokonujemy za przez modyfikacje farmy
+          dowiązań. Najczęstszą ze zmian jest zablokowanie startu usługi 
+          w ramach danego poziomu uruchomienia. Nie warto niczego usuwać,
+          ponieważ może być potrzeba odblokowania tej usługi w najlepszym
+          wypadku możemy dopisać znak podkreślnika (<strong>_</strong>) do
+          nazwy dowiązania, i w ten sposób usługa zostanie pominięta ponieważ
+          nazwa nie zaczyna się ani na <em>S</em> ani <em>K</em>.
+        </p>
+<pre class="code-block">
+$ sudo mv /etc/rc5.d/S03ssh /etc/rc5.d/_S03ssh
+</pre>
+        <p>
+          Dodawanie usługi wymaga pliku skryptu, który tę usługę obsłuży, albo
+          uruchomi, albo zamknie. Najlepszą metodą jest wzięcie jednego z
+          prostych skryptów dostosowanie go do usługi, a następnie wybranie
+          dla niego miejsca w na jednym z poziomów oraz wewnątrz wybranego
+          poziomu. Ważne aby nie uruchamiać usługi zbyt szybko, ponieważ
+          najzwyczajniej jej start może się nie powieść ze względu na brak 
+          spełnionych zależności. Najczęściej wybierany jest poziom 5 oraz 
+          numer polecenia powyżej 90. Jeśli usługa będzie uruchamiana dość
+          poźno możemy być nawet pewni, że wszystkie jej zależności zostaną
+          spełnione.
+        </p>
+        <h3>run-parts</h3>
+        <p>
+          Jest to jeden z mechanizmów <em>sysvinit</em>, znalazł zastosowanie w 
+          systemach w których
+          nie używa się procedur <em>init</em> <em>System V</em>. Ten mechanizm
+          ma jedno proste zadanie - uruchomić zbiór plików wykonywalnych w z 
+          góry określonym porządku. 
+          Posiada on opcje dzięki którym możemy wybrać lub zignorować wybrane
+          programy. Nie które jego implementacje są proste a inne bardziej
+          złożone pozwalające na wykorzystanie <em>wyrażeń regularnych</em> w
+          swoich opcjach. Nie musimy znać szczegółów tego program, ważne jest
+          aby zapamiętać że służy on do grupowego uruchamiania programów we 
+          wskazanym katalogu. Może się on pojawić od czasu do czasu w
+          nie których skryptach.
+        </p>
+        <h3>Sterowanie procesem init stylu System V</h3>
+        <p>
+          Podczas administracji systemem może zajść potrzeba ręcznej pomocy ;)
+          procesowi <em>init</em>, aby wymusić na nim zmianę poziomu
+          uruchomienia, wczytanie ponowne konfiguracji, czy nawet zamknięcie
+          systemu. Do sterowania wykorzystamy polecenie 
+          <strong>telinit</strong>. Chcąc włączyć poziom uruchomienia 3 wydamy
+          następujące polecenie.
+        </p>
+<pre class="code-blok">
+$ sudo telinit 3
+</pre>
+        <p>
+          Warto dodać, że <em>init</em> będzie próbował zatrzymać wszystkie
+          proces podczas przełączania, więc każde przełączenie warto 
+          przemyśleć.
+          Załadowanie nowej konfiguracji wykonujemy za pomocą polecenia:
+        </p>
+<pre class="code-block">
+$ sudo telinit q
+</pre>
+        <p>
+          Natomiast przełączenia w tryb jednego użytkownika (będzie o tym
+          pod koniec materiału) dokonujemy za pomocą polecenia
+        </p> 
+<pre class="code-block">
+$ sudo telinit s
+</pre>
+        <h2>Wyłączanie systemu</h2>
+        <p>
+          Proces <em>init</em> steruje zamykaniem oraz ponownym uruchamianiem
+          systemu. Te czynności korzystają z tego samego typu procedur nie
+          zależnie od wersji programu typu <em>init</em>. Właściwą metodą 
+          zamykania systemu jest użycie polecenia <strong>shutdown</strong>.
+          Istnieją dwa sposoby na wykorzystanie tego narzędzia: 
+        </p>
+        <ul>
+           <li><strong>Zatrzymanie (wyłączenie) systemu</strong>
+<pre class="code-block">
+$ shutdown -h now
+</pre>
+           </li>
+            <li><strong>Uruchomienie ponowne</strong>
+<pre class="code-block">
+$ shutdown -r now
+</pre>
+            </li>
+        </ul>
+        <p>
+          Podanym opcjom podano wartość <code class="code-inline">now</code>,
+          nie jest to jednak ich wartość ale kolejny parameter określający
+          opóźnienie w wykonaniu żądanego polecenia. W przypadku tych
+          przykładów nie ma żadnego, ponieważ podano
+          <code class="code-inline">now</code>. Możemy podać tutaj dowolną
+          liczbę minut, za pomocą zapisu <strong>+n</strong> 
+          (gdzie <em>n</em> to liczba minut). Niestety
+          parametr jest obowiązkowy, więc musimy podać albo <em>now</em> albo
+          liczbę minut.
+        </p>
+        <p>
+          Jeśli zdecydujemy się na opóźnienie działania polecenia, polecenie
+          poinformuje wszystkich zalogowanych użytkowników o tym, że system 
+          zostanie
+          zachwilę zatrzymany następnie utworzy plik <em>/etc/nologin</em>,
+          blokujący możliwość zalogowania się wszystkim użytkownikom poza
+          superużytkownikiem. 
+       </p>
+       <p>
+          Gdy czas zatrzymania nadejdzie polecenie nakaże procesowi 
+          <em>init</em> rozpoczęcie procesu zatrzymania. W <em>systemd</em>
+          oznacza to aktywacje jednostek odpowiedzialnych za zatrzymanie,
+          natomiast w <em>sysvinit</em> będzie wiązać się to z przejściem na
+          poziom uruchomienia 0 lub 6.
+       </p>
+       <p>
+          Nie zależnie od implementacji czy rodzaju programu typu <em>init</em>
+          możemy wypisać czynności wykonywane przez system w momencie gdy 
+          otrzyma on informacje od polecenia <em>shutdown</em> o zamknięciu 
+          systemu:
+       </p>
+       <ol>
+          <li>Procesy w systemie otrzymują prośbę o zatrzymanie pracy od
+              procesu <em>init</em>.</li>
+          <li>Jeśli jeden z procesu nie odpowiada przez jakiś czas to
+              <em>init</em> spróbuje go zabić, poki co za pomocą sygnału
+              <em>TERM</em>.</li>
+          <li>Procesy, do których został wysłany sygnał <em>TERM</em>, nadal
+              nie wykonały zadania to tym razem <em>init</em> wysła sygnał
+              <em>KILL</em>.</li>
+          <li>Wykonywane są inne przygotowania do zamknięcia. System zamyka 
+              wszystkie pliki systemowe.</li>
+          <li>Odmontowanywane są wszystkie systemy plików z wyjątkiem 
+              głównego.</li>
+          <li>Zapisywane są wszystkie zbuforowane dane do systemu plików przy
+              użyciu polecenia <em>sync</em>.</li>
+          <li>Do jądra zostaje przekazana polecenie zatrzymania i ponownego
+              uruchomienia za pomocą wywołania systemowego <em>reboot(2)</em>.
+          </li>
+       </ol>
+        <p>
+          Jeśli rozejrzymy się po współczesnej wiodącej dystrybucji to 
+          zobaczymy, że polecenia wykorzystywane zamykania systemu 
+          (takie jak <em>shutdown</em> czy <em>reboot</em>) są tak naprawę
+          dowiązaniami symbolicznymi do <em>systemctl</em>.
+        </p>
+        <h2>Początkowy system plików w pamięci RAM</h2>
+        <p>
+          Początkowy system plików w pamięci RAM czy inaczej
+          <strong>initramfs</strong> lub <strong>initrd</strong>. Jest to
+          niewielkie archiwum zawierające moduły jądra umożliwiające (w dużym
+          skrócie) komunikacje jądra z dyskiem i zamontowanie głównego systemu
+          plików. <em>Initrd</em> ładowany jest do pamięci przez program
+          rozruchowym jeszcze przez uruchomieniem jądra. Jądro odcztytuje to
+          archiwum następnie montuje je jako główny system plików i przekaże
+          sterowanie zawartemu w archiwum programowi typu <em>init</em>.
+          <em>Initramfs</em> powstał ze względu na bardzo duże zróżnicowanie
+          urządzeń służących do przechowania danych. Każde z takich urządzeń
+          wymaga sterownika, jednak aby nie ładować wszystkich możliwych
+          modułów do jądra, wymyślono odrębny plik, który ma zapewnić jądru
+          narzędzia, które umożliwią załadowanie modułów, podłaczenie
+          podstawowego systemu plików z dysku oraz uruchomienia właściwego
+          procesu <em>init</em>.
+        </p>
+        <p>
+          Istnieje możliwość pominięcia ładowania <em>initrd</em>, w przypadku
+          gdy jądro posiada sterownik, dzieki któremu może zamontować
+          podstawowy system plików. Obecnie jest jednak utrudnione ze względu
+          na wykorzystanie UUID, a funkcje pozwalające na korzystanie z tego
+          zapisu oznaczeń urządzeń raczej znajdują się w <em>initrd</em>.
+        </p>
+        <p>
+          Ciekawą funkcją, jest tzw. "odwrót". Jest funkcja zapisana na sam
+          koniec programu <em>init</em> odpowiadająca za uruchomienie 
+          właściwego programu <em>init</em> z dysku i usunięcie siebie z 
+          pamięci.
+        </p>
+        <p>
+          Nikt samodzielnie nie tworzy <em>initramfs</em>, ponieważ są to
+          zadania na tyle skomplikowane, że lepiej zostawić je specjalnym
+          programom jak <strong>mkinitramfs</strong> czy 
+          <strong>dracut</strong>
+        </p>
+        <p>
+          Są dystrybucje, które nieco burzą przyjęte tutaj założenia, otóż
+          większość małych Linux-ów, takich jak np. TinyCore (nie zagłebiając 
+          się w jej filozofie) wykorzysują na w tym przypadku <em>initrd</em>,
+          jako glówny system plików, nie ma tam "odwrotu". 
+        </p>
+        <p>
+          Kilku krotnie użyłem tutaj zamiennie <em>initramfs</em> z
+          <em>initrd</em> teoretycznie nie jest to poprawne, ponieważ
+          <em>initrd</em> jest starszą wersją operającą sie o obrazy dysków,
+          gdzie nowa wersja stosuje skompresowane archiwum, jednak w wielu 
+          miejscach w systemie (szczególnie w opcjach rozruchowych) możemy
+          nadal natrafić na określenia <em>initrd</em> na <em>initramfs</em>.  
+        </p>
+        <h2>Rozruch awaryjny i tryb pojedyńczego użytkownika</h2>
+        <p>
+          W systemie może zdarzyć się awaria. Przyczy może być kilka, w 99%
+          przypadków jest to nieumiejętna próba zaawansowanej konfiguracji.
+          Możemy go ratować za pomocą obrazu typu "LiveCD", który pozwoli 
+          uruchomić komputer ze specjalnie przygotowanego obrazu wypalonego na
+          płycie. Możemy użyć wiodących dystrybucji biukowych, każda znich ma
+          obraz LiveCD lub też skorzystać z dedykowanego obrazu typu
+          <strong>SystemRescueCd</strong>, który zawiera dużą ilość narzędzi
+          przeznaczoną do naprawy systemu.
+        </p>
+        <p>
+          Inny sposóbem na ewentualną naprawę systemu jest uruchomienie go
+          w trybie pojedyńczego użytkownika. Uruchamiając w system w tym
+          trybie otrzymamy wyłacznie konsole z automatycznie zalogowanym
+          superużytkownikiem pozostawiając przy tym większość usług nie 
+          aktywynych. Ten tryb nie zawiera zbyt wielu odgodnień
+          zatem i tak większość administrator wybiera obrazy typu "LiveCD".
+          Tryb pojedyńczego użytkownika jest to 1 poziom uruchomienia dla 
+          programu <em>init</em> typu <em>System V</em>. Tryb ten możemy 
+          uruchomić dodając parametr <strong>-s</strong> do parametrów jądra
+          z poziomu menu programu rozruchowego.
+        </p>
+        <p>
+          Źródła:
+        </p>
+        <ol>
+          <li>Jak działa Linux Wyd. II, Brian Ward, Helion 2015</li>
+        </ol>
+        <p>
+          ~xf0r3m
+        </p>
+      </div>
+			<p style="margin: 15px; padding: 0; outline: 0;">
+				2021; COPYLEFT; ALL RIGHTS REVERSED;
+			</p>
+		</body>
+	</html>

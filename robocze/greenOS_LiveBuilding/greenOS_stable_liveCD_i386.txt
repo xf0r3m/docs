@@ -1,0 +1,122 @@
+1. Instalacja docelowej wersji Devuan dla greenOS 1 STABLE (Heaven's Gate) 
+  jest Devuan 4 Chimaera
+
+2. Aktualizacja list pakietów:
+  $ sudo apt update
+
+3. Instalacja niezbędnego oprogramowania:
+  $ sudo apt install debootstrap squashfs-tools xorriso isolinux syslinux-efi
+    grub-pc-bin grub-efi-amd64-bin mtools dosfstools
+
+4. Utworzenie katalogu dla plików obrazu
+  $ mkdir -p heavens_gate/LiveCD
+
+5. Pobranie dystrybucji Devuan 4 w wersji "minbase" za pomocą debootstrap.
+  $ export PATH="${PATH}:/sbin"; 
+  $ sudo debootstrap --arch=i386 --variant=minbase chimaera heavens_gate/LiveCD/chroot http://deb.devuan.org/merged
+
+6. Zmiana katalogu głównego na pobrany obraz.
+  $ sudo chroot heavens_gate/LiveCD/chroot
+
+7. Aktulizacja list pakietów:
+  (chroot) # dhclient eth0
+  (chroot) # apt update
+
+8. Instalacja jądra, procesu systemd oraz live-boot:
+  (chroot) # apt install -y --no-install-recommends linux-image-686-pae live-boot sysvinit
+
+10. Instalacja oprogramowania dostarczanego wraz z obrazem:
+  (chroot) # apt install -y net-tools iproute2 wireless-tools wget openssh-client vim iputils-ping man man-db texinfo less dosfstools isc-dhcp-client fdisk whipatail locales keyboard-configuration console-setup rsync git cifs-utils neofetch ntfs-3g sudo bash-completion vrms
+  
+11. Konfiguracja strefy czasowej na Europe/UTC
+  (chroot) # dpkg-reconfigure tzdata
+
+12. Konfiguracja locales na en_US.UTF-8
+  (chroot) # dpkg-reconfigure locales
+
+#13. Konfiguracja klawiatury oraz konsoli, instalator podczas instalacji pakietu
+    zapyta język klawiatury, warto jednak wykonać konfigurację jescze raz po
+    zmianie locales.
+  (chroot) # dpkg-reconfigure keyboard-configuration
+  (chroot) # dpkg-reconfigure console-setup
+
+15. Pobranie paczki z plikami bazowymi dostoswanym dla tej dystrybucji:
+  (chroot) # cd / <- WAŻNE !
+  (chroot) # wget http://ftp.morketsmerke.net/greenOS/gOS_HeavGate_base-files.tgz
+  (chroot) # tar -xzvf greenOS_base-files.tgz
+  (chroot) # rm greenOS_base-files.tgz
+  (chroot) # rm README
+
+16. Utworzenie nowego dowiązania symbolicznego dpkg w katalogu głównym obrazu
+  (chroot) # rm /etc/dpkg/origins/default
+  (chroot) # ln -s /etc/dpkg/origins/greenos /etc/dpkg/origins/default 
+
+17. Ustawienie hasła dla użytkownika root
+  (chroot) # passwd
+
+17a. Nadanie nie którym programom bitu setuid, zatrzymanie pakietu
+     base-files oraz usunięcie nie potrzebnych plików pakietów.
+  (chroot) # chmod +s /sbin/halt
+  (chroot) # chmod +s /bin/ping
+  (chroot) # apt-mark hold base-files
+  (chroot) # apt-get clean
+
+18. Opuszenie katalogu głównego obrazu:
+  (chroot) # exit
+
+19. Pobranie plików konfiguracyjnych gruba oraz isolinux
+  $ mkdir boot-files
+  $ cd boot-files
+  $ wget http://ftp.morketsmerke.net/greenOS/gOS_HeavGate_boot-files-i386.tgz
+  $ tar -xzvf gOS_HeavGate_boot-files-i386.tgz
+
+20. Utworzenie struktury katalogowej dla stworzenia obrazu
+  # mkdir -p heavens_gate/LiveCD/{staging/{EFI/boot,boot/grub/x86_64-efi,isolinux,live},tmp}
+
+21. Utworzenie pliku squashfs
+  $ sudo mksquashfs heavens_gate/LiveCD/chroot heavens_gate/LiveCD/staging/live/filesystem.squashfs -e boot
+
+22. Przekopiowanie plików jądra oraz ramdysku z pobranego obrazu
+  $ cp heavens_gate/LiveCD/chroot/boot/vmlinuz-* heavens_gate/LiveCD/staging/live/vmlinuz
+  $ cp heavens_gate/LiveCD/chroot/boot/initrd.img-* heavens_gate/LiveCD/staging/live/initrd
+
+23. Przekopiowanie pliku konfiguracjynego isolinux.
+  $ cp isolinux.cfg heavens_gate/LiveCD/staging/isolinux
+  $ cp black_screen.png heavens_gate/LiveCD/staging/isolinux;
+
+24. Przekopiowanie plików konfiguracyjnych GRUB-a
+  $ cp grub.cfg heavens_gate/LiveCD/staging/boot/grub
+  $ cp font.pf2 heavens_gate/LiveCD/staging/boot/grub
+
+25. Utworzenie pliku konfiguracji grub-standalone
+  $ vim heavens_gate/LiveCD/tmp/grub-standalone.cfg
+    search --set=root --file /GREENOS
+    set prefix=($root)/boot/grub
+    configfile /boot/grub/grub.cfg
+
+26. Utworzenie specjalnego pliku, po którym GRUB rozpozna partycję z głównym 
+    katalogiem
+  $ touch heavens_gate/LiveCD/staging/GREENOS
+
+27. Przekopiowanie plików isolinux
+  $ cp /usr/lib/ISOLINUX/isolinux.bin heavens_gate/LiveCD/staging/isolinux;
+  $ cp /usr/lib/syslinux/modules/bios/* heavens_gate/LiveCD/staging/isolinux;
+
+28. Przekopiowanie pozostałych plików GRUB-a
+  $ cp -r /usr/lib/grub/x86_64-efi/* heavens_gate/LiveCD/staging/boot/grub/x86_64-efi
+
+29. Wygenrowanie pliku gruba:
+  $ grub-mkstandalone --format=x86_64-efi --output=/home/xf0r3m/heavens_gate/LiveCD/staging/EFI/boot/bootx64.efi --locales="" --fonts="" "boot/grub/grub.cfg=/home/xf0r3m/heavens_gate/LiveCD/tmp/grub-standalone.cfg"
+
+30. Utworznie partycji dla EFI
+  $ cd heavens_gate/LiveCD/staging/boot/grub/
+  $ dd if=/dev/zero of=efiboot.img bs=1M count=20
+  $ mkfs.vfat efiboot.img
+  $ mmd -i efiboot.img efi efi/boot
+  $ mcopy -vi efiboot.img heavens_gate/LiveCD/staging/EFI/boot/bootx64.efi ::efi/boot
+
+31. Utoworzenie obrazu ISO
+  $ sudo xorriso -as mkisofs -iso-level 3 -o "gOS_stable_i386.iso" -full-iso9660-filenames -volid "GOS_STABLE" -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin -eltorito-boot isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table --eltorito-catalog isolinux/isolinux.cat -eltorito-alt-boot -e /boot/grub/efiboot.img -no-emul-boot -isohybrid-gpt-basdat -append_partition 2 0xef heavens_gate/LiveCD/staging/boot/grub/efiboot.img heavens_gate/LiveCD/staging
+
+32. Wysłanie obrazu do repozytorium testing na serwerze
+  $ scp gOS_stable_i368.iso xf0r3m@192.168.122.1:/home/xf0r3m/testing

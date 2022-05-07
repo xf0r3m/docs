@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="https://i.ibb.co/khy45hh/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+					text-align: left;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				ul {
+					text-align: left;
+				}
+        p { text-align: justify; }
+			</style>
+		</head>
+		<body style="font-family: monospace;" >
+<pre>
+     _       _          _     _       _         _     _                  ___ 
+    | | __ _| | __   __| |___(_) __ _| | __ _  | |   (_)_ __  _   ___  _|__ \
+ _  | |/ _` | |/ /  / _` |_  / |/ _` | |/ _` | | |   | | '_ \| | | \ \/ / / /
+| |_| | (_| |   <  | (_| |/ /| | (_| | | (_| | | |___| | | | | |_| |>  < |_| 
+ \___/ \__,_|_|\_\  \__,_/___|_|\__,_|_|\__,_| |_____|_|_| |_|\__,_/_/\_\(_)
+</pre>
+<p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+	&#9760;&nbsp;<a href="https://morketsmerke.github.io">morketsmerke</a>&nbsp;&#9760;
+</p>
+			<div style="margin-left: auto; margin-right: auto; width: 80%;">
+        <h1>Wykorzystanie procesów i zasobów</h1>
+        <p>
+          W tym materiale poruszym temat wzajemnych realacji między procesami,
+          zasobami oraz jądrem systemu. W systemie możemy wyodrębnić trzy
+          podstawowe rodzaje zasobów, są to pamięć, procesor oraz urządzenia
+          wejścia-wyjścia. Jądro systemu również jest zasobem, nie tyle
+          sprzętowym co programowym, a jego rolą w tym wypadku jest tworzenie
+          procesów oraz komunikacja z nimi. W tym materiale zostaną omówione
+          również programy nazywane "monitorami zasobów".
+        </p>
+        <h2>Śledzenie procesów</h2>
+        <p>
+          Do tej pory chcąc dowiedzieć się czegokolwiek o procesach używaliśmy
+          polecenia <strong>ps</strong>, mimo iż jego wynik zwracją dużą ilość
+          informacji to nie nadaje się ono do śledzenia procesów. Chcąc za jego
+          pomocą wyszukać proces zużywający jak największą ilość pamięci,
+          musielibyśmy towrzyć żłożone polecenia ocierając sie o 
+          programowanie w
+          powłoce. Lepszym narzędziem, dostępnym na wielu innych UNIX-ach jest
+          <strong>top</strong>. Pola wyświetlane przez <em>top</em> są podobne
+          do pól drukowanych przez <em>ps</em>, mimo to <em>top</em> pracuje
+          cały czas odświerzając dane co sekundę. Jedną z ważniejszych jego
+          funkcje jest sortowanie, program wyświetla na samej górze
+          danych wejściowych te procesy, które zużywają najwięcej czasu
+          procesora.
+        </p>
+        <p>
+          Wyświetlaniem danych wyjściowych przez to możemy sterować za pomocą
+          poniżej wypisanych klawiszy.
+        </p>
+        <ul>
+          <li><strong>spacja</strong> - powoduje natychmiastowe odświerzenie
+              ekranu,</li>
+          <li><strong>M (Shift+m)</strong> - sortuje procesy pod względem
+              zajętości pamięci,</li>
+          <li><strong>T</strong> - sortuje procesy pod względem całkowitego
+              (sumarycznego) zużycia czasu procesora,</li>
+          <li><strong>P</strong> - sortuje procesy pod względem aktualnego
+              zużycia czasu procesora (ustawienia domyślne),</li>
+          <li><strong>u</strong> - wyświetla tylko dane procesów
+              użytkownika,</li>
+          <li><strong>f</strong> - wybiera różne statystyki do wyświetlania</li>
+          <li><strong>?</strong> - wyświetla informacje o wszystkich
+              poleceniach programu.</li>
+        </ul>
+        <p>
+        Istnieją dwa programy bardziej rozbudowane pod kątem graficznym, 
+        możliwościami sortowania oraz wyświetlania informacji. Między innymi 
+        jest to 
+        <strong>htop</strong>, którego opis uzywania znajduje się w materiale
+        o Bash Bushido po tym linkiem: <a href="https://morketsmerke.github.io/articles/terminallog/BASH_bushido.html">
+        BASH Bushido</a>, drugim nieco bardziej przypomijącym rozbudowany
+        program <em>top</em> jest <strong>atop</strong>.
+        </p>
+        <h2>Wyszukiwanie otwartych plików programem lsof</h2>
+        <p>
+          Polecenie <strong>lsof</strong> jest jednym z najważniejszych
+          narzędzi systemowych, biorąc pod uwagę to w jaki sposób zbudowane
+          są UNIX-y. Polecenie to wyświetla listę otwartych plików w systemie
+          wraz z procesami, które z nich korzystają. Program poza zwykłymi
+          plikami wyświetla również dane gniazd sieciowych, bibliotek
+          dynamicznych, potoków oraz innych rodzajów plików dostępnych w
+          systemie. Poniżej znaduje się linia przedstawiająca w otwarty plik
+          z materiałem w edytorze <em>gVim</em>.
+        </p>
+<pre class="code-block">
+COMMAND PID  TID TASKCMD USER    FD   TYPE DEVICE SIZE/OFF  NODE     NAME
+gvim    1835             xf0r3m  11u  REG   8,1    20480    3538946  /home/xf0r3m/Dokumenty/morketsmerke.github.io/articles/terminallog/jak_działa_Linux/.Wykorzystanie_procesów_i_zasobów.html.swp
+</pre>
+        <p>
+          Na powyższym przykładzie musiałem trochę zawęzić kolumny, aby
+          pasowały do układu strony. Nie mniej jednak, opiszę teraz znaczenie
+          poszczególnych pól:
+        </p>
+        <ul>
+          <li><strong>COMMAND</strong> - nazwa polecenia lub procesu, który
+              otworzył ten plik.</li>
+          <li><strong>PID</strong> - identyfikator procesu.</li>
+          <li><strong>USER</strong> - użytkownik, który uruchomił proces.</li>
+          <li><strong>FD</strong> -  może zawierać dwa rodzaje informacji,
+              przeznaczenie pliku, np. <em>cwd</em> lub <em>mem</em> lub 
+              <strong>deskryptor pliku</strong>, wykorzystywany przez proces
+              wraz bibliotekami i jądrem do identyfikowania i manipulowania
+              otwartym plikiem.</li>
+          <li><strong>TYPE</strong> - typ pliku (zwykły plik, katalog, gniazdo,
+              itp).</li>
+          <li><strong>DEVICE</strong> - główny i poboczny numer urządzenia
+              przechowującego plik.</li>
+          <li><strong>SIZE/OFF</strong> - rozmiar pliku.</li>
+          <li><strong>NODE</strong> - numer węzła inode pliku.</li>
+          <li><strong>NAME</strong> - nazwa pliku.</li>
+        </ul>
+        <p>
+          Na stronie podręcznika <em>lsof(1)</em> znajduje się lista zwierająca
+          wartości jak mogą posiadać te pola.
+        </p>
+        <h3>Użycie polecenia lsof</h3>
+        <p>
+          Wspomniane polecenie możemy uruchomić na dwa sposóby, pierwszym z
+          nich jest po prostu jego uruchomienie, spowoduje wygenerowanie dużej
+          ilości danych, lub drugi sposób użyć odpowiednich opcji w wierszu
+          aby jak najbardziej zawęzić generowane przez program dane wyjściowe,
+          przez co szybciej znajdziemy interesujące informacje. Wśród takich
+          opcji może być argument podany w postaci ścieżki plik, wówczas 
+          polecenie wypisze wszystkie procesy, które otworzyły ten plik.
+          Istnieje również możliwość odwrócenia powyższego podając zamiast
+          pliku opcję <em>-p</em> a po niej PID, przez co polecenie zwróci
+          wszystkie pliki uruchomione przez ten określony proces.
+        </p>
+        <p>
+          <em>Lsof</em> polega na danych z jądra systemu, jeśli więc
+          często aktualizujemy jądro, warto było by aktualizować również i ten
+          program. Po każdej takiej aktualizacji należy zrestartować system.
+        </p>
+        <h2>Śledzenie działań programu i wywołań systemowych</h2>
+        <p>
+          Dotyczas śledziliśmy tylko aktywane procesy, a co jesli program
+          kończy swoje działanie zaraz po starcie. Wówczas sprawdzenie takiego
+          programu poleceniem <em>lsof</em> jest niewykonalne. Do sprawdzenia
+          jakie operacje próbuje wykonać program możemy wykorzystać
+          polecenie <strong>strace</strong> (ang. <em>system call trace</em> - 
+          śledzenie wywołań systemowych) oraz <strong>ltrace</strong> 
+          (ang. <em>library trace</em> - śledzenie bibliotek). Polecenia
+          generują ogromne ilości danych, o ile będziemy wiedzieć czego szukać
+          mogą być naprawdę pomocne.
+        </p>
+        <h3>Program strace</h3>
+        <p>
+          Wiele danych z wyników działania tego programu (głównie chodzi o
+          <em>strace</em>) jest dla nas nieprzydatnych np. takie informacje 
+          jak ładowanie bibliotek czy wiersze <em>mmap</em>. Jeśli już 
+          mielibyśmy korzystać z informacji zwracanych z tego 
+          polecenia należałoby szukać linii wywłoań systemowych
+          <strong>open()</strong>, oraz <strong>read()</strong> w tym drugim
+          akurat ważny jest pierwszy argument, deskryptor pliku o wartości
+          3, trójka jest deskryptorem zwracanym przez jądro po otwarciu pliku.
+          Zaś przy wywołaniach <em>open()</em>, często można natrafić na typowy
+          błąd typu <em>No such file or directory</em>, być może jest ten błąd,
+          który powoduje problemy z programem. Nie będe dalej opisywał
+          <em>strace</em>. W razie potrzeby odsyłam do ksiązki w podanej w
+          źródłach. 
+        </p>
+        <h2>Wątki</h2>
+        <p>
+          W Linux-ie, nie które procesy są dzielone <strong>wątki</strong>.
+          Wątki są bardzo podobne do procesów, mają swój identyfikator 
+          <strong>TID</strong> (ang. <em>Thread ID</em>). Jądro porządkuje je
+          i uruchamia jak procesy. Różnica między wątkami jest taka iż, wątki
+          nie mają współużytkują z innymi procesami zasobów. Wszystkie wątki
+          jednym procesie korzystają wspólnie ze swoich zasobów
+          systemowych.
+        </p>
+        <h3>Procesy jedno i wielowątkowe</h3>
+        <p>
+          Proces może posiadać tylko jeden wątek, jest wówczas
+          <strong>procesem jednowątkowym</strong> jeśli proces ma ich więcej
+          nazywany jest wtenczas <strong>procesem wielowątkowym</strong>.
+          Wątek początkowy nazywany jest zazwyczaj 
+          <strong>wątkiem głównym</strong>, ma on możliwość uruchamiania nowych
+          wątków, aby umożliwić przekształcenie procesu w proces wielowątkowy.
+        </p>
+        <p>
+          Główną zaletą procesu wielowątkowego jest szybsze wykonywanie swoich
+          zadań. Wątki mogą działać równolegle przyspieszając działanie
+          programu, wątki są uruchamiane szybciej od procesów. Nie które
+          programy używają wątków do radzenia sobie wieloma operacjami 
+          wejścia-wyjścia. Wątki realizaują podobny mechanizm do wywołania
+          <em>fork()</em> jednak bez dodatkowego obciązenia, tworzącego się 
+          podczas rozgałęziania procesu.
+        </p>
+        <h3>Wyświetlanie wątków</h3>
+        <p>
+          Podobnie jak procesy, wątki możmy wyświelić za pomocą polecenia
+          <em>ps</em>, potrzebna do tego jest opcja <strong>m</strong>.
+        </p>
+<pre class="code-block">
+  PID TTY      STAT   TIME COMMAND
+ 2628 pts/1    -      0:00 /bin/bash
+    - -        Ss+    0:00 -
+ 3834 pts/0    -      0:00 bash
+    - -        Ss     0:00 -
+ 3838 pts/0    -      0:00 ps m
+    - -        R+     0:00 -
+</pre>
+        <p>
+          Każda z linii na przykładzie zawierająca PID to proces, a linie
+          zawierające myślniki (<strong>-</strong>), wątki. Jak widać
+          są tu tylko trzy procesy, w którym każdy ma pojednym wątku. Aby
+          wyświetlić numery TID wątków musimy skorzystać z niestandardowego
+          widoku:
+        </p>
+<pre class="code-block">
+$ ps m -o pid,tid,command
+  PID   TID COMMAND
+ 2275     - bash
+    -  2275 -
+ 8927     - ps m -o pid,tid,command
+    -  8927 -
+</pre>
+        <p>
+          Zwróćmy uwagę na to, iż identyfikatory wątków są takie same jak
+          identyfikatory procesów. Oznacza to, że taki wątek jest wątkiem
+          głównym procesu.
+        </p>
+        <h2>Wprowdzenie do monitorowania zasobów</h2>
+        <p>
+          Przyjrzymy się teraz wykorzystaniu zasobów przez cały system, jak
+          i przez poszczególne procesy. Omówimy sobie również zagadnienia
+          związane z czasem procesora, pamięcią oraz dyskowymi operacjami
+          wejścia-wyjścia.
+        </p>
+        <p>
+          Wiele osób zajmujących się rozwojem jądra Linux, non-stop pracuje
+          na poprawieniem jego wydajności, dlatego też systemy są bardzo
+          wydajne przy domyślnych ustawieniach dystrybucji, więc nie będziemy
+          skupiać się na wydajności. Wykorzystamy monitorowanie zasobów do 
+          obserwowania jak jądro dzieli zasoby między procesami.
+        </p>
+        <h2>Pomiar czasu procesora</h2>
+        <p>
+          Pomiar czasu procesora na Linux-ie może odbyć się na dwa sposoby.
+          Możemy monitorować w czasie pojedyńcze procesy, używając do tego
+          polecenia <em>top</em> i wpisując dla każdego procesu opcję
+          <em>-p</em> oraz PID. Drugim sposobem jest sprawdzenie ile czasu 
+          procesora z użyje proces w trakcie swojego życia, za pomocą
+          polecenia <strong>time</strong>. Obecnie wykorzystywane powłoki
+          posiadają swoje polecenie <em>time</em>, które niestety nie ma
+          ono odpowiednich statystyk, dlatego też może być potrzebne
+          zainstalowanie pakietu z repozytorium i wywołanie konkretnego
+          programu.
+        </p>
+<pre class="code-block">
+$ /usr/bin/time ls
+...
+0.00user 0.00system 0:00.00elapsed 100%CPU (0avgtext+0avgdata 2692maxresident)k
+0inputs+0outputs (0major+109minor)pagefaults 0swaps
+</pre>
+        <p>
+          W przypadku tego polecenia, czas jest wskazywany za pomocą trzech
+          wskaźników:
+        </p>
+        <ul>
+          <li><strong>Czas użytkownika</strong> (tutaj oznaczony jak
+          ang. <em>user</em>) - liczba sekund poświęcona przez procesor na
+          wykonanie <em>własnego</em> kodu programu.</li>
+          <li><strong>Czas systemowy</strong>. (tutaj oznaczony jako
+          ang. <em>system</em>) - czas poświęcony na obsługę
+          procesu, np. czytanie zawartości katalogu/pliku.</li>
+          <li><strong>Czas trwania</strong>. (tutaj oznaczony jako
+          ang. <em>elapsed</em>) - czas wykonywania całego procesu
+          od początku do końca z uwzględniem także innych działań. Nie jest
+          zbyt miarodajny, chyba że odejmiemy od niego sumę czasu użytkownika
+          oraz czasu systemowego, w efekcie czego otrzymamy czas oczekiwania
+          na zasoby.</li>
+        </ul>
+        <p>
+          Jak możemy zauważyć na powyższym przykładzie, we wszystkich trzech
+          czasach mamy same zera, wynika to z bardzo krótkiego czasu 
+          potrzebnego na wykonanie prostych czynności przez współczesne
+          procesory - program zaokrągla takie wyniki w dól do zera. Z kolei
+          pozostałe informacje przedstawiają informacje dotyczące pamięci
+          oraz urządzeń wejścia-wyjścia.
+        </p>
+        <h2>Nadawanie procesom priorytetów</h2>
+        <p>
+          Jądro zarządza procesami według priorytetów, manipulacja nim może
+          spowodować, że wybrane przez nas procesy otrzymają więcej czasu
+          procesora. Priorytety mieszczą się w zakresie od 20 do -20. Gdzie
+          <strong>-20</strong> jest najwyższym priorytetem.
+        </p>
+        <p>
+          Priorytety możemy podejrzeć za pomoca polecenia <em>ps</em> z opcją
+          <em>-l</em>. Jednak znacznie lepszym rozwiązaniem jest wykorzystanie
+          programu <em>top</em>. W tabeli wyświetlanej przez program kolumna
+          <em>PR</em> lub <em>PRI</em>, zawiera aktualny priorytet procesu.
+          Im mniejsza liczba w tych kolumnach, tym większe prawdopodobieństwo,
+          że jądro przydzieli temu procesowi czas procesora w momencie gdy
+          będą go potrzebować inne procesy. Priorytet nie jest jedyną 
+          wartością, która spowoduje przydzielenie większej ilości czasu 
+          procesora. Priorytet
+          może zmieniać się wraz zapotrzebowaniem programu na czas procesora.
+        </p>
+        <p>
+          Obok kolumny z priorytetem znajduje się kolumna <strong>NI</strong>,
+          zawiera ona wartość <strong>nice</strong>. Jest informacja dla
+          programu szeregującego. Jądro dodaje wartość <em>nice</em> oraz 
+          priorytet, określając tym samym wycinek czasu jaki powinien otrzymać
+          proces. Taki wycinek czasu nazywany jest 
+          <strong>szczeliną czasową</strong>.
+        </p>
+        <p>
+          Załóżmy że mamy uruchomiony w tle proces wykonując poważne 
+          obliczenia. Chcemy aby działał on tylko wtedy gdy inne procesy są
+          w stanie bezczynności. W tym celu należy wydać polecenie 
+          <strong>renice</strong>, ustawiając wartość <em>nice</em> na 20: 
+        </p>
+<pre class="code-block">
+$ renice 20 PID_procesu
+</pre>
+        <p>
+          Za <code class="code-inline">PID_procesu</code> wstawiamy
+          identyfikator procesu. Superużytkownik ma możliwość nadawania
+          ujemnych wartości <em>nice</em>, może to jednak doprowadzić do 
+          zablokowania ważnych procesów systemowych.
+        </p>
+        <p>
+          Obecnie wymuszanie priorytetów procesów straciło na znaczeniu ze
+          względu na to że w systemie zazwyczaj pracuje tylko jeden użytkownik.
+          Nie oznacza to jednak braku takiej możliwości.
+        </p>
+        <h2>Średnie obciążenia</h2>
+        <p>
+          Średnie obciązenia (ang. <em>load average</em>) jest to szacunkowa
+          ilość procesów, które są w stanie korzystać z procesora w dowolnym
+          momencie. Podczas analizowania tej wartości warto wziąć po uwagę 
+          fakt iż większość procesów nie jest gotowa na uruchomienie
+          najczęściej oczekują one na dane wyjściowe.
+        </p>
+        <h3>Użycie polecenia uptime</h3>
+        <p>
+          Polecnie <strong>uptime</strong> po za informacją jak długo włączony
+          jest system, zwraca również średnie obciążenia mierzone na trzech
+          odstępach czasu
+        </p>
+<pre class="code-block">
+18:15:14 up  5:35,  3 users,  load average: 0,10, 0,13, 0,10
+</pre>
+        <p>
+          Średnie obciążenie jest podawane dla 1, 5 oraz 15 minut. Oznacza ono,
+          że wciągu 5 minut na wszystkich procesorach zostało uruchomione 13% 
+          procesów, inaczej mówiąc jeśli w komputerze znajdował byś się tylko
+          jeden procesor, to przeciągu 5 minut na potrzeby uruchamiania
+          aplikacji użytkownika zostało by wykorzystane 13% jego czasu.
+          Obiążenia bliskie zeru są dobrym znakiem, oznaczają że procesor nie
+          jest nadmiernie wykorzystywany dzięki czemu z używa mniej energii.
+          Pokazane tu wartości mogą skoczyć, podczas kompilacji, korzystania
+          z emulatorów czy wirtualizacji. 
+        </p>
+        <p>
+          Jeśli obciążenie zwiększa się do wartości około lub powyżej jeden
+          oznacza to że jeden proces cały czas korzysta z procesora. Obecnie
+          posiadamy komputery wyposażone w procesory wielordzeniowe, każdy
+          z rdzeni może posiadać odrębne wątki, w UNIX-ach wątki są widziane
+          jako odrębne procesory. Dlatego też normalnym działaniem systemu
+          może być skok tych wartości do 2, 3 lub więcej, wszystko zależy
+          od procesora.
+        </p>
+        <h3>Wysokie obciążenie</h3>
+        <p>
+          Wysokie obciążenie nie oznacza nic złego, dopóki system jest 
+          responsywny, oznacza to pracę wielu procesów współużytkujących
+          procesor. Ze względu na rywalizacje o czas procesora procesy będą
+          wykonywać dłużej swoje obliczenia niż, w momecie gdy miały by
+          dyspozycji cały procesor dla siebie. W maszynach wielordzeniowych
+          możemy zawuważyć odwrotne tendencję, proces otrzyma cały wątek
+          wkorzystując cały jego czas, zostawiając pozostałe wątki innym
+          procesom.
+        </p>
+        <p>
+          Średnie obciążenie może być nie efektywne w monitorowaniu serwerów
+          WWW, ponieważ procesy mogą być uruchamiane a następnie
+          bardzo szybko zamykane.
+        </p>
+        <p>
+          Na wysokie obciążenie może wpływać problem z wydajnością pamięci.
+          Jeśli wolnej pamięci jest nie wiele, jądro może uruchomić proces
+          przeładowania, lub zacząć przenosić pamięć procesów z dysku oraz na
+          dysk. Gdy ma to miejsce procesy mogą być gotowe do uruchomienia 
+          jednak ich pamięć nie jest dostępna, przez co wpływają one na 
+          średnią obciążenia. Pozostają one w gotowości dłuższy czas niż ma to
+          miejsce w normalnej sytuacji.
+        </p>
+        <h2>Pamięć</h2>
+        <p>
+          Za pomocą polecenia <strong>free</strong> lub wylistowania zawartości
+          pliku <em>/proc/meminfo</em> może potwierdzić lub obalić nasze 
+          przypuszenia o tym, że za problemy związane wydajnością naszego
+          komputera może być winna pamięć. Interpretując te wyniki nie należy
+          sugerować się ilością pamięci wolnej, ponieważ nie jest to cała
+          pozostała do wykorzystania przez nas pamięć fizyczna. Zwróćmy uwagę
+          na pamięć podręczną/bufora, taka pamięć zostanie na udostępniona
+          w razie potrzeby. W przypadku
+          gdy przeznaczono na pamięć podręczną nie wiele pamięci, a reszta jest
+          wykorzystana, to niestety do płynnej pracy będzie potrzeba więcej
+          pamięci fizycznej.
+        </p>
+        <h3>Zasady działania pamięci</h3>
+        <p>
+          W procesorze znajduje się jednostka MMU, odpowiedzialna za
+          transalacje adresów pamięci wirtualnej wykorzystywanej przez
+          procesy na adresy pamięci fizycznej. Jądro pomaga jednostce dzieląc
+          obszar wykorzystywany przez procesy  na mniejsze części tzw. 
+          <strong>strony</strong>. Jądro posiada specjalną strukturę w której
+          zawarto odwzorowania wirtualnych adresów stron na fizyczne adresy
+          taka struktura nazywana jest <strong>tabelą stron</strong>. W
+          momencie gdy proces uzyskuje dostęp do pamięci, jednostka MMU bazując
+          na tabeli stron jądra dokonuje translacji adresów wirtualnych
+          używanych przez proces na adresy fizyczne. 
+        </p>
+        <p>
+          Proces nie potrzebuje od razu dostępu do wyszystkich swoich stron. 
+          Zazwyczaj są one ładowane w momencie gdy proces ich potrzebuje, jest
+          to <strong>stronicowanie na żądanie</strong>. Gdy jądro załaduje
+          część kodu programu, może przydzielić procesowi kilka stron pamięci
+          pamieci roboczej. W trakcie jego działania może dojść do momentu,
+          gdy na żadnej z załadowanych wcześniej  stron niebędzie kolejnej 
+          instrukcji do wykonania, w tym przypadku jądro załaduje wymagane 
+          strony, i zezwoli na wznowienie działania programu. Jeśli program
+          będzie potrzebować więcej pamięci niż zostało mu przydzielone na
+          początku, jądro zwolni nie używane strony lub miejsce w pamięci i
+          przypisze je procesowi.
+        </p>
+        <h3>Błędy stron</h3>
+        <p>
+          <strong>Błąd strony</strong> jest generowany przez proces w momecie
+          gdy strona pamięci jest nie gotowa. W tej sytuacji jądro przejmuje
+          kontrolę nad procesem, aby móc zapewnić gotowość strony. Możemy 
+          wymieć dwa rodzej błędów strony: <strong>podstawowe</strong> oraz
+          <strong>drugorzędne</strong>.
+        </p>
+        <h4>Drugorzędne błędy stron</h4>
+        <p>
+          Przyczyną generowania tego typu błedu jest nieznajomość położenia
+          żadąnej strony przez MMU, mimo załadowania jej do pamięci głównej.
+          MMU może nie mieć miejsca gdzie przechować wszystkich adresów stron
+          dla procesu. Gdy taki błąd występuje jądro informuje MMU o
+          położeniu strony i zezwala na kontynuowanie działania programu.
+          Tego typu błędy nie są poważnymi błędami i zdarzają się w trakcie
+          życia procesu wiele razy. Dla programów nie korzystających
+          intensywnie z pamięci uznaje się je za niebyłe.
+        </p>
+        <h4>Podstawowe błędy stron</h4>
+        <p>
+          Tego rozdzaju błedy występują w momecie gdy w ogóle brakuje stron
+          w pamięci, jądro wówcza musi załadować je z dysku lub innego
+          magazynu danych. Duża ilość takich błedów przeciąża system ponieważ
+          jądro musi zająć ładowaniem stron, nie dając szans na uruchomienie
+          innym procesom.
+        </p>
+        <p>
+          Podstawowe błędy najczęściej występują w momecie gdy po raz pierwszy
+          uruchamiamy dany program, ponieważ niezbędne jest załadowanie kodu
+          z dysku do pamięci. Takie błędy są nie uniknione. Najwieksze
+          problemy występują gdy pamięci fizycznej zaczyna rzeczywiście
+          brakować i jądro zaczyna przenosić strony na dysk aby zwolnić trochę
+          miejsca w pamięci.
+        </p>
+        <h4>Obserowanie błędów strony</h4>
+        <p>
+          Najprostszą metodą jest użycie polecenia <strong>time</strong> (tego
+          zainstalowanego), w drugiej linii znajduje się słowo
+          <code class="code-inline">pagefaults</code> błedy znajdują się w
+          nawiasie poprzedzającym to słowo, błędy podstawowe są określane
+          słowem <code class="code-inline">major</code> a błędy drugorzędne
+          słowem <code class="code-inline">minor</code>. Wykorzytując przykład
+          z sekcji opisującej pomiar czasu procesora wiem, że podczas 
+          działania programu wystąpiło <code class="code-inline">109</code>
+          błędów drugorzędnych i <code class="code-inline">0</code> błędów 
+          podstawowych.
+        </p>
+        <p>
+          Innymi programami, które możemy do tego wykorzystać są <em>ps</em>
+          oraz <em>top</em>. Z pomocą tych narzędzi możemy sprawdzić błędy
+          stron działających procesów. W przypadku polecenia <em>top</em>
+          należy podczas działania programu wcisnąć klawisz <strong>f</strong>,
+          aby zmienić wyświetlane pola, a następnie strzałkami wybrać pole
+          <em>nMaj</em> (podstawowe błędy strony) i nacisnąć klawisz spacji,
+          identycznie należy postąpić z polem <em>nMin</em> (drugorzędne błędy
+          stron). Chcąc wykorzystać polecenie <em>ps</em> wydajemy poniższe
+          polecenie 
+        </p>
+<pre class="code-block">
+$ ps -ao pid,min_flt,maj_flt,command
+</pre>
+        <p>
+          Polecenie wyświetli cztery kolumny, kolumna oznacza <em>MINFL</em>
+          drugorzędne błędy stron, a kolumną przestawiającą podstawowe błędy
+          stron jest <em>MAJFL</em>.
+        </p>
+        <h2>Monitorowanie wydajności procesora oraz pamięci za pomocą
+            polecenia vmstat.</h2>
+        <p>
+          <strong>Vmstat</strong>, jest jednym z najstarszych narzędzi 
+          monitorowania z dostępnych na dystrybucjach Linux-a. Powoduje
+          minimalne obciążenie, za jego pomocą możemy określić jak często
+          jądro przenosi strony z/do pamięci, jak bardzo zajęty jest
+          procesor czy wykorzystanie urządzeń wejścia wyjścia. Kluczem do
+          uznania potęgi tego programu jest zrozumienie jego danych 
+          wyjściowych. Na przykład uruchomie go z podaniem liczby zaraz po
+          nazwie polecenia, spowoduje wyświetlanie statystyk co
+          podaną liczba sekund.
+        </p>
+<pre class="code-block">
+$ vmstat 2
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  1      0 23630700  25492 501560    0    0    15     2   31   64  0  0 99  0  0
+ 1  0      0 23630048  25492 501744    0    0    74     0  262  315  0  0 100  0  0
+ 0  0      0 23630048  25492 501744    0    0     0     0  253  304  0  0 100  0  0
+</pre>
+        <p>
+          Wyświetlane informacje są podzielone na 6 kolumn, przedstawiających
+          informacje nt. <code class="code-inline">procs</code> - procesów,
+          <code class="code-inline">memory</code> - pamięci (użycia pamięci),
+          <code class="code-inline">swap</code> - przestrzeni wymiany
+          (stron przenoszonych z i do przestrzeni wymiany),
+          <code class="code-inline">io</code> - użycia dysku,
+          <code class="code-inline">system</code> - liczby przełączeń jądra
+          do własnego kodu, <code class="code-inline">cpu</code> - czasu 
+          procesora zajmowanego przez różne komponenty systemu. 
+        </p>
+        <p>
+          Kolumny dzielą się na mniejsze, przedstawiając kolejno informacje 
+          nt.:
+        </p>
+        <ul>
+          <li>Procesów:
+            <ul>
+              <li><code class="code-inline">r</code> - ilości procesów
+                  obecnie uruchomionych.</li>
+              <li><code class="code-inline">b</code> - ilości procesów
+                  w stanie nieprzerwanego snu.</li>
+            </ul>
+          </li>
+          <li>Pamięci:
+            <ul>
+              <li><code class="code-inline">swpd</code> - wykorzystania pamieci
+                  wirtualnej/swapu.</li>
+              <li><code class="code-inline">free</code> - pozostałej wolnej
+                  pamięć w systemie.</li>
+              <li><code class="code-inline">buff</code> - pamieć przydzielonej
+                  jako bufor.</li>
+              <li><code class="code-inline">cache</code> - pamięć przydzielonej
+                  jako pamięc podręczna.</li>
+            </ul>
+            Ilość pamięci w wynikach polecenia <em>vmstat</em> jest wyrażana
+            w kilobajtach (<strong>kB</strong>).
+          </li>
+          <li>Swapu:
+            <ul>
+              <li><code class="code-inline">si</code> - ilości pamięci 
+                  przeniesionej z dysku.</li>
+              <li><code class="code-inline">so</code> - ilości pamięci
+                  przeniesionej na dysk.</li>
+            </ul>
+          </li>
+          <li>Urządzeń wejścia-wyjścia:
+            <ul>
+              <li><code class="code-inline">bi</code> - liczby pobranych bloków
+                  z urządzenia blokowego.</li>
+              <li><code class="code-inline">bo</code> - liczby wysłanych bloków
+                  do urządzenia blokowego.</li>
+            </ul>
+          </li>
+          <li>Jądra:
+            <ul>
+              <li><code class="code-inline">in</code> - liczby wywołań
+                  systemowych na sekundę.</li>
+              <li><code class="code-inline">cs</code> - liczby przełączeń
+                  kontekstu na sekundę.</li>
+            </ul>
+          </li>
+          <li>Czasu procesora:
+            <ul>
+              <li><code class="code-inline">us</code> - czasu spędzonego na
+                  wykonywaniu kodu aplikacji przestrzeni użytkownika, w tę
+                  wartość wliczony jest czas dodatkowy uzyskany po przez zmianę
+                  wartości <em>nice</em>.</li>
+              <li><code class="code-inline">sy</code> - czasu spędzonego na
+                  wykonywaniu kodu jądra.</li>
+              <li><code class="code-inline">id</code> - czasu spędzonego w
+                  stanie bezczynności. Do jądra 2.5.41 w ten wskaźnik 
+                  wliczony również był, czas sprędzony na czekaniu na dane z
+                  urządzeń wejścia-wyjścia.</li>
+              <li><code class="code-inline">wa</code> - czasu spędzonego na
+                  oczekiwaniu na dane z urządzeń wejścia-wyjścia. Od jądra
+                  2.5.41, została wydzielona odpowiednia kolumna.</li>
+              <li><code class="code-inline">st</code> - czasu "ukradzionego"
+                  (kiedy proces hipernadzorcy, zarządcy maszyn wirtualnych
+                  użyje do wykonania tego samego fizcznego CPU/rdzenia,
+                  z którego w tym samym czasie korzysta maszyna) maszynie 
+                  wirtualnej.</li>
+            </ul>
+          </li>
+        </ul>
+        <p>
+          Uruchamiają większy program możemy dostrzec zmieniające się w tym
+          programie wartości, na przykład teraz podczas pisania tych słów 
+          zeruje jeden ze swoich dysków, po za tym ma włączoną przeglądarkę
+          oraz słucam muzyki w jedym z terminalowych odtwarzaczy, a tak wyglada
+          kilka linii z programu <em>vmstat</em> moje komputera w tym czasie:
+        </p>
+<pre class="code-block">
+procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu-----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa st
+ 0  3      0 198152 22654916 1162656    0    0    12  2351   70   77  0  0 86 14  0
+ 0  2      0 193548 22659280 1162548    0    0    10 32768  804  601  0  0 86 14  0
+ 0  2      0 186768 22665332 1162920    0    0    64 32768  788  565  0  0 91  9  0
+ 0  2      0 179216 22672636 1163168    0    0     0 32794  800  595  0  0 92  8  0
+ 0  2      0 202576 22650992 1162048    0    0    64 24576  791  576  0  0 88 11  0
+ 0  2      0 166592 22686332 1163616    0    0    64 32768  794  637  0  0 84 16  0
+ 0  2      0 215256 22638720 1162532    0    0     0 32784  837  696  0  0 83 16  0
+ 0  2      0 194492 22657864 1163528    0    0     0 32768  796  559  0  0 83 16  0
+ 1  2      0 198080 22655508 1163388    0    0    64 24576  828  620  0  0 83 16  0
+ 1  2      0 195196 22658576 1163388    0    0     0 32776  800  589  0  0 85 15  0
+ 0  2      0 181728 22671688 1163676    0    0    64 32768  813  609  0  0 83 16  0
+</pre>
+        <p>
+          Na podstawie tych informacji możemy wywioskować, że jakieś procesy
+          dość intensywanie korzystają z dysku. Zwróćmy uwagę na to, że prawie
+          cała pamięć komputera została przydzielona na przestrzeń bufora.
+          Obecnie w moim systemie istnieją
+          procesy, które są w stanie nieprzerwanego snu, przyczyn takiego
+          stanu może być kilka, najczęściej występującym jest oczekiwanie na
+          dane z urządzenia wejścia-wyjścia, jednak może być to również
+          blokada związana z brakiem wystarczającej pamięci, jeśli miało by to
+          miejsce w tym wypadku, zauważylibyśmy, że część pamięci została
+          przeniesiona na dysk.
+        </p>
+        <h2>Monitorowanie operacji wejścia-wyjścia.</h2>
+        <p>
+          Przy użyciu programu <em>vmstat</em>, uzyskujemy tylko ogólne
+          informacje o użyciu urządzeń wejścia-wyjścia, owszem możemy użyć
+          opcji <em>-d</em>, dzięki któremu możemy uzyskać informacje o
+          wykorzystaniu partycji, jednak te dane mogą okazać się dla nas
+          bezużytecze z względu na przytłaczająco dużą ich ilość. Zamiast
+          tego narzędzia możemy wykorzystać inne, stworzone specjalnie dla
+          monitorowania operacji wejścia-wyjścia, głównie operacji dyskowych - 
+          <strong>iostat</strong>. Prawdopodbnie trzeba będzie je doinstalować
+          z repozytorium, poniżej znajdują się przykładowe dane wyjściowe
+          tego polecenia.
+        </p>
+<pre class="code-block">
+Linux 4.15.0-66-generic (greenOSTe) 	21.01.2022 	_x86_64_	(12 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           0,6%    0,0%    0,7%    5,2%    0,0%   93,5%
+
+Device             tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
+sda              34,52       224,9k        13,6M     577,0M      34,9G
+sdb               0,04         1,6k         0,0k       4,2M       0,0k
+sdc               0,05         1,6k         0,0k       4,1M       0,0k
+dm-0             37,35       221,6k        28,0M     568,3M      71,7G
+sdd             125,77        13,7M        22,8k      35,1G      58,4M
+</pre>
+        <p>
+          Pierwsza linia wyniku zawiera: nazwę systemu operacyjnego, wersję
+          jądra, w nawiasie znajduje się nazwa komputera, następnie
+          data uruchomienia polecenia, architektura systemu 
+          (_x86_64_ = 64-bitowy system), na końcu w nawiasie znajduje liczba
+          wątków dostępna w komputerze. Dwie następne linie zawierają 
+          uśrednione wykorzystanie procesora. Naciekawsza jest tabela na końcu
+          przedawiająca urządzenia blokowe oraz dotyczące ich statystyki.
+          Kolumny określają kolejno:
+        </p>
+        <ul>
+          <li><code class="code-inline">Device</code> - Urządzenie blokowe.</li>
+          <li><code class="code-inline">tps</code> - 
+              (ang. <em>Transfers per seconds</em>) liczba operacji
+              wejścia-wyjścia na sekundę przeprowadzona na urządzeniu.</li>
+          <li><code class="code-inline">kB_read/s</code> - ilość bloków 
+              (w tym przypadku kilobajtów) odczytywanych z urządzenia na
+              sekundę.</li>
+          <li><code class="code-inline">kB_wrtn/s</code> - ilość bloków
+              (w tym przypadku kilobajtów) zapisywanych na urządzeniu na
+              sekundę.</li>
+          <li><code class="code-inline">kB_read</code> - łączna ilość
+              odczytanych bloków, w tym przypadku kilobajtów.</li>
+          <li>
+        </ul>
+        <p>
+          Podobnie do narzędzia <em>vmstat</em>, do obserwowania operacji
+          wejścia wyjścia możemy użyć interwału, podając jego wartość jako
+          ostatni argument polecenia. Na przykład:
+        </p>
+<pre class="code-block">
+$ iostat --human 2
+</pre>
+        <p>
+          Powyższe polecenie spowoduje wyświelenie danych wyjściowych co dwie
+          sekundy w formie czytelnej dla człowieka.
+        </p>
+        <p>
+          Domyślnie polecenie nieuwzględnia partycji, możemy to zmienić podając
+          opcję <em>-p</em> z wartością <em>ALL</em>,
+        </p>
+        <h3>Wykorzystanie i monitorowanie urządzeń wejścia-wyjścia dla
+            poszczególnych procesów - narzędzie iotop</h3>
+        <p>
+          Program <em>iotop</em> pozwala na dokładniejsze sprawdzenie 
+          zasobów urządzeń dyskowych, obsługuje się go podobnie jak znany nam 
+          już program <em>top</em>. Uruchomienie tego programu wyświetli nam
+          non stop aktualizowaną tabelę przestawiająca wykorzystanie dysków
+          przez procesy. Polecenie nie występuje domyślnie w dystrybucjach i
+          trzeba je zainstalować.
+        </p>
+        <p>
+          Zwróćmy uwagę na pierwszą kolumnę, otóż <em>iotop</em> jest jednym
+          z narzędzi wyświetlających wątki zamiast procesów. Priorytet w tym
+          przypadku ma wpływ na to jak szybko jądro szereguje odczyty i zapisy
+          związane z urządzeniem wejścia-wyjścia. Priorytet składa się z
+          <strong>klasy szeregowania</strong> oraz liczby określającej poziom
+          priorytetu, na przykład:
+        </p>
+<pre class="code-block">
+be/4
+</pre>
+        <p>
+          Gdzie: <code class="code-inline">be</code> jest klasą zaszeregowania
+          a <code class="code-inline">4</code> poziomem priorytetu. Im niższy
+          poziom priorytetu tym jądro przydzieli więcej czasu na operacje
+          wejścia-wyjścia dla takiego procesu. Możemy wyodrębnić trzy rodzaje
+          klas szeregowania:
+        </p>
+        <ul>
+          <li><strong>be</strong> (ang. <em>best-effort</em>) - jądro stara się
+              jak najbardziej sprawiedliwe szeregować operacje wejścia-wyjścia. 
+              W ramach tej klasy szeregowana jest większość procesów.</li>
+          <li><strong>rt</strong> (ang. <em>real-time</em>) - w jądro szereguje
+              operacje wejścia-wyjścia czasu rzeczywistego ponad inne możliwe
+              klasy.</li>
+          <li><strong>idle</strong> - w ramach klasy stanu bezczynności, jądro
+              wykonuje operacje wejścia-wyjścia, tylko wtedy gdy nie są
+              prowadzone, żadne inne operacje. Z tą klasą nie jest związany
+              żaden priorytet.</li>
+        </ul>
+        <p>
+          Do manipulacji priorytetami operacji wejścia-wyjścia służy polecenie
+          <strong>ionice</strong>. Opis oraz sposób użycia tego narzędzia
+          znajduje się na stronie podręcznika:
+          <code class="code-inline">man 1 ionice</code>.
+        </p>
+        <h2>Monitorowanie poszczególnych procesów za pomocą narzędzia pidstat</h2>
+        <p>
+          W przypadku użycia takich programów jak <em>top</em> oraz
+          <em>iotop</em>, każda aktualizacja usuwa poprzedni stan procesu.
+          Jednak polecenie takie jak <strong>pidstat</strong> umożliwia
+          monitowanie wybranego procesu, oferując dane wyjściowe w formacie
+          znanym z polecenia <em>vmstat</em>. Poniżej znajduje się przykład 
+          śledzenia edytora <em>Vim</em> podczas pisania tego tekstu.
+        </p>
+<pre class="code-block">
+Linux 4.15.0-66-generic (greenOSTe) 	22.01.2022 	_x86_64_	(12 CPU)
+
+16:04:47      UID       PID    %usr %system  %guest   %wait    %CPU   CPU  Command
+16:05:29     1000      1263    1,00    0,00    0,00    0,00    1,00     4  vim
+16:05:30     1000      1263    0,00    0,00    0,00    0,00    0,00     4  vim
+16:05:31     1000      1263    0,00    0,00    0,00    1,00    0,00     4  vim
+16:05:32     1000      1263    1,00    1,00    0,00    0,00    2,00     4  vim
+16:05:33     1000      1263    0,00    0,00    0,00    0,00    0,00     4  vim
+16:05:34     1000      1263    0,00    0,00    0,00    0,00    0,00     7  vim
+16:05:35     1000      1263    0,00    0,00    0,00    0,00    0,00     7  vim
+16:05:36     1000      1263    0,00    0,00    0,00    0,00    0,00     7  vim
+
+Average:     1000      1263    0,27    0,04    0,00    0,02    0,31     -  vim
+</pre>
+        <p>
+          Znaczenia kolumn, są podobne do tych które były już omawiane w tym
+          materiale. Kolumna <code class="code-inline">%guest</code> oznacza
+          wartość procentową czasu, przez jaki proces działa w obrębie maszyny
+          wirtualne, przeważnie jej wartość zawsze będzie wskazywać 0%, chyba 
+          z niej korzystamy. Wartości przedstawione na przykładzie są domyśnym
+          formatem danych wyjściowych tego polecenia, możemy jednak je
+          rozszerzyć, uruchamiając program z dodatkowymi opcjami, które
+          znajdziemy na stronie podręcznika.
+        </p>
+        <h2>Dodatkowe zagadnienia</h2>
+        <p>
+          Przyczyną istnienia tak dużej liczby narzędzi służących do
+          monitorowania zasobów, jest ich szeroki wybór oraz różne sposoby
+          na pomiar ich wykorzystania.
+        </p>
+        <p>
+          Mimo iż obecnie przy komputerach pracujących na UNIX-ach nie korzysta
+          już wielu użytkowników, to nadal w systemie pracuje wiele procesów,
+          które rywalizują o te zasoby, a one są niestety ograniczone dla tego
+          też poniżej znajduej się kilka dodatkowych zagadnień związanych z
+          monitorowaniem zasobów oraz analizą wydajności.
+        </p>
+        <ul>
+          <li><strong>sar (raportowanie dotyczące aktywności systemu)</strong>
+              - pakiet opiera się na podobnej zasadzie działania co program
+              <em>vmstat</em>, jednak umożliwia on "cofnięcie się w czasie" i
+              sprawdzenie jak działania realizował system, jest to przydatne
+              gdy chcemy podać analizie minione zdarzenie.</li>
+          <li><strong>acct (ewidencjonowanie procesów)</strong> - pakiet ten
+              rejestruje procesy oraz wykorzystanie przez nie zasobów.</li>
+          <li><strong>Przydziały</strong> - jest to funkcją PAM więc jeśli
+              jakiś proces został uruchomiony w obrębie czegoś co korzysta z
+              tego systemu to mamy możliwość ograniczenia wielu zasobów. Ta
+              funkcja nie ogranicza się tylko do procesów, ale przydziały 
+              możemy
+              zdefiniować dowolnemu uzytkownikowi. W pliku
+              <em>/etc/security/limits.conf</em>, możemy określić przydziały
+              związane z procesorem oraz pamięcią. Wiecej opcji znajdziemy
+              oczywiście na stronie podręcznika:
+              <code class="code-inline">man 5 limits.conf</code>. Z pomocą tego
+              rozwiązania możemy ograniczyć przestrzeń dyskową użytkownikom.</li>
+        </ul>
+        <p>
+          Źródła:
+        </p>
+        <ol>
+          <li>Jak działa Linux Wyd. II, Brian Ward, Helion 2015</li>
+        </ol>
+        <p>
+          Na potrzeby morketsmerke.github.io opracował: xf0r3m
+        </p>
+      </div>
+			<p style="margin: 15px; padding: 0; outline: 0;">
+				2021; COPYLEFT; ALL RIGHTS REVERSED;
+			</p>
+		</body>
+	</html>
+

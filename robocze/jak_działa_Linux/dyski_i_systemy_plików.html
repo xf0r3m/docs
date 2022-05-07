@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="https://i.ibb.co/khy45hh/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+					text-align: left;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				ul {
+					text-align: left;
+				}
+        p { text-align: justify; }
+			</style>
+		</head>
+		<body style="font-family: monospace;" >
+<pre>
+     _       _          _     _       _         _     _                  ___ 
+    | | __ _| | __   __| |___(_) __ _| | __ _  | |   (_)_ __  _   ___  _|__ \
+ _  | |/ _` | |/ /  / _` |_  / |/ _` | |/ _` | | |   | | '_ \| | | \ \/ / / /
+| |_| | (_| |   <  | (_| |/ /| | (_| | | (_| | | |___| | | | | |_| |>  < |_| 
+ \___/ \__,_|_|\_\  \__,_/___|_|\__,_|_|\__,_| |_____|_|_| |_|\__,_/_/\_\(_)
+</pre>
+<p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+	&#9760;&nbsp;<a href="https://morketsmerke.net">morketsmerke</a>&nbsp;&#9760;
+</p>
+			<div style="margin-left: auto; margin-right: auto; width: 80%;">
+       <h1>Dyski i systemy plików</h1>
+        <p>
+          W poprzednim materiale omówiliśmy sobie pokrótce dyski oraz ogólne
+          urządzenia blokowe. Teraz zajmiemy się dyskami z poziomu systemu
+          plików, oraz przestrzeni użytkownika.
+        </p>
+        <p>
+          Odwołując się jeszcze raz do poprzedniego rozdziału, pierwszy dysk w
+          podsystemie SCSI, nosi nazwę <em>/dev/sda</em> i odnosi się ona
+          do tak jakby "całego" urządzenia. Do tego pliku odwoływać się
+          będziemy w momencie chęci utworzenia kopii całego dysku, lub jego
+          inicjacji. Użytkownik systemu jeśli już ma pracować z dyskami
+          to pracuje z <strong>partycjami</strong>, logiczną częścią dysku
+          zapewniającą dostęp do jego przestrzeni. Informacje na temat partycji
+          są przechowywane w wyznaczonym obszarze na dysku - <strong>tablicy
+          partycji</strong>. Zarządzaniem partycjami a co za tym idzie
+          alokacją miejsca na dysku zajmują się specjalne programy a taka
+          czynność nazywa się <strong>partycjonowaniem</strong>. Po utworzeniu
+          partycji, należy nadać odpowiedni dla naszego systemu operacyjnego
+          "format". Służą temu <strong>systemy plików</strong> będące swoistymi
+          bazami danych o plikach i katalogach. Poniżej znajduje się schemat,
+          który zobrazuje nam jak wygląda dostęp do jakiegoś pliku lub
+          katalogu.
+        </p>
+        <p>
+         <img src="https://i.ibb.co/CPv4YxW/Diagram3.png" alt="Diagram3" border="0">
+        </p>
+        <p>
+          Na schemacie umieszcono także surowy dostęp do całego dysku, jednak
+          dla nas użytkowników systemu istnieją dwie sytuacje, kiedy z niego
+          skorzystamy. Jądro korzysta z przedstawionych powyżej warstw, kiedy
+          użytkownik zarząda dostępu do jakiegoś pliku czy katalogu. Teraz 
+          zajmiemy się najniższa z nich, urządzeniem pamięci masowej jakim
+          jest partycja. 
+        </p>
+        <h2>Partycjonowanie dysku</h2>
+        <p>
+          Jeśli będziemy inicjować dysk, to pierwszą czynnością jest wybranie
+          rodzaju tablicy partycji (czy też schematu partycjonowania). Kiedyś
+          głównym rodzajem tablicy partycji był <strong>MBR</strong>
+          (<em>Master Boot Record</em>) nazwa wzięłą się od miejsca
+          przechowywania tablicy partycji, która zajduje się w sektorze
+          rozruchowym. Obecnie jest on wypierany ze względu na swoje
+          ograniczenia i ogromne pojemności dysków przez rodzaj
+          partycji <strong>GPT</strong> (ang. <em>Globally Unique Identifier
+          Partition</em>), - tablice partycji globalnie unikalnych
+          identyfikatorów.  
+        </p>
+        <p>
+          W dystrybucjach Linuxa do wyboru mamy kilka narzędzi służacych do
+          partycjonowania dysków, jednak najpowszechniejszym z nich jest
+          <strong>fdisk</strong>. <em>Fdisk</em> to interaktywny program
+          służacy do manipulacji dyskami. Bardzo często służy on również do
+          wyświetlenia wszystkich dostępnych dysków w systemie.
+        </p>
+        <h3>Przeglądanie tablicy partycji</h3>
+        <p>
+          Aby wyświetlić tablicę partycji konkretnego dysku, należy wydać
+          polecenie <code class="code-inline">fdisk</code> wraz z opcją
+          <code class="code-inline">-l</code> podajemy nazwę pliku "całego"
+          dysku <em>/dev/sdX</em>, gdzie <em>X</em> - jest kolejną małą literą
+          alfabetu zaczynając do "a".
+        </p>
+<pre class="code-block">
+$ sudo fdisk -l /dev/sda
+</pre>
+<pre class="code-block">
+Dysk /dev/sda: 59,1 GiB, bajtów: 63435702272, sektorów: 123897856
+Model dysku: MXUB3MLX-64G    
+Jednostki: sektorów, czyli 1 * 512 = 512 bajtów
+Rozmiar sektora (logiczny/fizyczny) w bajtach: 512 / 512
+Rozmiar we/wy (minimalny/optymalny) w bajtach: 512 / 512
+Typ etykiety dysku: dos
+Identyfikator dysku: 0x52ffca0f
+
+Urządzenie Rozruch  Początek    Koniec   Sektory Rozmiar Id Typ
+/dev/sda1  *            2048 121874431 121872384   58,1G 83 Linux
+/dev/sda2          121876478 123895807   2019330    986M  5 Rozszerzona
+/dev/sda5          121876480 123895807   2019328    986M 82 Linux swap / Solaris
+</pre>
+      <p>
+        Warto zwrócić uwagę na <code class="code-inline">typ etykiety dysku</code>
+        jest to określenie typu tablicy partycji dla MBR:
+      </p>
+<pre class="code-block">
+Typ etykiety dysku: dos
+Identyfikator dysku: 0x52ffca0f
+</pre>
+      <p>
+        Z kolei dla GPT, jest to:
+      </p>
+<pre class="code-block">
+Typ etykiety dysku: gpt
+Identyfikator dysku: 85028C9D-C0D2-EE4E-89FA-4DE6CA499DE5
+</pre>
+      <p>
+        Na powyższym przykładzie widzimy trzy partycje. Pierwsza z nich to
+        <strong>partycja podstawowa</strong>, co możemy wynioskować po jej 
+        numerze oraz typie
+        partycji (<code class="code-inline">Linux</code>). Tablica partycji
+        MBR przewiduje cztery takie partycje i nie więcej. Jest to jedno z 
+        jej ograniczeń. Jeśli chcielibyśmy utworzyć więcej niż cztery partycje
+        musimy jedną z nich utworzyć jako <strong>partycję rozszerzoną</strong>
+        co zrobiono na
+        przykładzie drugiej partycji. Partycja rozszerzona jest 
+        kontenerem dla partycji logicznych (ostatniej partycji) i dla nas
+        podczas partycjonowania jest przezroczysta, jej rozmiar określa
+        łączny rozmiar wszystkich partycji logicznych. Ostatnia partycja, która 
+        ma
+        odziwo numer 5, jest <strong>partycją logiczną</strong>. Posiadają one 
+        przesunięty numer i zaczynają się dopiero od 5.
+        W wewnątrz partycji rozszerzonej może być znacznie więcej partycji 
+        logicznych niż partycji podstawowych na dysku. Tablice partycji MBR
+        obsługują dyski o pojemności do 2TB.
+      </p>
+      <p>
+        Tablica GPT, znosi ograniczenia MBR. Partycji podstawowych może być 
+        nawet 128. Tablice też wybierane są dla dysków o pojemności powyżej
+        2TB. Dodatkowo dla partycji tablicy GPT wprowadzono etykiety, dzięki
+        którym możemy opisać przeznaczenie partycji, po to aby nie montować
+        bez sensu pokolei wszystkich partycji w poszukiwaniu konretnego typu
+        danych.
+      </p>
+      <h3>Modyfikowanie tablicy partycji</h3>
+      <p>
+        Tutaj na wstępie należy zaznaczyć, że nie wszystkie polecenia służace
+        do operacji modyfikowania tablicy partycji działają w identyczny 
+        sposób. Program <em>fdisk</em>, nie wprowadza zmian na
+        dysku do momentu wydania przez użytkownika takiego polecenia
+        (naciśnięcia klawisza i zatwierdzenia wyboru klawiszem Enter). Dlatego
+        jeśli mamy zamiar korzystać z innych programów, to należy (o ile
+        oczywiście te dane są istotne) zabezpieczyć zawartośc tego dysku.
+      </p>
+      <p>
+        Modyfikowanie tablicy partycji za pomocą programu <em>fdisk</em>
+        uruchamia następujące polecenie:
+      </p>
+<pre class="code-class">
+$ sudo fdisk /dev/sda
+</pre>
+      <p>
+        Samo modyfikowanie partycji, zależy od tego co chcemy zrobić na tym
+        dysku. Nie koniecznie musi być to jego inicjalizacja. Jednak dla 
+        przykładu przygotujemy dysk do instalacji jakieś ręcznie instalowanej
+        dystrybucji, może być Arch, Gentoo lub Debian instalowany z 
+        debootstrap.
+      </p>
+      <p>
+        Na początku musimy wybrać typ tablicy partycji, dla takiej instalacji
+        wystarczy tablica MBR. Po uruchomieniu programu wydajemy polecenie
+        "<strong>o</strong>". W tym momencie zostanie utworzona nowa tablica
+        partycji MBR, tutaj program moze mowić o etykiecie (tablicy) 
+        <em>dos</em>, <em>fdisk</em>, tak właśnie nazywa tablicę MBR.
+      </p>
+<pre class="code-block">
+Polecenie (m wyświetla pomoc): o
+Utworzono nową etykietę dysku DOS z identyfikatorem dysku 0x0049d027.
+</pre>
+      <p>
+       Teraz utworzymy pierwszą partycję podstawową.
+      </p>
+<pre class="code-block">
+Polecenie (m wyświetla pomoc): n
+Typ partycji
+   p   główna (głównych 0, rozszerzonych 0, wolnych 4)
+   e   rozszerzona (kontener na partycje logiczne)
+Wybór (domyślnie p): p
+Numer partycji (1-4, domyślnie 1): 
+Pierwszy sektor (2048-30297215, domyślnie 2048): 
+Ostatni sektor, +/-sektorów lub +/-rozmiar{K,M,G,T,P} (2048-30297215, domyślnie 30297215): -1G
+
+Utworzono nową partycję 1 typu 'Linux' o rozmiarze 13,4 GiB.
+</pre>
+      <p>
+        <em>Fdisk</em> określa partycje podstawowe jako <strong>głowne</strong>.
+        Wynika to prawdopodobnie z tłumaczenia, ponieważ literka "p" wzięła się
+        od angielskiego słowa <em>primary</em>. Wpisujemy "p", następny jest
+        numer partycji, w naszym przypadku jest pierwsza partycja więc
+        zostawiamy wartość domyślną. Pierwszy sektor jest początkową granicą
+        partycji, ten dysk nie jest dyskiem SSD, więc możemy zostawić wartość
+        domyślną wyjaśnie dlaczego w dalszej części tego mateiału. Wartość
+        pola <code class="code-inline">Ostatni sektor...</code> może być różna.
+        możemy podać tak jak na przykładzie <code class="code-inline">-1G</code>
+        co oznacza ostatni sektor ma znajdować przez ostatnim gigabajtem dysku.
+        Po podaniu ostatniego sektora, program zwróci nam informacje o nowo
+        utworzonej partycji. Typ partycji jest podany w tej informacji jest
+        rodzajemy system plików jaki zostanie użyty podczas fomatowania
+        partycji. Do prawidłowego funkcjonowania dystrybucji Linuxa oraz 
+        wszystkich przygotowanych dla tego systemu operacyjnego programów
+        potrzebujemy jeszcze jednej partycji - 
+        <strong>przestrzeni wymiany</strong>, o tym zagadnieniu będzie w
+        poźniejszej cześci materiału. Nie które dystrybucje podczas 
+        partycjonowania automatycznego umieszczają domyślnie przestrzeń 
+        wymiany na partycji logicznej po to aby nie blokować partycji 
+        podstawowych
+        na przestrzeń wymiany. My zrobimy, dokładnie w ten sam sposób. 
+      </p>
+<pre class="code-block">
+Polecenie (m wyświetla pomoc): n
+Typ partycji
+   p   główna (głównych 1, rozszerzonych 0, wolnych 3)
+   e   rozszerzona (kontener na partycje logiczne)
+Wybór (domyślnie p): e
+Numer partycji (2-4, domyślnie 2): 
+Pierwszy sektor (28200960-30297215, domyślnie 28200960): 
+Ostatni sektor, +/-sektorów lub +/-rozmiar{K,M,G,T,P} (28200960-30297215, domyślnie 30297215): 
+
+Utworzono nową partycję 2 typu 'Extended' o rozmiarze 1023,6 MiB.
+
+Polecenie (m wyświetla pomoc): n
+Całe miejsce na partycje główne jest już wykorzystane.
+Dodawanie partycji logicznej 5
+Pierwszy sektor (28203008-30297215, domyślnie 28203008): 
+Ostatni sektor, +/-sektorów lub +/-rozmiar{K,M,G,T,P} (28203008-30297215, domyślnie 30297215): 
+
+Utworzono nową partycję 5 typu 'Linux' o rozmiarze 1022,6 MiB.
+
+Polecenie (m wyświetla pomoc): t
+Numer partycji (1,2,5, domyślnie 5): 
+Kod szesnastkowy lub alias (L wyświetla listę wszystkich): 82
+
+Zmieniono typ partycji 'Linux' na 'Linux swap / Solaris'
+</pre>
+      <p>
+        Aby utworzyć partycję rozszerzona, która jest kontenerem dla partycji
+        logicznych. Wpisujemy "<strong>n</strong>", następnie
+        "<strong>e</strong>" i pozostawiamy wszystkie opcje domyślnie. Po
+        zwróceniu znaku zachęty programu tworzymy kolejną partycję (wpisując
+        "<strong>n</strong>", resztę pozostawiamy domyślnie. Utworzeniu dowiemy
+        się z komunikatu programu, dowiemy się również zniego, że utworzona
+        partycja logiczna ma typ ustawiony na 
+        <code class="code-inline">Linux</code>. Musimy przestawić to na 
+        przestrzeń wymiany. Naciskamy klawisz "<strong>t</strong>" i
+        <em>fdisk</em> sam zaproponuje ostanią utworzoną partycję, jako
+        kod szesnastkowy wpisujemy <strong>82</strong>.
+      </p>
+      <p>
+        Tak przygotowany dysk możemy wykorzystać do instalacji jakiś
+        dystrybucji. Zmiamy możemy <strong>zapisać i zakończyć</strong>
+        działanie programu za pomocą polecenia <strong>w</strong> lub
+        <strong>porzucić dotyczasowe zmiany i zakończyć</strong> za pomocą 
+        polecenia <strong>q</strong>. Załóżmy że zapisujemy zmiany. Po 
+        zapisaniu zmian zostanie nam przedstawiony powiniższy komunikat.
+      </p>
+<pre class="code-block">
+Tablica partycji została zmodyfikowana.
+Wywoływanie ioctl() w celu ponownego odczytu tablicy partycji.
+Synchronizacja dysków.
+</pre>
+      <p>
+        Interesuje nas z niego druga linia. Po zapisaniu zmian na dysku
+        polecenie wykonuje wywołanie systemowe aby wymusić na jądrze systemu
+        wczytanie nowej tablicy partycji z urządzenia. Jeśli korzystamy z 
+        innego narzędzia, może być potrzebne wywołanie takiego żądania. Możemy
+        tego dokonać za pomocą polecenia 
+        <code class="code-inline">blockdev</code> z odpowiednimi opcjami.
+      </p>
+<pre class="code-block">
+$ sudo blockdev --rereadpt /dev/sda
+</pre>
+      <h3>Geometria dysku i partycji</h3>
+      <p>
+        Każdy komponent komputera, którego działanie opiera się o jego
+        zdolności mechaniczne, wprowadza dodatkowe komplikacje w warstwie
+        programistycznej i tradycyjny dysk twardy jest tego doskonałym
+        przykładem. Wśród najistotniejszych dla działania części dysku
+        twardego możemy wymienić talerze obracające się na wspólnej osi,
+        głowicę umieszczoną nad lub pod talerzem (w zależności od budowy dysku)
+        zawieszoną na ruchomym ramieniu oraz <strong>cylinder</strong>, jest to
+        okrąg po którym porusza się głowica podczas obracania talerza. Głowica
+        odczytując dane z dysku, odczytuje właśnie dane z sektorów, wycinków
+        cylindra. Za pomocą tych elementów prezentowana jest
+        <strong>geometria dysku CHS</strong>.
+      </p>
+      <p>
+        W nowoczesnych dyskach informacje o cylindrach oraz sektorach
+        zgłaszanych przez dyski to czyta fikcja. Geometria dysku <em>CHS</em> 
+        nie sprawdza się przy dziejszym sprzęcie, nie uwzględnia ona różnic
+        w rozmiarze między wewnętrznym (bliżej osi) cylinadrami a zewnętrznymi
+        (bliżej krawędzi), na zewnętrznych cylindrach można umieścić więcej
+        danych.
+      </p>
+      <p>
+        Obecnie dyski wykorzystują metodę <strong>LBA</strong> (ang. 
+        <em>Logical Block Addressing</em> wykorzystujące numery bloków do
+        oznaczania pozycji na dysku, mimo to w tablicy MBR nadal znajdują się
+        się adresy w formacie <em>CHS</em> oraz <em>LBA</em>. Nie które 
+        programy rozruchowe nadal korzystają z formatu CHS, ale nie Linuxowe,
+        te korzystają z LBA. 
+      </p>
+      <p>
+        Cylindry nadal odgrywają bardzo ważna role podczas partycjonowania
+        dysku. Cylindry są idealnymi granicami partycji, odczyt danych z 
+        cylindra jest bardzo szybki, jesli więc partycja składa się z
+        przylegających do siebie cylindrów, to głowica nie będzie musiała
+        wykonywać dalekich ruchów przestawiając się z jednego cylindra.
+        Nie które programy mogą zwracać informacje o tym że granice partycji
+        nie wypadają na granicach cylindra. Takie komunikaty jednak można
+        zignorować ponieważ ustawienie partycji w granicach cylindra wymaga
+        geometrii CHS, a ta nie działa w nowoczesnych dyskach.
+      </p>
+      <h3>Dyski SSD</h3>
+      <p>
+        Dzisiaj talerzowy dysk twardy został wyparty nawet z maszyn
+        Linuxowych. Dyski SSD są pozbawione cześci mechanicnych, przez co
+        upraszczają warstwę programistyczną. Dostęp do danych jest swobodny
+        ponieważ nie porusza się żadna głowica, która musi sie ustawić.
+        Pomimo wszystkich zalet tych dysków, to istnieje kilka czynników
+        dzięki którym możemy jeszcze bardziej poprawić wydajność.  
+      </p>
+      <p>
+        Jednym z ważniejszych czynników mogących wpłynąć na wydajność dysków
+        SSD jest <strong>ułożenie partycji</strong>. SSD podczas odczytu
+        pobiera dane w stałych fragmenty zazwyczaj jest 
+        <strong>4096 bajtów</strong>, a operacje odczytu muszą zaczynać się
+        od wielokrotności tej wartości. Jeśli partycja i jej dane nie
+        rozpoczynają się od wielkrotności liczby 4096, to będzie trzeba wykonać
+        nie jeden a dwie operacje odczytu pod czas zwykłego wyświetlenie
+        zawartości katalogu.
+      </p>
+      <p>
+        Za pomocą obecnych narzędzi możemy umieścić partycje z uwzględnieniem
+        tego przesunięcia. Jeśli naszy system lub dane znajdują się na SSD to
+        możemy, za pomocą systemu <em>sysfs</em> sprawdzić gdzie, znajdują
+        się początek partycji. 
+      </p>
+<pre class="code-block">
+$ cat /sys/block/sda/sda1/start
+</pre>
+      <p>
+        Jeśli zawartość pliku jest podzielna przez 4096, oznacza to że partycja
+        została zoptymalizowana pod dyski SSD. Nie spotkałem się z tym, żeby
+        <em>fdisk</em> dokonywał tych optymalizacji automatycznie,
+        prawdopodobnie musimy o nie zadbać sami.
+      </p>
+      <h2>Systemy plików</h2>
+      <p>
+        Kolejna warstwą są systemy plików, to one organizują ułożenie danych
+        na partycjach. Są bazami danych gdzie przechowywane są informacje
+        pozwalające na zamianę urządzenia blokowego w strukturę katalogów i
+        plików. Inny zastosowaniem systemów plików ze względu na ich
+        wszechstronność jest wykorzystanie ich w roli interfejsów systemowych
+        takich jak katalogi <em>/sys</em> czy <em>/proc</em>.
+      </p>
+      <p>
+        W Linuxie stoworzono funkcję <strong>FUSE</strong> (ang. <em>File
+        System in User Space</em>) umożliwiająca działanie systemów plików w 
+        przestrzenii użytkownika. Dzięki <em>FUSE</em> możemy montować systemy
+        plików takie jak CIFS (udziały SAMBA) czy SSHFS.
+      </p>
+      <p>
+        Poza typowymi systemami warto wspomonieć o systemach, które nie są tak
+        oczywiste. System VFS (ang. <em>Virtual File System</em>), jest
+        warstwą standaryzującą systemy plików, dzięki czemu otrzymujemy 
+        identyczny interfejs dostępu do plików i katalogów dla aplikacji
+        czy przestrzeni użytkownika przy różnych systemach plików na
+        partycjach.
+      </p>
+      <h3>Typy systemów plików</h3>
+      <p>
+        Dystrybucje Linuxowe obsługują bardzo dużą ilość systemów plików, są
+        to systemy stosowane na płytach CD/DVD, systemy plików rodziny FAT,
+        czy systemy znane z innych systemów operacyjnych jak NTFS. Jeśli
+        obsługa systemu nie jest wbudowana, to prawdopodobnie w repozytoriun
+        znajduje się odpowiedni pakiet do zainstalowania. Poniżej znajduje się
+        lista typowych systemów plików obsługiwanych przez Linux.
+      </p>
+      <ul>
+        <li><strong>Czwarty rozszerzony system plików</strong> 
+        (<strong>ext4</strong> - <em>fourth extend</em>). Jest to rozbudowana 
+        wersja druga systemu <em>ext</em>, dodano funkcję dziennika znaną z 
+        wersji
+        trzeciej oraz rozbudowano maksymalny rozmiar pliku oraz maksymalną
+        ilość podkatalogów w katalogu. Domyślny system plików dla katalogu
+        głównego w wielu dystrybucjach. W innych bardziej zaawansowanych
+        dystrybucjach system <em>ext4</em> ustępuję miejsca systemom 
+        <strong>btrfs</strong> czy <strong>xfs</strong>.</li>
+        <li><strong>ISO 9660</strong> - standardowy system plików
+        wykorzystywany na płytach CD-ROM. Obecnie płyty korzystają z
+        rozszerzeń tego systemu. Linux obsługuje je wszystkie.</li>
+        <li><strong>FATy</strong> - rodzina systemów plików znanych z 
+        wczesnych wersji systemu MS Windows oraz systemu MS-DOS. Obecnie
+        wykorzystywane na dyskach wymiennych typu Flash w wersji 
+        <em>FAT32</em>, <em>vFAT</em>
+        lub <em>exFAT</em>. Ta ostatnia odmiana prawie zawsze w dystrybucjach 
+        wymaga dodatkowego pakietu.</li>
+        <li><strong>HFS+</strong> - stary system plików stosowany w systemach
+        macOS firmy Apple do 2017, został wyparty przez APFS. Obcnie APFS
+        nie jest oficjalnie wspierany przez Linux. Apple planuje udostępnić 
+        jego dokumentacje, ale kiedy to nastąpi nie wiadomo.</li>
+      </ul>
+      <p>
+        Jeśli mieli byśmy się zastanawać nad wyborem systemu plików, to jeśli
+        nie zapoznamy się ze szeczegółami <em>btrfs</em> lub <em>xfs</em> to
+        najlepszym wyborem jest <em>ext4</em>. Ten system świetnie sprawdza
+        się we wszystkich typowych zastosowaniach. 
+      </p>
+      <h3>Tworzenie systemu plików</h3>
+      <p>
+        Po zakończeniu partycjonowania przyszedł czas na instalację systemu
+        pliku na partycji, ta czyność często potocznie nazwa jest
+        <strong>formatowanie</strong>. Do sformatowania partycji wykorzystamy
+        program <strong>mkfs</strong>, ten program jest w stanie sformatować
+        partycje na tyle systemów plików ile mamy zainstalowane w systemie. My
+        dla przykładu sformatujemy partycje przeznaczoną na katalog główny dla
+        naszej instalacji, można to zrobić za pomocą dwóch wersji tego samego
+        polecenia.
+      </p>
+<pre class="code-block">
+#Sposób: 1
+$ sudo mkfs.ext4 /dev/sda1
+#Sposób: 2
+$ sudo mkfs -t ext4 /dev/sda1 
+</pre>
+      <p>
+        Do uruchomienie programu potrzebny jest typ systemu plików oraz
+        urządzenie blokowe. Podczas tworzenia nowego systemu plików tworzony
+        jest tak zwany <strong>superblok</strong>, jest najwyższym poziomem
+        bazy danych (systemu plików), jest on na tyle istotny, że program
+        tworzy kilka jego kopii zapasowych na wypadek zniszcznia oryginału.
+        Warto zapisać sobie kilka lokalizacji wskazujących na superblok, będą
+        potrzebne do odzyskania danych z uszkodzonego systemu plików, ale o tym
+        poźniej.
+      </p>
+<pre class="code-block">
+$ sudo mkfs.ext4 /dev/sda1
+mke2fs 1.46.4 (18-Aug-2021)
+Tworzenie systemu plików o 3558144 blokach 4k oraz 891184 i-węzłach
+UUID systemu plików: 775f7683-7040-4d3a-b7dc-b9d127d06f29
+Kopie zapasowe superbloku zapisane w blokach: 
+	32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208
+
+Przydzielanie tablicy grup: zakończono                      
+Zapis tablicy i-węzłów: zakończono                      
+Tworzenie kroniki (16384 bloków): wykonano
+Zapis superbloków i podsumowania systemu plików: wykonano
+</pre>
+      <p>
+        Na powyższym przykładzie przestawiono komunikaty zwracane przez
+        polecenie <code class="code-inline">mkfs</code>. Wypisane kopie
+        superbloku są wyraźnie zaznaczone. 
+      </p>
+      <p>
+        Przyjrzymy się przez chwilę składnii polecenia 
+        <code class="code-inline">mkfs</code>, jak widzimy typ pliku podawany
+        jest po kropce (taka jest najpowszechniejsza wersja korzystania z tego
+        narzędzia), polecenie jest na tyle wszechstronne, że nie musimy znać
+        poleceń formatujących z pakietów obsługujących dany system plików.
+      </p>
+      <p>
+        Poleceniem odpowiedzialnym za obsługę <em>ext4</em>, jest program
+        <strong>mke2fs</strong>.
+      </p>
+      <h3>Montowanie systemu plików</h3>
+      <p>
+        Podłączanie systemu plików do istniejącego systemu w systemach
+        UNIX-owych nazywany jest <strong>montowaniem</strong>. Montowaniem
+        zajmuje się polecenie <strong>mount</strong>. Aby zamontować jakiś
+        system plików, potrzebujemy:
+      </p>
+      <ul>
+        <li><strong>nazwy urządzenia</strong> zawierającej system plików,</li>
+        <li><strong>typu systemu</strong>, nie jest to konieczne ponieważ
+            polecenie jest wstanie rozpoznać systemy plików, których obsługa
+            została zainstalowana. Typ potrzebny jest na przykład podczas
+            montowania udziału SAMBA, tam nazwa urządzenia jest dość
+            charakterystyczna.</li>
+        <li><strong>punktu montowania</strong> - katalog, do którego ma zostać
+            podłączony montowany system plików.</li>
+        <li><strong>opcji</strong> - również nie jest to obowiązkowe, opcje
+            są potrzebne w specyficznych przypadkach lub w celu podłączenia
+            systemu plików w określony sposób.</li>
+      </ul>
+      <p>
+        Jeśli nie podamy żadnej z tych informacji polecenie wyświetli
+        zamontowane w system systemy plików.
+      </p>
+<pre class="code-block">
+$ mount
+proc on /proc type proc (rw,nosuid,nodev,noexec,relatime)
+sys on /sys type sysfs (rw,nosuid,nodev,noexec,relatime)
+dev on /dev type devtmpfs (rw,nosuid,relatime,size=12274812k,nr_inodes=3068703,mode=755,inode64)
+run on /run type tmpfs (rw,nosuid,nodev,relatime,mode=755,inode64)
+/dev/nvme0n1p1 on / type xfs (rw,relatime,attr2,inode64,logbufs=8,logbsize=32k,noquota)
+securityfs on /sys/kernel/security type securityfs (rw,nosuid,nodev,noexec,relatime)
+tmpfs on /dev/shm type tmpfs (rw,nosuid,nodev,inode64)
+devpts on /dev/pts type devpts (rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000)
+cgroup2 on /sys/fs/cgroup type cgroup2 (rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot)
+pstore on /sys/fs/pstore type pstore (rw,nosuid,nodev,noexec,relatime)
+none on /sys/fs/bpf type bpf (rw,nosuid,nodev,noexec,relatime,mode=700)
+systemd-1 on /proc/sys/fs/binfmt_misc type autofs (rw,relatime,fd=30,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=14547)
+mqueue on /dev/mqueue type mqueue (rw,nosuid,nodev,noexec,relatime)
+hugetlbfs on /dev/hugepages type hugetlbfs (rw,relatime,pagesize=2M)
+debugfs on /sys/kernel/debug type debugfs (rw,nosuid,nodev,noexec,relatime)
+tracefs on /sys/kernel/tracing type tracefs (rw,nosuid,nodev,noexec,relatime)
+configfs on /sys/kernel/config type configfs (rw,nosuid,nodev,noexec,relatime)
+fusectl on /sys/fs/fuse/connections type fusectl (rw,nosuid,nodev,noexec,relatime)
+none on /run/credentials/systemd-sysusers.service type ramfs (ro,nosuid,nodev,noexec,relatime,mode=700)
+tmpfs on /tmp type tmpfs (rw,nosuid,nodev,nr_inodes=409600,inode64)
+tmpfs on /run/user/1000 type tmpfs (rw,nosuid,nodev,relatime,size=2456428k,nr_inodes=614107,mode=700,uid=1000,gid=1000,inode64)
+gdrive: on /home/xf0r3m/gdrive type fuse.rclone (rw,nosuid,nodev,relatime,user_id=1000,group_id=1000)
+//192.168.8.2/nas on /home/xf0r3m/NAS type cifs (rw,relatime,vers=default,cache=strict,username=admin,uid=1000,noforceuid,gid=1000,
+noforcegid,addr=192.168.8.2,file_mode=0755,dir_mode=0755,soft,nounix,serverino,mapposix,rsize=1048576,wsize=1048576,bsize=1048576,
+echo_interval=60,actimeo=1,user=admin)
+</pre>
+      <p>
+        Każdy wiersz opisuje jednen system plików. Urządzenie 
+        <code class="code-inline">/dev/nvme0n1p1</code> zostało zamontowane
+        w katalogu głównym <code class="code-inline">/</code>, a montowany
+        system plików to <code class="code-inline">xfs</code>, w nawiasie
+        znajdują sie opcje montowania. A samo polecenie montowania może 
+        wyglądać w następujący sposób.
+      </p>
+<pre class="code-block">
+$ sudo mount -t cifs //192.168.8.2/nas ~/NAS -o user=admin,uid=1000,gid=1000
+</pre>
+      <p>
+        Na powyższym przykładzie użyłem nieco bardziej zaawansowanego
+        polecenia, aby użyć wszystkich wypisanych powyżej informacji. Typem
+        systemu pliku jest <code class="code-inline">cifs</code>, nazwą 
+        urządzenia jest adres URL serwera SMB. Punkt montowania znajduje się
+        w katalogu domowym użytkownika w katalogu <em>NAS</em>. Po opcji
+        <code class="code-inline">-o</code> podane są opcje specyficzne dla
+        montowanego systemu plików. 
+      </p>
+      <p>
+        Typ montowane systemu plików podajemy za pomocą opcji
+        <code class="code-inline">-t</code>. Jeśli program zwróci niżej
+        przestawiony komunikat to może oznaczać, że w systemie brakuje obsługi
+        jakiegoś systemu plików. 
+      </p>
+<pre class="code-block">
+mount: /mnt: nieznany typ systemu plików 'ntfs'.
+</pre>
+      <p>
+        Odłączenie systemu plików nazywa sie <strong>odmontowaniem</strong> 
+        służy do tego polecenie <strong>umount</strong>.
+      </p>
+<pre class="code-block">
+$ umount /home/xf0r3m/NAS
+</pre>
+      <p>
+        Jak widać na powyższym przykładzie jako argument polecenia 
+        <em>umount</em> podałem punkt montowania. Równie dobrze można podać
+        urządzenie. 
+      </p>
+      <h3>Identyfikator UUID systemu plików</h3>
+      <p>
+        Przypomnijmy sobie, pewną informacje z punktu poświęconego nazwom
+        urządzeń dyskowych. Jądro Linuxa nadaje nazwy urządzeniom w zależności
+        od kolejności wykrycia, co w przypadku automatycznego montowania 
+        systemów plików za pomocą pliku <em>/etc/fstab</em> (będzie o tym
+        poźniej) jest nie do przyjęcia. Problem ten rozwiązano za pomocą
+        specjalych unikatowych <strong>identyfikatorów UUID</strong>, każdy
+        system plików otrzymuje taki identyfikator podczas formatowania.
+        UUID możemy sprawdzić za pomocą polecenia <strong>blkid</strong>. 
+      </p>
+<pre class="code-block">
+$ blkid
+/dev/nvme0n1p5: UUID="ae7adb36-9e62-4c0b-ae53-3d20dcf0b44b" TYPE="swap" PARTUUID="8fcd9a83-05"
+/dev/nvme0n1p1: UUID="40b29c57-5564-4896-802c-c7179a584850" BLOCK_SIZE="512" TYPE="xfs" PARTUUID="8fcd9a83-01"
+/dev/sdb5: PARTUUID="97ad68d6-05"
+/dev/sdb1: UUID="775f7683-7040-4d3a-b7dc-b9d127d06f29" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="97ad68d6-01"
+/dev/sda2: BLOCK_SIZE="512" UUID="6414CDE014CDB578" TYPE="ntfs" PARTUUID="96934582-02"
+/dev/sda3: BLOCK_SIZE="512" UUID="B8AC80D8AC809314" TYPE="ntfs" PARTUUID="96934582-03"
+/dev/sda1: LABEL="ZastrzeM-EM-&lt;one przez system" BLOCK_SIZE="512" UUID="12C8CC4FC8CC3331" TYPE="ntfs" PARTUUID="96934582-01"
+</pre>
+      <p>
+        Przeważnie dla wszystkich systemów plików obsługiwanych przez Linux
+        UUID wygląda identycznie, wyjątkiem są systemy plików <em>FAT</em>.
+        UUID w przypadku tych systemów jest krótszy ponieważ nie jest to
+        typowy identyfikator a <strong>numer seryjny woluminu FAT</strong>.
+        NTFS również wykorzystują swoje rodzaju numer, jako UUID.
+      </p>
+      <p>
+        Identyfikatorów UUID możemy użyć zamiast nazwy urządzenia w poleceniu
+        montowania.
+      </p>
+<pre class="code-class">
+$ sudo mount UUID=40b29c57-5564-4896-802c-c7179a584850 /mnt
+</pre>
+      <p>
+        Jednak chyba wykorzystanie normalnych nazw urządzeń jest lepszym
+        rozwiązaniem niż nawet kopiowanie identyfikatorów z wyjścia polecenia
+        <code class="code-inline">blkid</code>.
+      </p>
+      <p>
+        Identyfikatory UUID możemy zmienić za pomoca polecenia
+        <strong>tune2fs</strong> i związane jest wyłącznie z systemami rodziny
+        <em>ext</em>. Cała procedura opisana jest na stronie podręcznika
+        powyższego polecenia.
+      </p>
+      <h3>Buforowanie dysku i systemu plików</h3>
+      <p>
+        Jądro po otrzymaniu żądania zmian w systemie plików nie zapisuje ich
+        od razu. Linux i inne systemy UNIX-opodobne buforują wszystkie zmiany w
+        systemie plików przed zapisaniem ich na dysku. Wszystkie zmiany są
+        przechowywane są w pamięci RAM do momentu gdy jądro będzie mogło je
+        wygodnie zapisać na dysku. Sam mechanizm jest niewidoczny dla nas a
+        pozwala na znaczne podniesienie wydajności systemu.
+      </p>
+      <p>
+        Jądro w momencie wydania polecenia 
+        <code class="code-inline">umount</code> synchronizuje zawartośc dysku.
+        Mozemy wymusić oczywiście zapisanie wszystkich zmian nagromadzonych w
+        buforze za pomocą polecenia <strong>sync</strong>. Wydanie tego
+        polecenia możemy rozwiązać problem z gdy systemu plików nie chce się
+        odmontować.
+      </p>
+      <p>
+        Poza tym jądro dysponuję całą gamą mechanizmów buforujących dane z
+        dysku w pamięci RAM. Jeśli program odczytuje jeden plik z dysku
+        wielokrotnie to jądro zamiast z dysku przekaże mu dane z bufora, 
+        zaoszczędzając przy tym czas i zasoby.
+      </p>
+      <h3>Opcje montowania systemu plików</h3>
+      <p>
+        Opcje montowania mogą zmieniać zachowanie polecenia <em>mount</em>,
+        może być to pożądane w czasie odzyskiwania danych, naprawy uszkodznego
+        systemu lub jego konserwacji. Duża ilość informacji na temat opcji
+        montowania znajduje się na stronie podręcznika powyższego polecenia.
+        Ciężko jednak znaleźć te potrzebne akurat teraz, dlatego też poniżej
+        przestawie najważniejsze opcje montowania. 
+      </p>
+      <p>
+        Opcje montowania możemy podzielić na opcje globalne wpływające na samo
+        polecenie <em>mount</em> oraz na opcje specyficzne dla danego systemu
+        plików, które są dostępne na stronach podręcznika urchamianego za
+        pomocą poniższego polecenia.
+      </p>
+<pre class="code-block">
+$ man mount.fs
+</pre>
+      <p>
+        Gdzie, <code class="code-inline">fs</code> jest systemem plików dla,
+        którego opcje potrzebujemy.
+      </p>
+      <p>
+        Jedną z opcji globalnych jest <code class="code-inline">-t</code>,
+        która pozwala na określenie systemu plików, natomiast opcja
+        <code class="code-inline">-o</code> pozwala na podanie opcji
+        specyficznych dla konkretnego systemu plików. Opcje globalne dzielą
+        się na opcje krótkie i długie.
+      </p>
+      <h4>Opcje krótkie</h4>
+      <ul>
+        <li><strong>-r</strong> - zamontowanie systemu w trybie tylko do
+            odczytu. Tryb może mieć wiele zastosowań, przeważnie jest to  
+            zabezpieczenie przed zapisem. Tryb ten ustawiany jest
+            w trakcie montowania napedu CD-ROM.</li>
+        <li><strong>-n</strong> - opcja spowoduje, że polecenie
+            <code class="code-inline">mount</code> nie będzie próbowało
+            modyfikować pliku <em>/etc/mtab</em>. Jeśli polecenie
+            <code class="code-inline">mount</code> nie będzie mogło zapisać
+            do tego pliku to montowanie systemu plików nie powiedzie się. Jest
+            dość istotne w momencie gdy partycja z katalogiem głowym w którym
+            znajduje się ten plik jest zamontowana w trybie tylko do odczytu.
+        </li>
+      </ul>
+      <h4>Opcje długie</h4>
+      <p>
+        Długie polecenia powstały z powodu braku wolnych litera alfabetu, oraz
+        do łatwiejszego rozeznania się wśród opcji. Opcji długich możemy
+        korzystać dopiero po podaniu opcji <code class="code-inline">-o</code>.
+      </p>
+      <ul>
+        <li><strong>exec, noexec</strong> - włącza/wyłącza możliwość
+            uruchamiania programów w danym systemie plików.</li>
+        <li><strong>suid, nosuid</strong> - włącza/wyłącza mozliwość
+            korzystania przez programy z bitu <em>setuid</em>.</li>
+        <li><strong>ro</strong> - montuje system plików w trybie tylko do
+            odczytu.</li>
+        <li><strong>rw</strong> - montuje system plików w trybie pełnego
+            dostępu (zapis i odczyt).</li>
+        <li><strong>conv=reguła</strong> - opcja związana z systemami plików
+            rodziny <em>FAT</em>. Konwertuje znaki nowego wiersza zgodnie z
+            <em>regułą</em>. Domyślna opcją jest opcja <em>binary</em>
+            wyłączająca konwersję znaków. Wartość <em>text</em> spowoduje, że
+            wszystkie pliki będą traktowane jako pliki tekstowe, ostatnia
+            wartość <em>auto</em> wyłącza konwersję w zależności od 
+            rozszerzenia. Nie przemyślane ustawienie tej opcji może spowodować
+            uszkodzenie plików, dlatego też lepiej korzystać z niej w trybie
+            tylko do odczytu.</li>
+      </ul>
+      <h3>Ponowne montowanie systemu plików</h3>
+      <p>
+        Możemy spotkać się z sytuacją, w której potrzebne będzie zamontowanie
+        podmontowanego już systemu, być może będzie to wynikać z chęci zmiany
+        opcji montowania, innym przypadkiem jest podmontowanie odzyskanego
+        systemu po awarii, gdzie trzeba przełączyć system plików z trybu tylko
+        do odczytu w tryb pełnego dostepu.
+      </p>
+<pre class="code-block">
+# mount -n -o remount /
+</pre>
+      <p>
+        Niezbędne jest użycie opcji <code class="code-inline">-n</code>,
+        ponieważ katalog główny znajduje się w trybie tylko do odczytu.
+        Powyższe polecnie zakłada że w pliku <em>/etc/fstab</em> znajduje się
+        prawidłowy wpis z montowaniem katalogu głównego, w przeciwnym wpadku
+        będzie trzeba podać nazwę urządzenia.
+      </p>
+      <h3>Tabela systemów plików</h3>
+      <p>
+        W pliku <em>/etc/fstab</em> dystrybucje Linuxa przechowują informacje
+        o montowanych systemach plików podczas uruchamiana systemu. Sam plik
+        jest plikiem tekstowym o prostym do zrozumienia formacie.
+      </p>
+      <p>
+        Każdy wiersz pliku opisuje jeden system plików i jest podzielony na
+        sześć pól. Poszczególne pola zostaną objaśnione rozpoczynając od
+        lewej strony.
+      </p>
+      <ul>
+        <li><strong>Urządzenie lub identyfikator UUID</strong> - Ze względu na
+            problem z klasycznym nazewnictwem dysków, jako identyfikatorów
+            urządzeń używa się UUID.</li>
+        <li><strong>Punkt montowania</strong> - katalog, do którego ma zostać
+            podłączony system plików.</li>
+        <li><strong>Typ systemu plików</strong> - rodzaj zainstalowanego na
+            urządzeniu systemu plików.</li>
+        <li><strong>Opcje</strong> - lista długich opcji rozdzielanych
+            przecinkami.</li>
+        <li><strong>Informacja o kopiach bezpieczństwa programu dump</strong> -
+            w tym polu zawsze podajemy wartość: <strong>0</strong>.</li>
+        <li><strong>Kolejność sprawdzania spójności systemów plików</strong> -
+            Dla katalogu głównego należy ustawić tę opcje na <strong>1</strong>,
+            spowoduje sprawdzenie katalogu głónego w pierwszej kolejności,
+            innym katalogom możemy ustawić wartość <strong>2</strong>.
+            Ustawienie wartości na <strong>0</strong> spowoduje ominięcie tego
+            systemu plików przy sprawdzaniu. Tej wartości używa się napedów
+            CD-ROM oraz interfejsów systemowych na podstawie systemów plików.
+        </li> 
+      </ul>
+      <p>
+        Jeśli system plików znajduje się pliku w <em>/etc/fstab</em>, to możemy
+        uzywać kilku skrótów podczas jego montowania. Przy poleceniu
+        <code class="code-inline">mount</code> mozemy podać sam punkt
+        montowania a polecenie samo na podstawie wpisu w pliku podmontuje ten
+        system.
+      </p>
+<pre class="code-block">
+# mount /var/www
+</pre>
+      <p>
+        Za pomocą opcji <code class="code-inline">-a</code> możemy podmontować
+        wszystkie systemy znajdujące się w pliku.
+      </p>
+<pre class="code-block">
+# mount -a
+</pre>
+      <p>
+        Podczas omawiania długich opcji polecenia
+        <code class="code-inline">mount</code> kilka zostało pominiętych
+        ponieważ po za plikem <em>/etc/fstab</em> nie maja one żadnego
+        zastosowania, dlatego też omówimy sobie je teraz.
+      </p>
+      <ul>
+        <li><strong>defaults</strong> - domyślne ustawienie takie jak pełny
+            dostęp, korzystanie z bitu <em>setuid</em> i tak dalej. Ta opcja
+            wykorzystywana jest gdy nie chcemy ustawiać żadnych specyficznych
+            ustawień.</li>
+        <li><strong>noauto</strong> - pominięcie wpisu podczas automatycznego 
+            montowania. Używana do pominięcia automatycznego montowania 
+            CD-ROM-ów podczas uruchamiania systemu.</li>
+        <li><strong>user</strong> - opcja umożliwia wykonanie polecenia
+            <code class="code-inline">mount</code> na zadanym systemie plików.
+            Używana do udostępniania napedu CD-ROM, z racji tego iż na 
+            nośnikach użytkownicy mogą posiadać pliki wykonywalne z ustawionym
+            bitem <em>setuid</em>, ta opcja włącza opcje zabezpieczające jak
+            <em>nosuid</em>, <em>noexec</em>, <em>nodev</em> (zabezpieczenie
+            przed plikami urządzeń specjalnych.</li> 
+      </ul>
+      <h3>Rozwiązania konkurencyjne dla /etc/fstab</h3>
+      <p>
+        Na przestrzenii rozwoju dystrybucji Linuxowych, pojawiły się dwa
+        konkurencyjne rozwiazania. Pierwszym z nich są plik konfiguracyjne dla
+        każdego systemu plików, nie spotkałem się z nim w praktyce. Jest wielce
+        prawdopodobne, że to rozwiązanie zostało porzucone.  
+      </p>
+      <p>
+        Innym rozwiązaniem są jednostki systemu <em>systemd</em>, jednak
+        bazują one na wpisach w pliku <em>/etc/fstab</em>, więc możemy
+        spotkać się z nakładającymi się na siebie konfiguracjami.
+      </p>
+      <h3>Pojemność systemu plików</h3>
+      <p>
+        Za pomocą polecenia <strong>df</strong> możemy sprawdzić rozmiar oraz
+        stopień wykorzystania zamontowanych aktualnie systemów plików. Wydanie
+        tego polecenia zwraca nastepujące informacje.
+      </p>
+<pre class="code-block">
+$ df -h
+System plików     rozm. użyte dost. %uż. zamont. na
+dev                 12G     0   12G   0% /dev
+run                 12G  1,2M   12G   1% /run
+/dev/nvme0n1p1     238G   24G  214G  10% /
+tmpfs               12G  7,5M   12G   1% /dev/shm
+tmpfs               12G  3,5M   12G   1% /tmp
+tmpfs              2,4G   60K  2,4G   1% /run/user/1000
+//192.168.8.2/nas  3,6T  1,1T  2,5T  31% /home/xf0r3m/NAS
+gdrive:             15G  7,2G  7,9G  48% /home/xf0r3m/gdrive
+</pre>
+      <p>
+        Domyślną jednostką tego polecenia jest jednokilobajtowy blok. Użyłem 
+        opcji
+        <code class="code-inline">-h</code> jest opcja, która skaluje jednoski
+        tak aby były czytelne przez człowieka. Wynik polecenia jest dość
+        czytelny.
+      </p>
+      <p>
+        Uruchomienie polecenia z domyślnymi jednostkami może doprowadzić nas
+        do ciekawych spostrzeń, o ile nasz system plików to <em>ext4</em>,
+        otóż po dodaniu do siebie zajętych oraz wolnych bloków nie otrzymamy
+        wartości pokazanej w drugiej kolumnie, będzie ona nieco zaniżona.
+        podobnie jest z wartościami procentowymi. Jeśli przeliczym sobie
+        tę wartość jeszcze raz również wyjdzie nam wartość zaniżona. Dlaczego
+        tak to wygląda? Więc te różnice są 
+        <strong>blokami zarezerwowanymi</strong> do wykorzystania przez
+        użytkownika <em>root</em> w momencie gdy skończy się dostępne na dysku
+        miejsce, abyśmy mogli uruchomić polecenie/program, który zwolni trochę
+        miejsca na urządzeniu blokowym z głównym katalogiem.
+      </p>
+      <p>
+        Innym poleceniem, które może zobrazować zajęte miejsce na dysku jest
+        polecenie <strong>du</strong>. Polecenie bada poszczególne katalogi
+        pod względem rozmiaru ich zawartości nastepnie wyświetla rozmiar oraz
+        ścieżkę katalogu.
+      </p>
+<pre class="code-block">
+$ du -h ~ | grep "^[0-9]\,*[0-9]*G"
+1,1G	/home/xf0r3m/.cache/mozilla/firefox/5b96mgck.default-release/cache2/entries
+1,1G	/home/xf0r3m/.cache/mozilla/firefox/5b96mgck.default-release/cache2
+1,1G	/home/xf0r3m/.cache/mozilla/firefox/5b96mgck.default-release
+1,1G	/home/xf0r3m/.cache/mozilla/firefox
+1,1G	/home/xf0r3m/.cache/mozilla
+1,2G	/home/xf0r3m/.cache/spotify/Data
+1,3G	/home/xf0r3m/.cache/spotify
+2,5G	/home/xf0r3m/.cache
+1,2G	/home/xf0r3m/Muzyka/Tool - Discography (1993-2019)
+2,9G	/home/xf0r3m/Muzyka/Ulubione_z_spotify_25.12.2020
+4,3G	/home/xf0r3m/Muzyka
+3,9G	/home/xf0r3m/Downloads
+12G	/home/xf0r3m
+</pre>
+      <p>
+        W powyższym przykładzie użyłem opcji 
+        <code class="code-inline">-h</code>, aby dane zwracane przez polecenie
+        były czytelne przez człowieka, oraz przefiltrowałem wynik polecenia
+        przez wyrażenie regularne, które na początku wiersza szuka wielu
+        cyfr, gdzie pierwsza z cyfr być może jest odzielona od pozostałych 
+        przecinkiem na końcu ciągu cyfr znajduje się duża litera "G". To 
+        wyrażenie
+        szuka wystąpień obliczonego rozmiaru w gigabajtach. Inny poleceniem,
+        które dokona za nas wyskalowania jednostek oraz posortuje katalogi
+        jest polecenie <strong>ncdu</strong>. Nie jest ono wybudowane i trzeba
+        będzie je zainstalować. Program działa w trybie interaktywym, dzięki
+        któremu możemy przeglądać kolejne katalogi, sterowanie odbywa się za
+        pomocą albo strzałek, albo <em>Vim bindings</em> (sterowania edytorem
+        Vim). Warto mieć zainstalowane to polecenie, aby w szybki sposób
+        oczyścić dysk gdy skończy nam się miejsce. 
+      </p>
+<pre class="code-block">
+$ ncdu
+</pre>
+      <p>
+        Polecenie <code class="code-inline">du</code> możną uruchomić w 
+        trybie podsumowania, wówczas zostanie nam wyświetlony tylko główny
+        poziom katalogu, bez zagłebiania się w podkatalogi. Każdy katalog 
+        będzie mieć już obliczony rozmiar i nie ma potrzeby używania żadanych
+        dodatkowych poleceń. 
+      </p>
+<pre class="code-block">
+$ du -sh *
+</pre>
+      <p>
+        Gwiazdka sugeruje przeliczenie wszystkich plików i katalogów, przeciwym
+        wypadku polecenie zwróci rozmiar bierzącego katalogu roboczego.
+      </p>
+      <h3>Sprawdzanie i naprawianie systemów plików</h3>
+      <p>
+        Systemy plików aby mogły działać prawidłowo muszą być pozbawione
+        uszkodzeń, jądro musi mieć pewność, że zamontowane systemy plików są
+        wolne od błędów. Takie błedy powstają na skutek brutalnego wyłączania
+        komputera, wyciągniecią wtyczki z gniazdka lub zaniku prądu w sieci
+        energetycznej. Zawartość pamięci podręcznej oraz tego co jest nad dysku
+        nie jest ze sobą
+        zgodne albo co gorsza system był w trakcie synchronizowania zmian.
+        Najnowsze systemy plików są wyposażone w mechnizm plików dziennika
+        przez co poważne przypadki występują co raz rzadziej. Jeśli mieszkamy
+        na terenie gdzie często dochodzi o zaciemnień (przerw w dostawie 
+        energii elektrycznej) warto zaopatrzyć sie w UPS lub pracować na
+        laptopie, którego bateria może robić za taki backup, bateria tak
+        traktowane w laptopach starszej generacji będą nadawać się pojakimś
+        czasie do wymiany, za to w nowszej generacji komputerów przenośnych
+        mamy ustawienia w systemie BIOS, które pozwalają na korzystanie z 
+        zasilacza mimo naładowanej baterii.
+      </p>
+      <p>
+        Mimo braku powyższych problemów, oraz jeśli nigdy nam się nie
+        zdarzyło że komputer został brutalnie wyłączony, to i tak nalezy
+        przeprowdzać kontrole stanu systemu plików.
+      </p>
+      <p>
+        Narzędziem służącym do sprawdzania poprawności systemu plików oraz jego
+        naprawy jest polecenie <strong>fsck</strong>. Polecenie to zachowuje
+        się podobnie do polecenia <em>mount</em>. Po podaniu urzadzenia
+        zawierającego system plików, rozpozna ten system i uruchomi
+        odpowiednie dla niego narzędzie o ile będzie ono dostępne w systemie.
+        Dla systemów <em>ext4</em> takim program jest <strong>e2fsck</strong>.  
+      </p>
+      <p>
+        W tym punkcie polecenie i wyniki ich działań będą skupiały się wokół
+        systemów rodziny <em>ext</em>. Uruchomienie polega na wydaniu
+        polecenia <code class="code-inline">fsck</code> oraz podaniu urządzenia
+        blokowego zawierającego system plików do sprawdzenia.
+      </p>
+<pre class="code-block">
+# fsck /dev/sdb1
+</pre>
+      <p>
+        Pewna uwaga co do stosowania tego narzędzia. 
+        <strong>Nie wolno używać polecenia
+        <code class="code-inline">fsck</code> na zamontowanym systemie plików.
+        </strong>
+        Takie działanie może doprowadzić do załamiania systemu oraz
+        zniszczenia plików znajdujących się na partycji. Wyjątkiem jest tryb
+        przywracania systemu (tryb jednego użytkownika), gdzie partycja jest
+        zamontowana w trybie tylko do odczytu.
+      </p>
+      <p>
+        Uruchomienie polecenia, jak na powyższym przykładzie spowoduje, że
+        program wyświetli podsumowanie. Wyjście polecenia może wyglądać 
+        nastepująco, o ile nie zostaną znalezione żadne błędy.
+      </p>
+<pre class="code-block">
+fsck z pakietu util-linux 2.37.2
+e2fsck 1.46.4 (18-Aug-2021)
+/dev/sdb1: czysty, 11/891184 plików, 82577/3558144 bloków
+</pre>
+      <p>
+        W przypadku napotkania błedów program zapyta czy naprawić dany problem.
+        Problemy mogą być drobnymi nieścisłoścami w systemie plików takimi jak
+        zgubienie węzłów <em>inode</em> (będzie o tym pod koniec materiału).
+        Przy zgubieniu węzłów, program znalazł plik, który najwyraźniej nie ma
+        żadnej nazwy. Połaczenie węzłów polega na tym, że program umieści ten
+        plik w katalogu <em>lost+found</em> i nada mu numer będący jego nową
+        nazwą. 
+      </p>
+      <p>
+        Ciekawą opcją dla programu <code class="code-inline">e2fsck</code>
+        (<em>fsck</em> dla <em>ext</em>) jest opcja <em>-p</em> powodująca,
+        że program nie będzie pytać nas o decyzję w przypadku drobnych błedów
+        i będzie je samodzielnie naprawiać, zatrzyma się w momencie napotkania
+        poważnego problemu, systemy plików są sprawdzane tą metodą podczas
+        uruchamiania systemu.
+      </p>
+      <p>
+        Jeśli podejrzewamy, że stało się coś naprawdę nie dobrego, to program
+        <em>fsck</em> w trybie naprawczym może jeszcze bardziej namieszać. Za
+        poważną awarię możemy uznać uszkodzenie sprzętu lub niewłaściwą 
+        konfigurację. Objawem takiej awarii może być ogromna ilość pytań w 
+        trybie ręcznym (klasyczne uruchomienie programu bez żadnych
+        opcji). Najlepszym rozwiązaniem, może być uruchomienie programu
+        <em>fsck</em> z opcją <em>-n</em>, która powoduje, że program tylko
+        sprawdzi system plików, niebędzie niczego naprawiał. Na podstawie tego
+        możemy ocenić sytuacje. Przyczynami niewłaściwej konfiguracji
+        mogą być nieprawidłowa ilość bloków w tablicy partycji czy poluzowane
+        przewody od dysków, jeśli mamy szanse usunięcia tych usterek, to należy
+        zrobić to przed uruchomieniem programu <em>fsck</em> w trybie
+        naprawczym, w przeciwnym razie istnieje duże prawdopodobieństwo
+        utraty zapisanych na dysku danych. 
+      </p>
+      <p>
+        Być może uszkodzeniu uległ <em>superblok</em> (podstawowa baza danych
+        systemu plików), to możemy przywrócić go ile zapisaliśmy sobie
+        lokalizacje kopii bezpieczeństwa superbloku (były wyświetlane podczas
+        tworzenie systemu plików), za pomocą poniższego polecenia.
+      </p>
+<pre class="code-block">
+# fsck -b num
+</pre>
+      <p>
+        Gdzie za <code class="code-inline">num</code> podajemy numer bloku
+        w którym znajduje się kopia zapasowa.
+      </p>
+      <p>
+        Jeśli nie zapisaliśmy sobie, żadnej lokalizacji to możemy mieć problem
+        z jego namierzeniem. Cień szansy może dać to, iż zazwyczaj tworzy się
+        system plików z domyślnymi wartościami. Dzięki temu, za pomocą opcji
+        <em>-n</em> możemy wyświetlić lokalizacje kopii zapasowych 
+        <em>superbloku</em>. Przed uruchomień polecenia należy upewnić się dwa
+        razy, czy użyliśmy tej opcji, uruchomienie tego polecenia bez żadnej
+        opcji spowoduje, że nasz dysk zostanie sformatowany i utracimy
+        wszystkie dane.
+      </p>
+      <h4>Najgorszy przypadek</h4>
+      <p>
+        Poważne uszkodzenia systemów plików pozostawiają nam tylko kilka
+        czynności, które możemy zrobić.
+      </p>
+      <ul>
+        <li>Za pomocą polecenia <em>dd</em> możemy przepisać cały system plików
+            na inna partycję na innym dysku. Docelowa partycja musi mieć taki
+            sam rozmiar jak ta, którą kopiowaliśmy.</li>
+        <li>Możemy probować naprawiać system plików, zamontować go w trybie
+            tylko do odczytu i odzyskać tyle danych ile się tylko da.</li>
+        <li>Użyć programu <strong>debugfs</strong>.</li>
+      </ul>
+      <p>
+        Przy pierwszych dwóch przypadkach przed zamontowaniem systemu plików i
+        tak musimy go naprawić chociaż w podstawowym stopniu. Możemy udzielić
+        odpowiedzi twierdzącej na wszystkie pytania <em>fsck</em> za pomocą
+        uruchomienia go z opcją <em>-y</em>, jednak nie jest to zaleceane, gdyż
+        są problemy, które lepiej naprawić ręcznie.
+      </p>
+      <p>
+        Za pomocą programu <strong>debugfs</strong> możemy przeglądać i
+        skopiować pliki w inne miejsce. Polecenie domyślnie otwiera system
+        plików w trybie tylko do odczytu. Podczas odzyskiwania danych warto
+        dbać o spójność plików aby nie popsuć sytuacji jeszcze bardziej.
+      </p>
+      <p>
+        Jeśli wszystkie te opisane metody zawiodą, jedyne co nam pozostanie to
+        oddanie dysku do firmy specjalizującej się w odzyskiwaniu danych.
+      </p>
+      <h3>Systemy plików o specjalnym znaczeniu</h3>
+      <p>
+        Nie wszystkie systemy plików służą do przechowywania danych na
+        fizycznych nośnikach. Większość systemów UNIX-opodobnych korzysta z
+        z wielu systemów plików jako interfejsów systemowych. Tego rodzaju
+        struktury przechowują informacje takie jak identyfikatory procesów czy
+        komunikaty diagnostyczne jądra systemu. Koncepcja wywodzi się z
+        katalogu <em>/dev</em> - pierwszego wykorzystania plików jako
+        interfejsu wejścia-wyjścia.
+      </p>
+      <p>
+        Do specjalnych systemów plików stosowany w dystrybucjach Linuxa możemy
+        zaliczyć:
+      </p>
+      <ul>
+        <li><strong>proc</strong> - montowany w katalogu <em>/proc</em>. Każdy
+            z jego podkatalogów ma nazwę odpowiadającą PID-owi i jest 
+            odpowiednikiem jednego z działających w systemie procesów. Plik
+            znajdujące się w nich opisują wiele aspektów procesów. Katalog
+            <em>/proc/self</em> opisuje aktualny proces. W systemach rodziny
+            Linux, system plików <em>proc</em> przechowuje wiele informacji o
+            jądrze oraz o sprzęcie. Przykładem może być tutaj plik
+            <em>/proc/cpuinfo</em>.</li>
+        <li><strong>sysfs</strong> - system plików montowany w katalogu,
+            <em>/sys</em>, poprzednii rodział opisuje jego właściwości oraz
+            jakie zadania spełnia.</li>
+        <li><strong>tmpfs</strong> - ten system plików można spotkać w katalogu
+            <em>/run</em> oraz kilku innych miejscach. Za pomocą 
+            <em>tmpfs</em> można
+            przekształcić pamięć operacyjną oraz przestrzeń wymiany
+            (będzie o niej za chwilę) w tymczasową przestrzeń dyskową. System
+            plików tego typu, można montować w dowolnym miejscu a opcje
+            polecenia <em>mount</em> jaki <em>size</em> oraz <em>nr_blocks</em>
+            pozwalają na określenie wielkości montowane systemu. Nie należy
+            przesadzać z ilością zapisanych danych do takiego dysku, gdyż można
+            wyczerpać zasoby pamięci w komputerze i doprowadzić do załamania
+            systemu.</li> 
+      </ul>
+      <h2>Przestrzeń wymiany</h2>
+      <p>
+        Na dysku nie każda partycja jak i system plików w systemie Linux jest
+        przeznaczony do przechowywania danych. Za pomocą specjalnej partycji
+        można powiększyć ilość pamięci RAM w systemie. Gdy zacznie brakować
+        pamięci jądro będzie automatycznie przenosić strony pamięci na dysk i
+        z powrotem, korzystając z tak zwanego systemu pamięci wirtualnej.
+        Operacja ta jest nazywana <strong>wymianą</strong> 
+        (ang. <em>swapping</em>). Ponieważ polega na wymianie 
+        niewykorzystanych stron pamięci RAM z aktywnymi stronami zapisanymi
+        na dysku. Partycję przeznaczoną własnie to takich celów nazywamy
+        <strong>przestrzenią wymiany</strong>. 
+      </p>
+      <h3>Wykorzystanie partycji jako przestrzeni wymiany.</h3>
+      <p>
+        Inicjując dysk do instalacji Linuxa zostawiliśmy jedną partycję
+        logiczną na przestrzeń wymiany, nawet ustawiliśmy jej typ na
+        <em>Linux swap</em>. Teraz wykorzystamy tą partycję jako przestrzeń
+        wymiany.
+      </p> 
+<pre class="code-block">
+#Inicjacja partycji jako przestrzeni wymiany
+# mkswap /dev/sdb5
+#Włączenie przestrzeni wymiany znajdującej się na partycji
+# swapon /dev/sdb5
+</pre>
+      <p>
+        Teraz jądro będzie mogło przenosić strony pamięci na dysk i z powrotem.
+        Aby nasza przestrzeń wymiany na partycji włączała się podczas
+        uruchamiania systemu, potrzebny jest wpis w pliku <em>/etc/fstab</em>.
+      </p>
+<pre class="code-block">
+UUID="UUID_partycji_z_przestrzenią_wymiany" none  swap  sw  0 0
+</pre>
+      <h3>Wykorzystanie pliku jako przestrzeniu wymiany</h3>
+      <p>
+        Jeśli nasz dysk został już spartycjonowany, i nie przewidzieliśmy 
+        miejsca na przestrzeń wymiany, to nadal jest sposób aby zniej
+        skorzystać, oczywiście nie będzie ona tak szybka jak ta umieszczona 
+        na dysku. Aby utworzyć plik z przestrzenią wymiany potrzebny będzie
+        pusty plik o zadeklarowanej już wielkości, do utworzenia takiego pliku
+        użyjemy polecenia <em>dd</em>.
+      </p>
+<pre class="code-block">
+# dd if=/dev/zero bs=1024k of=plik_wymiany count=liczba_mb
+</pre>
+      <p>
+        W opcji <code class="code-inline">of</code> podajemy ścieżkę gdzie
+        należy zapisać plik, a w opcji <code class="code-inline">count</code>
+        podajemy rozmiar <em>swapu</em> (przestrzeni wymiany) w megabajtach
+        sama ilość bez jednostki. Następne czyności są identyczne z tymi, które
+        wykonywaliśmy dla partycji. 
+      </p>
+<pre class="code-block">
+# mkswap plik_wymiany
+# swapon plik_wymiany
+</pre>
+      <p>
+        W celu wyłączenia przestrzeni wymiany czy to na partycji czy w pliku
+        służy polecenie <strong>swapoff</strong>.
+      </p>
+<pre class="code-block">
+# swapoff /dev/sdb5
+# swapoff plik_wymiany
+</pre>
+      <h3>Jak dużej przestrzeni wymiany potrzebuje?</h3>
+      <p>
+        Obecne komputery posiadają dość duże zasoby szybkiej pamięci
+        operacyjnej nie mniej jednak, nie które programy mogą wykorzystywać
+        przestrzeń wymiany. Do normalnej pracy na dystrybucji przeznaczonej
+        na desktopy wystarczą 4GB. Więc myślę, że 1GB na przestrzeń wymiany
+        jest wystarczająco dużo na dzisiejsze potrzeby.
+      </p>
+      <p>
+        Inny ciekawym przypadkiem do omówienia jest moment, w którym zasoby
+        pamięci RAM oraz przestrzeń wymiany zostaną wyczerpane, wówczas
+        jądro systemu wywoła sygnał <strong>OOM</strong> 
+        (ang. <em>Out of Memory</em>). Jądro zabije jeden z procesów,
+        zwalniając przy tym trochę pamięci, warto więc mieć to na uwadze, aby
+        niestracić wyników swoich prac. Cieżko jest osiągnąć ten stan, nie
+        działając celowo, kiedy zacznie brakować pamięci operacyjnej w
+        systemie odczujemy to na jego responsywności. 
+      </p>
+      <h2>Dyski i przestrzeń użytkownika</h2>
+      <p>
+        Wśród modułów obsługujących dyski wyznaczenie granicy między 
+        przestrzenią użytkownika a jądrem, może być trudne. Jądro wykonuje
+        surowe operacje wejścia-wyjscia, a programy przestrzeni użytkownika
+        dokonują samodzielnych operacji na plikach urządzeń. Programy
+        te wykorzystują operacje blokowe wejścia-wyjścia
+        jedynie w celach partycjonowania i tworzenia systemu plików.
+        W normalnych zastosowaniach programy użytkowników używają funkcji
+        systemu plików udostępnionych przez jądro pod warstwą operacji
+        operacji blokowych. Jądro zajmuje się operacjami obsługi przestrzeni
+        wymiany oraz pamięcią wirtualną, dzięki której możemy z niej
+        korzystać.
+      </p> 
+      <h2>Tradycjny system plików</h2>
+      <p>
+        Poniżej zostanie przestawiony bazowym model UNIX-owego systemu plików.
+        Temat jest bardziej zaawansowany, ale może odpowiedzieć na kilka 
+        nurtującaych nas pytań.
+      </p>
+      <p>
+        UNIX-owy system plików składa się z dwóch składników, ze zbioru bloków,
+        w których można przechowywać dane oraz z bazy danych. Podstawowym
+        elementem takiej bazy są struktury zwane 
+        <strong>węzłami inode</strong>.
+        Każdy z wezłów jest zbiorem danych opisujących dany plik, wśród nich
+        znalazły się takie informacje jak umiejscowanie pliku w zbiorze bloków,
+        typ pliku czy uprawnienia. Wezły identyfikowane są za pomocą numerów
+        wpisywanych to tabeli węzłów.
+      </p>
+      <p>
+        Nazwy plików i katalogi również są zapisywane w postaci
+        węzłów <em>inode</em>. Węzeł katalogu przechowuje listę nazw plików
+        oraz powiązanych z nim odnośników do innych węzłów.
+      </p>
+      <p>
+        Dla lepszego zobrazowania potrzebny byłby jakiś dysk, aby utworzyć
+        na nim kilka katalogów i plików. 
+      </p>
+<pre class="code-block">
+# mkdir katalog1
+# mkdir katalog2
+# echo "a" &gt; katalog1/plik1
+# echo "b" &gt; katalog1/plik2
+# echo "c" &gt; katalog1/plik3
+# echo "d" &gt; katalog2/plik4
+# ln katalog1/plik3 katalog2/plik5
+</pre>
+      <p>
+        Brak opcji <em>-s</em> w przypadku ostatniego polecenia nie jest 
+        błędem, jest to celowe działanie. Utworzona struktura prezentuje się w 
+        następujący sposób.
+      </p>
+<pre class="code-block">
+./
+  katalog1/
+    plik1
+    plik2
+    plik3
+  katalog2/
+    plik4
+    plik5
+</pre>
+      <p>
+        Poniżej znajduje się diagram opisujący jak wygląda powyższa struktura
+        z poziomu systemu plików. 
+      </p>
+      <p>
+        <img src="https://i.ibb.co/CWw0njp/diagram4.png" alt="diagram4" border="0">
+      </p> 
+      <p>
+        Każdy system plików rodziny <em>ext</em> rozpoczyna się od węzła
+        <em>inode</em> o numerze 2. Patrząc na diagram możemy zobaczyć, że
+        jest to węzeł katalogu. Jeśli podąrzając za strzałką zobaczymy
+        zawartość tego katalogu w zbiorze bloków. Katalog ten zawiera dwa
+        podkatalogi <code class="code-inline">katalog1</code>,
+        <code class="code-inline">katalog2</code>, które wskazują na węzły
+        <em>inode</em> o numerach 391681 oraz 130561. Jeśli powrócimy do 
+        tabeli węzłów i doszukamy węzły o takich numer to wskażą nam one
+        konkretne bloki w zbiorze po prawej stronie diagramu.  
+      </p>
+      <p>
+        Podczas sprawdzania nazwy np. <em>katalog2/plik4</em> w systemie plików
+        jądro musi wykonać następujące czynności:
+      </p>
+      <ol>
+        <li>
+          Wyznaczenie elementów całej ścieżki: katalog o nazwie 
+          <em>katalog2</em>, a za nim plik o nazwie <em>plik4</em>. 
+        </li>
+        <li>
+          Przejście od podstawowego węzła <em>inode</em> do danych jego
+          podkatalogów.
+        </li>
+        <li>
+          Wyszukanie nazwy katalogu <em>katalog2</em> w danych węzła 
+          <em>inode</em> numer 2, która wskazuje na węzeł o numerze
+          <em>130561</em>.
+        </li>
+        <li>
+          Wyszukanie w tabeli węzłów o numerze pozycji <em>130561</em> i
+          upewnienie się czy to na pewno jest węzeł katalogu.
+        </li>
+        <li>
+          Przejście dodanych węzła <em>130561</em>, w celu odczytania jego
+          zawartości (Na diagramie, w zbiorze bloków będzie to druga pozycja
+          od góry po prawej stronie).
+        </li>
+        <li>
+          Odszukanie drugiego elementu ścieżki (<em>plik4</em>). Nazwa
+          wskazuje na węzeł o numerze <em>130562</em>.
+        </li>
+        <li>
+          Wyszukanie w tabeli węzła o numerze <em>130562</em>, jest to węzeł
+          szukanego pliku.
+        </li> 
+      </ol>
+      <p>
+        W tym momencie jądro zna właściwości pliku i może go otworzyć,
+        przechodząc do zbioru danych wskazanych przez węzeł o numerze
+        <em>130562</em>
+      </p>
+      <p>
+        Węzły <em>inode</em> katalogów, wskazujące na struktury katalogowe,
+        które wskazują na inne węzły tworzą swoje rodzaju hierarchię.
+        Struktury katalogowe (wezły katalogów) zawierą węzły aktualnego
+        katalogu oraz katalogu nadrzędnego, wyjątkiem jest wezeł podstawowy
+        on nie zawiera wpisu katalogu nadrzędnego, dzięki czemu jądro w łatwy
+        sposób może odnaleźć początek systemu plików i ułatwić sobie
+        nawigację po nim. 
+      </p>
+      <h3>Przeglądanie szczegółów wezłów inode</h3>
+      <p>
+        Aby poznać numery węzłów <em>inode</em> zawartość dowolnego katalogu
+        należy wydać polecenie:
+      </p>
+<pre class="code-block">
+$ ls -i
+ 9452748 19.10.2021.txt   2957241 Desktop       17877569 Downloads    9951238 test.sh
+ 9171807 2                9902820 Diagram3.png   9171784 firmware
+ 9378703 20.10.2021.txt   9174537 diagram4.png  26910676 gdrive
+ 9954995 28.09.2021.txt   9171803 Documents      5039662 Muzyka
+</pre>
+      <p>
+        Wrócmy na chwilę do wyniku polecenia 
+        <code class="code-inline">ls -al</code> została tam kolumną, której
+        nie poświęciliśmy zbytnio uwagi. Kolumna numer 2 zawiera
+        <strong>licznik dowiązań</strong> - jest to liczba ogólnych pozycji
+        w wskazujących na ten określony węzeł <em>inode</em>. Przeważnie
+        zwykłe pliki mają po jednym dowiązaniu, jeśli wrócimy do diagramu to
+        zobaczymy, że węzeł <em>inode</em> o numerze <em>391684</em> 
+        posiada dwa dowiązania. 
+        Pierwsze dowiązanie powstało w momencie jego powstania, a drugie
+        stowrzyliśmy sami, ostatnim poleceniem, gdzie wydając polecenie
+        <code class="code-inline">ln</code> bez opcji <em>-s</em> utworzyliśmy
+        żekomo nowy plik, tak naprawdę stworzyliśmy 
+        <strong>dowiązanie twarde</strong>, nazwę
+        wskazującą na tem plik. Nazwa pliku, nie może być tożsama z plikiem
+        ponieważ, nazwa wskazuje na plik. Jeśli ująć by to w kontekscie systemu
+        pliku, tworząc dowiązanie twarde ręcznie storzyliśmy w katalogu wpis 
+        wskazujący na istniejący już węzeł <em>inode</em>.
+      </p>
+      <p>
+        Gdy podczas tworzenia pliku, tworzony jest wpis do struktury katalogowej
+        wiążący nazwę z konkretnym węzłem <em>inode</em>, to usuwanie pliku jest
+        czymś w rodzaju <strong>odwiązywania</strong>. Kiedy wydajemy polecenie
+        <em>rm</em> z katalogu usuwany jest wpis dowiązujacy nazwę do węzłą, 
+        a licznik dowiązań jest zmniejszany, jeśli licznik dowiązań dla takiego
+        węzła wynosi 0, wówczas możliwe będzie skasowanie takiego węzła i
+        powiązanych z nim danych. W przypadku naszej struktury, usunięciu pliku
+        <em>plik3</em> z katalogu <em>katalog1</em>, nie spowoduje usunięcia
+        pliku, ponieważ w katalogu <em>katalog2</em> dalej będzie istnieć
+        pozycja katalogowa wskazująca na ten węzeł <em>inode</em>.
+      </p>
+      <p>
+        Liczniki dowiązań działają tak samo dla katalogów. Wylistowując sobie
+        bardziej szczegółowo nasz katalog domowy, to licznik aktualnego
+        katalogu roboczego będzie równy ilości wszystkich podkatalogów w tym
+        katalogu + 2. Każdy z podkatalogów, posiada odwołanie do katalogu
+        nadrzędznego tzw. dwie kropki (<strong>..</strong>), te kropki są 
+        wpisem w węźle katalogowym wiążacym dwie kropki z naszym katalogiem
+        domowym, dwa pozostałe dowiązania to wpis samodowiązania 
+        (jednej kropki) wewnątrz katalogu oraz wpis wiążacy nazwę z katalogiem 
+        w katalogu nadrzędnym.
+      </p>
+      <p>
+        Patrząc uważnie na diagram, możemy zauważyć że coś nie gra. Dlaczego
+        węzeł podstawowy posiada 4 dowiązania, skoro możemy tylko trzy ustalić
+        na podstawie powyższych reguł? Czwarte z dowiązań tego węzła znajduje
+        się w <em>superbloku</em> systemu plików, to ta struktura przechowuje
+        odwołanie do węzła podstawowego.
+      </p>
+      <p>
+        Skoro wiemy już jak wygląda poruszanie się po systemie plików,
+        pozostała jedna kwestia do rozwiązania. Skąd system ma informacje o
+        zajętych oraz wolnych blokach zbioru danych? Obok tabeli węzłów, która
+        ewidentnie zajmuje się nawigacją po systemie plików, jest jeszcze
+        jedna struktura organizacyjna, mianowicie 
+        <strong>bitmapa bloków</strong>, taka struktura jest zbiorem bitów
+        ilością odpowiadającej ilości bloków w systemie, każdy zajęty blok
+        ustawia bit w bitmapie na 1, a każdy wolny to 0. Alokacja lub
+        zwolnienie bloku sprowdzają się do przestawienia bitu.
+      </p>
+      <p>
+        Problemy z systemami plików wywodzą się głównie z niezgodności tabel
+        danych węzłów <em>inode</em> z danymi alokacji. Dane z tych tabel
+        muszą się pokrywać. Przyczyną jest - jak zawsze, nieprawidłowe 
+        zamykanie systemu. Jeśli uruchomimy <em>fsck</em> to przejrzy on tabele
+        węzłów oraz strukturę katalogową na podstawie zebranych informacji
+        wygeneruje nowe liczniki dowiązań oraz nową <em>bitmapę bloków</em>.
+        Kolejnym krokiem będzie porównanie wytworzonych przez niego danych
+        ze stanem faktycznym znajdującym się w systemie plików. Jeśli zostaną
+        wykryte nieścisłości, program będzie musiał poprawić liczniki dowiązań
+        i umiescić osierocone pliki, które nie pojawiły się podczas analizy
+        struktur katalogowych umieści jako nowe pliki w katalogu 
+        <em>lost+found</em>.
+      </p>
+      <h3>Praca z systemami plików w przestrzeni użytkownika</h3>
+      <p>
+        Czytając te wszystkie paragrafy, możemy dojść do wniosku czy pracując
+        na codzień z plikami i katalogami będziemy mieć doczynienia z tymi
+        wszystkimi zagadnieniami? Jeśli nie bedziemy wykonywać prac
+        konserwacyjnych systemu plików, to raczej nie. Ważną lekcją, którą
+        tutaj odbyliśmy myślę, że jest omówienie 
+        <strong>twardych dowiązań</strong>. Jeśli jednak chcielibyś poznać
+        więcej informacji na temat pliku, wówczas możemy użyć polecenia
+        <strong>stat</strong>, które zwraca np. numery węzła czy ilość
+        zajmowanych bloków. Warto jednak pamietać, że nie wszystkie systemy
+        plików muszą być wyposażone w takie wewnętrzne dane, w jednych mogą być
+        one bezużyteczne (warstwa VFS), w innych z kolei tych nie tradycjnych
+        może być problem z uruchomieniem, takich poleceń jak
+        <code class="code-inline">ln</code> (vFAT). 
+      </p>
+      <p>
+        Wywołania systemowe, które zapewniają dostęp do plików procesom
+        są na tyle dobrze skonstruowane, że nie musimy przejmowac żadną z
+        implementacji systemów plików. Wystarczy funkcja otwarcia pliku i
+        ścieżka do niego i już zawartość pliku jest dostępna dla instrukcji
+        programu.
+      </p>
+      <h3>Ewolucja systemów plików</h3>
+      <p>
+        Nowe rodzje systemów plików używaja innych struktur dla nazw plików
+        a innych dla katalogów. Porzucając tym samym opisywane tutaj węzły
+        <em>inode</em>, inaczej też odwołują się do bloków danych. Jedną z
+        linii ewolucji systemów plików jest optymalizacja pod kątem użycia
+        dysków SSD. Warto mieć na uwadze, że rozwój i ewolucja nie ma żadnego
+        wpływu na zadanie jakie mają spełniać.
+      </p>
+      <p>
+        Ten rozdział pokazał nam w jaki sposób przechowywane są dane w 
+        Linux-ie. Za poznaliśmy się inicjacją dysków, tworzeniem i konserwacją
+        systemów plików, przestrzenia wymiany oraz na sam koniec dowiedzielismy
+        się jak działa taki standardowym system plików dostępny niemal w 
+        każdej dystrybucji. W trakcie inicjacji dysku warto przewidzieć ten
+        1 GB na partycje wymiany, nie panikować w razie gdy wyniku problemów
+        z system plików, nasz system niechce się do końca uruchomić.
+      <p>
+      <p>
+        Źródła:
+      </p>
+      <ol>
+        <li>Jak działa Linux Wyd. II, Brian Ward, Helion 2015</li>
+      </ol>
+      <p>
+        ~xf0r3m
+      </p>
+      </div>
+			<p style="margin: 15px; padding: 0; outline: 0;">
+				2021; COPYLEFT; ALL RIGHT REVERSED;
+			</p>
+		</body>
+	</html>

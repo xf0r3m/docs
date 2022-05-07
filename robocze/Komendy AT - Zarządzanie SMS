@@ -1,0 +1,78 @@
+1. AT
+Komenda ta pozwala na sprawdzenie połączenia z modułem – powinniśmy w odpowiedzi otrzymać:
+OK
+
+2. AT+CPIN?
+Komenda sprawdza czy została przeprowadzona weryfikacja PIN. Powinniśmy otrzymać odpowiedź:
++CPIN: READY
+OK
+
+3. AT+CPIN=xxxx
+Komenda służy do wprowadzania kodu pin. Polecam jednak wyłączyć ochronę kodem PIN wkładając kartę do telefonu i wybierając odpowiednie opcje. Wiele kart SIM (w szczególności startery na kartę) ma domyślnie wyłączoną ochronę PIN.
+
+4. ATE0 i ATE1
+Komenda ATE0 wyłącza echo, czyli wysyłanie przez moduł z powrotem każdej wysłanej komendy.
+Po poprawnym wykonaniu otrzymamy odpowiedź:
+OK
+ATE1 włącza echo
+
+5. AT+CMGF=1
+Komenda włącza tryb tekstowy wysyłania i odbierania wiadomości. Drugi dostępny tryb to PDU ale jest on bardziej skomplikowany w obsłudze.
+Zwraca odpowiedź:
+OK
+
+6. AT+CMGS="+48xxxxxxxxx"
+Komenda wysyła SMS pod podany numer telefonu.
+Po wysłaniu tej komendy pojawia się znak „zachęty”: >
+Teraz musimy wpisać wiadomość do wysłania (160 znaków max )
+A następnie wysyłamy znak CTRL+Z (kod 26 w zapisie dziesiętnym w ASCII) aby wysłać wiadomość.
+Korzystając z Br@y terminal po wysłaniu AT+CMGS=(numer) klikamy w szarym polu (czerwona strzałka), tam piszemy tekst wiadomości i wciskamy CTRL+Z – tekst zniknie z szarego okienka i możemy czekać na odpowiedź +CMGS opisaną poniżej.
+
+UWAGA! Nie możemy wysłać żadnego znaku po CTRL+Z do momentu otrzymania odpowiedzi – inaczej wiadomość nie zostanie wysłana (xx – numer identyfikacyjny wiadomości):
++CMGS: xx
+OK
+
+7. AT+CMGL i AT+CMGL=ALL
+Wyświetla listę wszystkich (lub tylko nieodczytanych przy zastosowaniu wersji bez =ALL) wiadomości z pamięci urządzenia.
+
+Odpowiedź to ramki postaci:
++CMGL: 1,”REC UNREAD”,”+480000000005″,,”14/07/26,21:43:15+08″
+Test
+1 – numer wiadomości w pmięci
+REC UNREAD lub REC READ – oznacza czy wiadomość była już wyświetlana czy nie
++480000000005 – numer telefonu nadawcy
+14/07/26,21:43:15+08 – data i czas
+Test – treść wiadomości – może mieć wiele linijek
+Po wyświetlaniu wszystkich wiadomości z pamięci (może być ich wiele) otrzymujemy odpowiedź:
+OK
+
+8. AT+CMGR=xx
+Odczytuje z pamięci wiadomość o numerze xx. Otrzymujemy w odpowiedzi:
++CMGR: „REC READ”,”+480000000005″,,”14/07/26,21:43:15+08″
+Test
+
+OK
+Znaczenie pól jak poprzednio
+
+9. AT+CMGD=xx
+Usuwa z pamięci wiadomość o numerze xx
+Odpowiedź:
+OK
+
+10. AT+CNMI=1,1,0,0,1
+Ustawia powiadamianie o nadchodzącym SMS’ie – nie wnikajmy w szczegóły…
+Odpowiedź:
+OK
+Każdy nadchodzący SMS zostanie zakomunikowany ramką:
++CMTI: ?SM?,xx
+SM – typ pamięci w której przechowywany jest SMS; SM oznacza kartę SIM
+xx – numer wiadomości
+
+11. AT+CSQ
+Sprawdza jakość sygnału
+Odpowiedź:
++CSQ: 13,99
+
+OK
+13 – moc sygnału – liczba z zakresu 0-31 (im wyższa tym lepszy zasięg) lub 99 gdy nie można określić
+99 – bitowa stopa błędów – nas ta wartość nie interesuje (liczba 0-7 lub 99 gdy nie można określić)

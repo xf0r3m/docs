@@ -1,0 +1,63 @@
+Niezbędna będzie dodatkowa maszyna wirtualna z dCore oraz obraz płyt
+dCore.
+
+1. Po zainstalowaniu dCore wyłączamy maszynę i dodajemy dysk maszyny
+na której skonwertowaliśmy dCore na OTP oraz obraz płyty. Opcje rozruchu
+maszyny ustawiamy tak, aby wystartowa z dysku z dCore. Uruchamiamy
+maszyne.
+
+2. Montujemy obraz płyty oraz dysk po konwersji. Na dysku maszyny 
+tworzymy katalog OTP.
+	$ mount
+	$ sudo mount /mnt/sr0
+	$ sudo mount /dev/sdb1 /mnt/sdb1
+	$ sudo mkdir /mnt/sda1/OTP
+	
+3. Tworzymy niezbędne dla obrazu katalogi.
+	$ sudo mkdir -p /mnt/sda1/OTP/boot/isolinux
+
+4. Kopiujemy jądro oraz initrd z dysku z OTP.
+	$ sudo cp -p /mnt/sdb1/boot/* /mnt/sda1/OTP/boot
+	
+5. Kopiujemy pliki isolinux-a z obrazu płyty.
+	$ sudo cp /mnt/sr0/boot/isolinux/* /mnt/sda1/OTP/boot/isolinux
+	
+6. Instalujemy rozszerzenie figlet oraz zmieniamy zawartość pliku
+	/mnt/sda1/OTP/boot/isolinux/boot.msg
+	$ sce-import figlet
+	$ sce-load figlet
+	$ figlet-figlet -f slant "Old Terminal Project" > $HOME/boot.msg
+	$ sudo cp $HOME/boot.msg /mnt/sda1/OTP/boot/isolinux
+	
+7. Dostosowujemy plik konfiguracyjny isolinux-a, aby wyglądał tak jak
+poniżej:
+	display boot.msg
+	default OTP
+	label OTP
+			kernel /boot/vmlinuzbionic
+			initrd /boot/OTP.gz
+			append quiet loglevel=3 rd.udev.log-priority=0 cde desktop=icewm host=otp
+	implicit 0
+	prompt 1
+	timeout 300
+	F1 boot.msg
+	F2 f2
+	F3 f3
+	F4 f4
+	
+8. Kopiujemy katalog z rozszerzeniami z dysku z OTP.
+	$ sudo cp -rvv /mnt/sdb1/tce /mnt/sda1/OTP/cde
+	
+9. Instalacja dodatkowych rozszerzeń niezbędny do zbudowania obrazu
+płyty
+	$ sce-import isolinux
+	$ sce-load isolinux
+	$ sce-import genisoimage
+	$ sce-load genisoimage
+	$ sce-import xorriso
+	$ sce-load xorriso
+	$ cd /mnt/sda1
+	$ sudo xorriso -as mkisofs -iso-level 3 -o "OTP.iso" -full-iso9660-filenames -volid "OTP" -isohybrid-mbr /usr/lib/ISOLINUX/isohdpfx.bin -eltorito-boot boot/isolinux/isolinux.bin -no-emul-boot -boot-load-size 4 -boot-info-table --eltorito-catalog boot/isolinux/isolinux.cat OTP/
+	
+	
+	

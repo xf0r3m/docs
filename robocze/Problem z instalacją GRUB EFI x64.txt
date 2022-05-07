@@ -1,0 +1,4 @@
+Zamiast klasycznego menu GRUB-a wyświetla się grub shell. Dzieje się tak, dlatego że podczas instalacji GRUB-a na dysku, opcja --bootloader-id, musi zawsze miećwartość "debian", a prawdopodnie jest ustawione coś innego lub użyto opcji "dummy". Bardzo prawdopodbne jest że GRUB ma gdzieś w skompilowany kodzie ustawioną 
+tą opcje na stałe.
+
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian

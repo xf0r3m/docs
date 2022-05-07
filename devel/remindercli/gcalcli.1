@@ -1,0 +1,109 @@
+.\" Manpage for gcalcli.
+.TH man 1 "25 February 2019" "4.0.4" "gcalcli Manual"
+.SH NAME
+gcalcli \- interact with a Google Calendar
+.SH SYNOPSIS
+gcalcli [options] command [command args or options]
+.SH DESCRIPTION
+gcalcli is a Python application that allows you to access your Google
+Calendar(s) from a command line. It's easy to get your agenda, search for
+events, add new events, delete events, edit events, and even import those
+annoying ICS/vCal invites from Microsoft Exchange and/or other sources.
+Additionally, gcalcli can be used as a reminder service and execute any
+application you want when an event is coming up.
+.SH USAGE
+
+gcalcli [-h] [--auth_host_name AUTH_HOST_NAME]
+        [--noauth_local_webserver]
+        [--auth_host_port [AUTH_HOST_PORT [AUTH_HOST_PORT ...]]]
+        [--logging_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}]
+        [--version] [--default-calendar DEFAULT_CALENDAR]
+        [--calendar CALENDAR] [--refresh] [--client-id CLIENT_ID]
+        [--conky] [--nocache] [--locale LOCALE] [--noincluderc]
+        [--lineart {fancy,unicode,ascii}]
+        [--config-folder CONFIG_FOLDER] [--nocolor]
+        [--client-secret CLIENT_SECRET]
+        {list,search,edit,delete,agenda,calw,calm,quick,add,import,remind}
+         ...
+
+
+Positional arguments:
+  {list,search,edit,delete,agenda,updates,conflicts,calw,calm,quick,add,import,remind}
+                        Invoking a subcommand with --help prints subcommand
+                        usage.
+    list                list available calendars
+    edit                edit calendar events
+    agenda              get an agenda for a time period
+    updates             get updates since a datetime for a time period
+    conflicts		find conflicts between events matching search term
+    calw                get a week-based agenda in calendar format
+    calm                get a month agenda in calendar format
+    quick               quick-add an event to a calendar
+    add                 add a detailed event to the calendar
+    import              import an ics/vcal file to a calendar
+    remind              execute command if event occurs within <mins> time
+
+Optional arguments:
+  -h, --help            show this help message and exit
+  --auth_host_name AUTH_HOST_NAME
+                        Hostname when running a local web server. (default:
+                        localhost)
+  --noauth_local_webserver
+                        Do not run a local web server. (default: False)
+  --auth_host_port [AUTH_HOST_PORT [AUTH_HOST_PORT ...]]
+                        Port web server should listen on. (default: [8080,
+                        8090])
+  --logging_level {DEBUG,INFO,WARNING,ERROR,CRITICAL}
+                        Set the logging level of detail. (default: ERROR)
+  --version             show program's version number and exit
+  --default-calendar DEFAULT_CALENDAR
+                        Optional default calendar to use if no --calendar
+                        options are given (default: [])
+  --calendar CALENDAR   Which calendars to use (default: [])
+  --refresh             Delete and refresh cached data (default: False)
+  --client-id CLIENT_ID
+                        API client_id (default:
+                        232867676714.apps.googleusercontent.com)
+  --conky               Use Conky color codes (default: False)
+  --nocache             Execute command without using cache (default: True)
+  --locale LOCALE       System locale (default: )
+  --noincluderc         Whether to include ~/.gcalclirc when using
+                        configFolder (default: True)
+  --lineart {fancy,unicode,ascii}
+                        Choose line art style for calendars: "fancy": for
+                        VTcodes, "unicode" for Unicode box drawing characters,
+                        "ascii" for old-school plusses, hyphens and pipes.
+                        (default: fancy)
+  --config-folder CONFIG_FOLDER
+                        Optional directory to load/store all configuration
+                        information (default: None)
+  --nocolor             Enable/Disable all color output (default: True)
+  --client-secret CLIENT_SECRET
+                        API client_secret (default: 3tZSxItw6_VnZMezQwC8lUqy)
+
+
+.SH DIAGNOSTICS
+.B "Encoding issues, wrongly printed characters, UnicodeEncodeError when using
+conky, in pipes or scripts"
+.RS
+ - Set an environment variable PYTHONIOENCODING=utf8
+ - Use a Unicode capable font like DejaVu Sans Mono
+ - Set option --lineart=unicode or --lineart=ascii
+ - Upgrade to Python3
+.RE
+.B "No colors or garbage characters when using inside conky"
+.RS
+ - Set option --conky
+.RE
+.SH SEE ALSO
+bash(1)
+
+.SH BUGS REPORTS
+Report issues at https://github.com/insanum/gcalcli/issues
+.SH AUTHORS
+
+Eric Davis (edavis@insanum.com)
+
+Brian Hartvigsen (brian.andrew@brianandjenny.com)
+
+Joshua Crowgey (jcrowgey@uw.edu)

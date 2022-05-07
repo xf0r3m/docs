@@ -1,0 +1,34 @@
+hostname -> /etc
+interfaces -> /etc/network
+issue.net -> /etc
+issue -> /etc
+hosts -> /etc
+sources.list -> /etc/apt
+greenos -> /etc/dpkg/origins
+os-release -> /usr/lib
+motd -> /usr/share/base-files
+     -> /etc
+greenos_wallpaper.png -> /usr/share/artwork
+icewm.xpm -> /etc/skel/.icewm/themes/win95/taskbar
+          -> /root/.icewm/themes/win95/taskbar
+terminal.png -> /usr/share/artwork
+theme -> /etc/skel/.icewm
+      -> /root/.icewm
+menu -> /etc/skel/.icewm/
+     -> /root/.icewm/
+preferences -> /etc/skel/.icewm
+            -> /root/.icewm
+rc.conf -> /etc/skel/.config/ranger
+        -> /root/.config/ranger
+toolbar -> /etc/skel/.icewm
+        -> /root/.icewm
+.xinitrc -> /etc/skel
+         -> /root
+.xsession -> /etc/skel
+          -> /root
+.vimrc -> /etc/skel
+       -> /root
+XTerm -> /etc/skel
+      -> /root
+
+

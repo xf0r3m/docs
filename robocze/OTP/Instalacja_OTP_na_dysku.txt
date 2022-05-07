@@ -1,0 +1,93 @@
+W zależności od tego czy używamy pendrive'a czy płyty punkt montowania
+obrazu instalacyjnego może być inny.
+
+	- /mnt/sr0 = dla płyt
+	- /mnt/sdX = dla dysków USB.
+
+
+1. Wybranie odpowiedniego dysku przeznaczonego do instalacji systemu
+	$ sudo fdisk -l
+	
+2. Partycjonowanie dysku, w przypadku OTP możemy zrobić jedną partycję
+obejmującą cały obszar dysku.
+	$ sudo fdisk /dev/sdX
+	> n
+	> p
+	> [domyślnie]
+	> [domyślnie]
+	> [domyślnie]
+	> a 	#Ustawienie flagi rozruchowej
+	> w
+gdzie X - to litera oznaczająca dysk.
+	
+3. Formatowanie dysku, domyślnie OTP instaluje się na partycji z system
+plików EXT4, wybór innego systemu plików może wymagać użycia innego
+programu rozruchowego (w tym materiale jest extlinux).
+	$ sudo mkfs.ext4 /dev/sdX1
+	
+4. Utworzenie nowej zawartości pliku /etc/fstab systemu tymczasowego
+w celu łatwiejszego montowania dysku.
+	$ sudo rebuildfstab
+	
+5. Montowanie dysku przeznaczonego na system.
+	$ mount /mnt/sdX1 
+Podany tutaj punkt montowania można znaleźć w pliku /etc/fstab.
+
+6. Tworzenie katalogów dla plików systemowych oraz programu rozruchoweggo
+	$ sudo mkdir -p /mnt/sdX1/boot/extlinux
+	
+7. Skopiowanie plików jądra oraz początkowego systemu plików w pamięci
+RAM na dysk
+	$ sudo cp -p /mnt/sdb/boot/* /mnt/sdX1/boot
+Ignorujemy komunikat o tym, że katalog isolinux został pominięty, tak
+właśnie miało być.
+
+8. Importujemy pakiet e2fsprogs
+	$ sce-import e2fsprogs
+Pakiet ten zawiera program e2label, pozwalający na ustawienie etykiet
+system plików rodziny EXT, dzięki ustawieniu etykiety nie będziemy
+musieli posługiwać się UUID w pliku konfiguracyjnym programu rozruchowego
+
+9. Załadowanie pakietu e2fsprogs
+	$ sce-load e2fsprogs
+Pakiety na dCore (dystrybucja bazowa OTP) wymagają importowania (pobrania
+z serwerów, [w tym przypadku Ubuntu] paczki .deb i konwersji jej do pliku
+zgodnego z tym portem TinyCore - .sce, A następnie załadowania w systemie
+(instalacji). Więcej o tym na stronie głównej projektu.
+
+10. Ustawienie etykiety dla systemu plików
+	$ sudo e2label /dev/sdX1 "OTP"
+	
+11. Importowanie pakietu programu rozruchowego
+	$ sce-import extlinux
+	
+12. Załadowanie pakietu z programem rozruchowym
+	$ sce-load extlinux
+	
+13. Instalacja plików niezbędnych do rozruchu systemu przy użyciu
+programu rozruchowego tego typu:
+	$ sudo extlinux --install /mnt/sdX1/boot/extlinux
+	
+14. Instalacja rekordu rozruchowego (MBR) na dysku
+	$ sudo dd if=/usr/lib/EXTLINUX/mbr.bin of=/dev/sdX
+	
+15. Utworzenie pliku konfiguracyjnego programu rozruchowego:
+	$ sudo vi /mnt/sdX1/boot/extlinux/extlinux.conf
+	default OTP
+	label OTP
+	kernel /boot/vmlinuzbionic
+	append initrd=/boot/OTP6.gz tce=sdX1 quiet desktop=icewm host=otp
+	
+16. Wybranie dysku docelowego dla rozszerzeń dCore, wykonanie tej
+czynności spowoduje utworzenie struktury katalogowej w systemie plików.
+Tę czynność należy wykonać przed skopiowaniem rozszerzeń z obrazu
+instalacyjnego
+	$ tce-setdrive
+Z wyświetlonej listy należy wybrać docelowy punkt montowania.
+
+17. Skopiowanie rozszerzeń z obrazu instalacyjnego
+	$ sudo cp -rvv /mnt/sdb/cde/* /mnt/sdX1/tce
+	
+Po skopiowaniu rozszerzeń instalacja jest zakończona można uruchomić
+komputer ponownie.
+	

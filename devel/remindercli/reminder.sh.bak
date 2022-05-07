@@ -1,0 +1,145 @@
+#!/bin/bash
+
+filename="$HOME/.remindercli";
+
+if [ ! -f $filename ]; then touch $filename; fi
+
+countDbLines=$(cat $filename | wc -l | awk '{printf $1}');
+endColor="\033[0m";
+
+if [ "$1" ]; then
+
+	cmd=$1;
+	case $cmd in
+		'add') lastId=$(cat $filename | tail -n 1 | cut -d ";" -f 1); 
+			if [ ! "$lastId" ]; then lastId=0; fi
+			id=$(expr $lastId + 1);
+			name=$2;
+			date=$3;
+			remindbefore=$4;
+			if [ "$5" ]; then
+				location=$5;
+				echo "${id};${name};${date};${remindbefore};${location}" >> $filename;
+			else
+				echo "${id};${name};${date};${remindbefore};N/A" >> $filename;
+			fi;;
+		
+		'list') 
+			i=1;
+			while [ $i -le $countDbLines ]; do
+				line=$(cat $filename | sed -n "${i}p");
+
+				id=$(echo $line | cut -d ";" -f 1);
+				name=$(echo $line | cut -d ";" -f 2);
+				date=$(echo $line | cut -d ";" -f 3);
+				remindb=$(echo $line | cut -d ";" -f 4);
+
+				now=$(date +%s);
+				dateTimestamp=$(date -d "${date}" +%s);
+
+				if [ $dateTimestamp -gt $now ]; then
+
+					if [ $(expr $dateTimestamp - $now) -lt 604800 ]; then 
+						color="\033[92m";
+					fi
+					
+					if [ $(expr $dateTimestamp - $now) -lt 86400 ]; then
+						color="\033[93m";
+					fi
+
+					if [ $(expr $dateTimestamp - $now) -gt 604800 ]; then	
+						color="\033[0m";
+					fi
+
+
+				else
+					color="\033[91m";
+				fi
+
+				if [ "$(echo $line | cut -d ";" -f 5)" ]; then 
+					location=$(echo $line | cut -d ";" -f 5);
+					echo -e "${color}${id}: ${name}\n\tData: ${date}\n\tPrzypomnij: ${remindb} przed\n\tLokalizacja: ${location}\n\n${endColor}";
+				else
+					echo -e "${color}${id}: ${name}\n\tData: ${date}\n\tPrzypomnij: ${remindb} przed\n\n${endColor}";
+				fi
+
+				i=$(expr $i + 1)
+			done;;
+		'delete') id=$2;
+
+				lineAddress=$(cat $filename | grep -n "^${id};" | cut -d ":" -f 1);
+				sed -i "${lineAddress}d" $filename;;
+		'remindme') i=1;
+				if [ $countDbLines -gt 0 ]; then
+					while [ true ]; do  
+						while [ $i -le $countDbLines ]; do
+							line=$(cat $filename | sed -n "${i}p")
+							now=$(date +%s);
+							lineDate=$(echo $line | cut -d ";" -f 3);
+							lineDateTimestamp=$(date -d "${lineDate}" +%s);
+							lineRemindb=$(echo $line | cut -d ";" -f 4);
+							if [ $(echo $lineRemindb | cut -d ":" -f 1) = "00" ]; then
+								lineRemindbSecs=$(expr $(echo $lineRemindb | cut -d ":" -f 2) \* 60);
+							else
+								lineRemindbH=$(echo $lineRemindb | cut -d ":" -f 1);
+								lineRemindbM=$(echo $lineRemindb | cut -d ":" -f 2);
+								lineRemindbSecs=$(expr $(expr $lineRemindbH \* 3600) + $(expr $lineRemindbM \* 60));
+							fi 
+
+							echo -e "Now: ${now}\nLineDateTimestapt: ${lineDateTimestamp}\nLineRemindSecs: ${lineRemindbSecs}";
+							
+							if [ $now -gt $lineDateTimestamp ]; then
+								echo "Przypomnienie $(echo $line | cut -d ";" -f 1): $(echo $line | cut -d ";" -f 2) jest przedawnione.";
+							else
+								#echo "Sub: $(expr $now - $lineDateTimestamp)";
+								 if [ $(expr $lineDateTimestamp - $now) -lt $lineRemindbSecs ]; then
+									#if [ "$(echo $line | cut -d ';' -f 5)" ] ; then 
+									#	location=$(echo $line | cut -d ";" -f 5)
+									#	if [ $location != "R" ]; then 
+									#		if [ ! "$(echo $line | cut -d ";" -f 6)" ]; then 
+									 			#echo -e "Przypomnienie:\n\t$(echo $line | cut -d ";" -f 2):\n\t\tData: $(echo $line | cut -d ";" -f 3)\n\t\tLokalizacja: $(echo $line | cut -d ";" -f 5)";
+												/usr/bin/notify-send "$(echo $line | cut -d ";" -f 2)" "$(echo $line | cut -d ";" -f 3) | Lokalizacja: $(echo $line | cut -d ";" -f 5)";
+												newline="${line};R";
+												sed -i "s/${line}/${newline}/" $filename;
+											#fi
+										#fi
+									#else
+									#	if [ ! "$(echo $line | cut -d ";" -f 5)" ]; then 	
+										 	#echo -e "Przypomnienie:\n\t$(echo $line | cut -d ";" -f 2):\n\t\tData: $(echo $line | cut -d ";" -f 3)";
+									#		newline="${line};R";
+									#		sed -i "s/${line}/${newline}/" $filename;
+									#	fi
+									
+									#fi
+								fi
+							fi
+	
+								
+							i=$(expr $i + 1);
+						done
+						sleep 60;
+						i=1;
+					done	
+				fi;;
+		'help')
+			echo "Przypomnienia w terminalu";
+			echo "morketsmerke © 2020";
+			echo;
+			echo "Lista dostępnych opcji:";
+			echo -e "\tadd <nazwa> <data> <czas powiadomienia przed zadeklarowanym terminem> [lokalizacja]\tDodaje przypomnienie";
+			echo -e "\tlist\twyświetla dodane powiadomienia w formacie wskazanym poniżej:";
+			echo -e "\tdelete \t<identyfikator przypomnienia>\t usuwa przypomnienie ";
+			echo;
+			echo "Format listy przypomnień:";
+			echo -e "[id]: [nazwa]\n\tData: [data]\n\tPrzypomnij: [czas powiadomienia przed zadeklarowanym terminem] przed\n\tLokalizacja: [Lokalizacja]";
+			echo "Format danych wejściowych:";
+			echo -e "\tdata: YYYY-MM-DD HH:MM\n\tczas powiadomienia: np. 00:30 dla 30 minut; 01:00 dla 1 godziny";;
+
+		*)
+			bash $0 help
+
+		esac
+
+else
+	bash $0 help;
+fi

@@ -1,0 +1,2 @@
+Doas w OpenBSD jest czymś w rodzaju sudo na GNU/Linuxach. Konfiguruje się w bardzo prosty sposób otóż, kopiujemy plik z '/etc/example/doas.conf' do '/etc'.
+Użytkownikowi, który ma mieć możliwość wydawania tego polecenia należy dodać do grupy 'wheel'.

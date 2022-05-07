@@ -1,0 +1,6 @@
+prog "xterm" xterm xterm -fg orange -bg black
+prog "ranger" /usr/share/artwork/terminal.png xterm -fg orange -bg black -T ranger -e ranger
+prog "irssi" /usr/share/artwork/terminal.png xterm -fg orange -bg black -T irssi -e irssi
+prog "firefox" ! x-www-browser
+prog "qmmp" qmmp qmmp
+prog "VLC" vlc vlc

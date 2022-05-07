@@ -1,0 +1,4 @@
+setxkbmap -layout pl
+xmodmap ~/.Xmodmaprc
+feh --bg-fill ~/Obrazki/parabola-laf.png
+exec fluxbox

@@ -1,0 +1,51 @@
+1. Tworzymy katalog gnuic
+  # mkdir ~/greenOS/desktop/gnuic
+
+2. Kopiujemy zawartość katalogu ffesr do katalogu gnuic
+  # cp ~/greenOS/desktop/ffesr/* ~/greenOS/desktop/gnuic
+
+3. Zmieniamy głównym katalog:
+  # chroot ~/greenOS/desktop/gnuic /bin/bash
+
+4. Pobieramy GNU IceCat z najbliższego serwera.
+  (chroot) # cd
+  (chroot) # wget https://sunsite.icm.edu.pl/pub/gnu/gnuzilla/60.7.0/icecat-60.7.0.en-US.gnulinux-x86_64.tar.bz2
+  (chroot) # tar -xjvf icecat-60.7.0.en-US.gnulinux-x86_64.tar.bz2
+
+5. Skopiowanie folderu z programem do katalogu /lib
+  (chroot) # mv icecat /lib
+
+6. Utworzenie dowiązania symblicznego w katalogu /usr/bin
+  (chroot) # ln -s /lib/icecat/icecat /usr/bin/icecat
+
+7. Zmiana domyślnego pakietu dostarczającego "x-www-browser"
+  (chroot) # update-alternatives --install /usr/bin/x-www-browser x-www-browser /usr/bin/icecat 210
+
+8. Zmiana wpisu w menu IceWM:
+  (chroot) # vim ~/.icewm/menu
+  W pliku zmieniamy linię:
+  prog "firefox" ! x-www-browser
+  na:
+  prog "GNU IceCat" /lib/icecat/browser/chrome/icons/default/default16.png icecat
+  Identycznej zmiany dokonujemy w pliku /etc/skel/.icewm/menu.
+
+9. Zmiana wpisu w pliku ikon paska zadań IceWM.
+  (chroot) # vim ~/.icewm/toolbar
+  W pliku zmieniamy linię:
+  prog "Przeglądarka internetowa" ! x-www-browser
+  na:
+  prog "Przeglądarka internetowa /lib/icecat/browser/chrome/icons/default/default16.png icecat
+  Identycznej zmiany dokonujemy w pliku /etc/skel/.icewm/toolbar
+
+10. Opuszczamy katalog główny obrazu.
+  (chroot) # exit
+
+11. Przechodzimy do katalogu z obrazem
+  # cd ~/greenOS/desktop/gnuic
+
+12. Tworzymy archiwum
+  # tar -czvf rootfs_amd64_desktop_gnuic.tgz *
+
+13. Kopiujemy archiwum do katalogu domowego zwykłego użytkownika
+  # cp rootfs_amd64_desktop_gnuic.tgz /home/user
+

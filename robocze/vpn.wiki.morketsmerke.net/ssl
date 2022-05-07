@@ -1,0 +1,347 @@
+<strong>SSL</strong> - Protokół bezpieczeństwa umożliwiający zabezpieczenie transmisji innych protokołów zapewniający podstawowe funkcje bezpieczeństwa tj.:<br />
+<br />
+* uwierzytelnienie stron - czyli potwierdzenie ich autentyczności na podstawie certyfikatów.
+* poufność i integralność przesyłu - tzn. ochronę przez podsłuchaniem i modyfikacją.
+<br />
+== Historia i znacznie protokołu SSL ==
+
+Protokół SSL został opracowany przez firmę Netscape Communications Corporation w odpowiedzi na brak zabezpieczeń w popularnych wtedy protokołach (tj. lata 90, ubiegłego wieku). Obecnie najpopularniejsza wersja jest TLS 1.3, który jest rozwinięciem SSL. Mówiąc w obecnych czasach o SSL, technicznie mówimy o TLS.
+
+W założeniach SSL powstał jako zabezpieczenie do protokołu http dla potrzeb usług e-commerce. Jednak dzięki jego uniwersalności można go wykorzystać do zabezpieczenia większości usług TCP, a nawet do tworzenia sieci VPN.
+
+== Przebieg nawiązania połączenia SSL ==
+
+Zanim protokoły warstwy aplikacji będą mogły wymieniać dane w bezpieczny sposób, musi nastąpić nawiązanie sesji SSL (ang. <em>SSL handshake</em>). Na SSL Handshake składa się kilka faz negocjacji, które przedstawiono w poniżej:<br />
+<ol>
+<li>Klient łączy się z serwerem i wysyła pakiet początkowy Hello, a wraz z nim numer obsługiwanej wersji SSL,
+obsługiwane algorytmy szyfrujące, algorytmy kompresji, oraz losowy numer związany z rozpoczętą sesja (ID).</li>
+<li>Serwer w odpowiedzi wysyła klientowi numer obsługiwanej wersji SSL, obsługiwane algorytmy szyfrujące, a także swój certyfikat (klucz publiczny).</li>
+<li>Na tym etapie klient sprawdza certyfikat serwera - czy jest on ważny oraz czy wystawił go zaufany urząd (CA). Protokół SSL przewiduje także możliwość wysłania przez serwer żądania uwierzytelnienia klienta. Uwierzytelnienie to jest opcjonalnie i stosuje się je w określonych warunkach.</li>
+<li>W przypadku pozytywnego uwierzytelnienia serwera klient generuje 48-bajtową liczbę zwaną "pre-master secret" i szyfruje ją, używając przy tym klucza publicznego serwera (zawartego w certyfikacie serwera). Liczba "pre-master" składa się z 2 bajtów identyfikujących klienta oraz 46 bajtów losowych.</li>
+<li>Serwer po otrzymaniu liczby "pre-master" odszyfrowuje ją, używając do tego swojego klucza prywatnego, i porównuje 2 bajty identyfikujące klienta z danymi, które otrzymał w inicjacyjnym pakiecie Hello.</li>
+<li>Jeśli jest wymagane uwierzytelnienie klienta, jest to robione w tej chwili. Wówczas klient musi przesłać certyfikat.</li>
+<li>Na podstawie już wymienionych danych (m.in. pre-master key, losowe dane wygenerowane w punkcie 1.) serwer i klient generuje tzw. master key (znany tylko im).</li>
+<li>Zarówno klient, jak i serwer na podstawie master-key generują symetryczne klucze sesyjne (sześć, trzy w kierunku serwer-klient i trzy w drugą stronę), które umożliwiają im szyfrowanie i sprawdzenie integralności przesyłanych danych.</li>
+<li>Kończąc handshake, klient przesyła do serwera wiadomość zaszyfrowaną ustalonym kluczem sesyjnym. Wiadomość ta nazywana końcowym uzgodnieniem (ang. <em>finished handshake</em>), jest jako pierwsza szyfrowana tajnym kluczem.</li>
+<li>Serwer odpowiada także wiadomością zaszyfrowaną za pomocą wspólnego klucza. Od tej sesja SSL jest nawiązna.</li>
+</ol>
+
+== Znaczenie zaufanego certyfikatu ==
+
+Zaufanym certyfikatem możemy określić każdy certyfikat, który został wystawiony przez wiarygodne (zaufane) Centrum Certyfikacji CA. Każda aplikacja korzystająca z SSL, ma gdzieś w swoich zasobach lokalnych bazę zaufanych wystawców, przez co nie zostajemy w ogóle poinformowani o nawiązywaniu połączenia czy sesji SSL.
+
+Certyfikaty wystawione przez zaufane CA mają znaczenie głównie dla publicznych serwerów, gdzie ludzie z różnych stron świata mają pewność, że serwera za który się łączą na pewno jest tym za który się podaje (np. bank czy sklep internetowy).
+
+Z tegoż względu iż będziemy korzystać z sesji SSL do tworzenia sieci VPN, nie ma przeciwwskazań aby twoja organizacja stała się CA (centrum certyfikacji) i aby można było samodzielnie generować certyfikaty i instalować je na hostach klienckich sieci. Przecież możemy zaufać przez nas wygenerowanym certyfikatom. W przeciwieństwie do HTTPS, SSL w zastosowaniach VPN-owych ważne jest uwierzytelnienie klienta przez serwer, przez co z naszą siecią będą mogły tylko łączyć się osoby posiadające odpowiednie certyfikaty.
+
+== Generowanie certyfikatów przy użyciu programu OpenSSL ==
+
+Zawarte w tej części informacje są niezwykle istotne, dla dalszych konfiguracji, czy to OpenVPN czy też technologii IPSec. Dlatego wiele innych zagadnień będzie tu linkować. 
+
+Niezwykle istotne dla samego uruchomienia sieci VPN jest umiejętność generowania kluczy i certyfikatów X.509. W systemach unixopodobnych narzędzie wykorzystywane do tego może się nieco różnić. W dystrybucjach systemu Linux raczej będziemy spotykać oryginalne OpenSSL. Jeśli będziemy się decydować na skorzystanie z np. OpenBSD ( co wg. mnie jest bardziej wskazane na bramę VPN niż np. Ubuntu. Dlatego że jest bardzo prosty system, ale oczywiście nie w swojej funkcjonalności raczej w architekturze czy też budowie, jest on również zorientowany na bezpieczeństwo jeśli ktoś jest fanem jądra GNU/Linux może Alpine Linux) to skorzystamy z pakietu LibreSSL, OpenSSL dla Alpine Linux.
+
+Zanim jednak przejdziemy do generowania certyfikatów dla serwer i klientów, musimy stworzyć własny urząd certyfikacji (CA). Dwie uwagi.
+
+Istotną rzeczą CA jest utworzenie go na jakimś bezpiecznym komputerze najlepiej odłączonym od internetu lub przynajmniej za dodatkowym firewallem nie dopuszczającym żadnych innych połączeń poza jednym (tylko jednym) z twoich komputerów. Chodzi głównie aby nie był on widoczny w internecie i ograniczyć komunikację z nim w sieci lokalnej.
+
+Ważne jest aby robić kopie zapasowe, wystawionych certyfikatów oraz całego katalogu "ssl", tak aby w razie potrzeby można było unieważnić któryś z certyfikatów.
+
+<strong>Tworzenie własnego CA</strong>
+
+W pierwszej kolejności odnajdujemy plik <em>openssl.cnf</em>. Prawdopodobne lokalizacje tego pliku to:
+* <em>/etc/ssl/openssl.cnf</em> - dla instalacji z pakietów dystrybucji.
+* <em>/usr/local/etc/openssl.cnf</em> - w przypadkach ręcznej kompilacji.
+* <em>C:\OpenSSL\bin</em> - dla systemów Win32.
+
+W tym pliku musimy odnaleźć sekcje <code>[ CA_default ]</code>. Powinniśmy zmienić wpisy tak jak poniżej.
+<pre>
+[ CA_default ]
+dir = /etc/ssl                        # katalog główny, w którym zapisywane są pliki.
+certs = /etc/ssl/certs                # katalog, w którym zapisywane są certyfikaty.
+crl_dir = $dir/crl                        # katalog z listą certyfikatów unieważnionych (CRL)
+private_key = $dir/private/cakey.pem  # klucz prywatny CA
+database = $dir/index.txt             # baza, w której przechowywane są informacje
+                                        o wystawionych certyfikatach wraz ze statusem
+certficate = $dir/cacrt.pem           # Certyfikat CA -  do podpisu wniosków
+serial = $dir/serial                  # plik pomocniczy z bieżącym numerem - 
+                                        inkrementowany po każdym wystawieniu certyfikatu
+crl = $dir/crl.pem                    # bieżąca lista certyfikatów unieważnionych
+
+[ v3_ca ]
+# wykazujemy punkt dystrybucji listy CRL
+crlDistributionPoints=URI:http://example.com/crl.pem
+</pre>
+
+<u>Jeśli będziemy edytować istniejący wpis, opcje których nie ma w sekcji</u> <code>[ CA_default ]</code> <u>umieszczamy w komentarzu</u>.
+
+Upewniamy się czy istnieje katalog podany w zmiennej <code>dir</code> czyli <em>/etc/ssl</em>, oraz wszystkie jego podkatalogi. Jeżeli nie musimy je założyć. Dla katalogu <em>ssl/private</em> należy ustawić uprawnienia tak, aby tylko użytkownik <em>root</em> mógł do niego wejść.
+
+Stwórz pliki <em>/etc/ssl/index.txt</em> oraz <em>/etc/ssl/serial</em>, używając podanych poniżej poleceń.
+<pre>
+root@ca:~# touch /etc/ssl/index.txt   #(ma być pusty)
+root@ca:~# echo 00 > /etc/ssl/serial  #(ma zawierać wpis 00)
+</pre>
+
+Przystępujemy do generowania klucza prywatnego centrum certyfikacji CA. Jest to czynność jednorazowa, tzn. po wygenerowaniu klucza prywatnego CA, a następnie odpowiadającego mu certyfikatu będziemy używać do podpisywania innych certyfikatów. Należy pamiętać aby zarchiwizować pliki z katalogi /etc/ssl w bezpiecznym miejscu.
+
+Będąc w katalogu <em>/etc/ssl</em>, wydajemy następujące polecenie:
+<pre>
+root@ca:/etc/ssl# openssl genrsa -des3 -out private/cakey.pem 1024
+Generating RSA private key, 1024 bit long modulus
+.....++++++
+...++++++
+e is 65537 (0x10001)
+Enter pass phrase for private/cakey.pem: <podaj hasło klucza prywatnego CA>
+</pre>
+
+Po potwierdzeniu hasła do klucza prywatnego CA klucz zostanie zapisany w pliku <em>private/cakey.pem</em>. Nie możemy zapomnieć tego hasła, będzie nam nieraz potrzebne.
+
+Kolejną czynnością jest wygenerowanie certyfikatu CA. W tym celu wpisujemy następujące polecenie:
+<pre>
+root@ca:/etc/ssl# openssl req -new -x509 -days 365 -key private/cakey.pem -out cacert.pem
+</pre>
+Zostaniemy poproszeni o podanie danych z kilku pól zawartych w certyfikacie.
+<pre>
+Country Name (2 letter code) [AU]:PL
+State or Province Name (fuli name) [Some-State]:Wonderland
+Locality Name (eg. city) []: Liberty City
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:morketsmerke.net
+Organizational Unit Name (eg, section) []:
+Common Name (eg, YOUR name) []: ca.morketsmerke.net
+Email Address []:
+</pre>
+
+Zwrócić należy uwagę na pole <code>Common Name</code>, które powinno zawierać nazwę podmiotu - np. nazwę użytkownika lub jednostki. W przypadku gdy generujemy certyfikat dla CA, wpisujemy nazwę domeny firmowej lub podajemy nazwę organizacji.
+
+Po podaniu hasła do klucza prywatnego certyfikat zostanie zapisany w pliku <em>cacert.pem</em>. W powyższym przykładzie czas ważności certyfikatu będzie wynosić 1 rok. Można go oczywiście przedłużyć.
+
+Na tym kończymy tworzenie własnego urzędu CA. Mając pliki cakey.pem i cacert.pem, czyli klucz prywatny i certyfikat CA. Teraz można rozpocząć wystawianie certyfikatów innym podmiotom.
+
+<strong>Tworzenie klucza prywatnego dla serwera</strong>
+
+Aby stworzyć klucz prywatny należy na urzędzie CA w katalogu <em>/etc/ssl</em> wydać polecenie:
+<pre>
+root@ca:/etc/ssl# openssl genrsa -des3 -out private/serverkey.pem 1024
+</pre>
+Openssl zapyta o hasło - będzie to hasło klucza prywatnego serwera. Klucz prywatny zapisany zostanie w pliku <em>private/serverkey.pem</em>
+
+<strong>Generowanie wniosku o wystawienie certyfikatu</strong>
+
+<pre>
+root@ca:/etc/ssl# openssl req -new -key private/serverkey.pem  -out serverreq.pem
+</pre>
+
+Potrzebne będzie hasło klucza prywatnego serwera, które podawaliśmy punkt wyżej. Jeśli hasło będzie poprawne, zostaniesz zapytany o dane do wniosku.
+<pre>
+Country Name (2 letter code) [AU]:PL
+State or Province Name (fuli name) [Some-State]:Slask
+Locality Name (eg, city) []:G1iwice
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Moja Firma Sp. z o.o.
+Organizational Unit Name (eg, section) []:
+Common Name (eg, YOUR name) []: server.firma.pl
+Email Address []:
+</pre>
+Tutaj jako <code>Common Name</code> powinniśmy podać pełną nazwę domenową pod, którą serwer działa w internecie, czyli <em>FQDN</em>. Wniosek zostanie zapisany w pliku <em>/etc/ssl/serverreq.pem</em>.
+
+<strong>Generowanie certyfikatu dla serwera</strong>
+
+W celu wystawienia certyfikatu dla podmiotu (serwera) musisz podpisać jego wniosek. Aby to uczynić, należy wpisać poniższe polecenie.
+<pre>
+root@ca:/etc/ssl# openssl ca -notext -in serverreq.pem -out servercrt.pem
+</pre>
+
+Zostaniemy zapytani o hasło do klucza prywatnego CA <em>cakey.pem</em>. Nie należy mylić go z hasłem klucza prywatnego serwera.
+
+Następnie OpenSSL pokaże szczegóły certyfikatu i zapyta, czy chcemy go podpisać.
+<pre> 
+Signature ok
+Certificate Details:
+Serial Number: 5 (0x5)
+Validity
+Not Before: Sep 17 12:59:06 2007 GMT
+Not After : Sep 16 12:59:06 2008 GMT
+Subject:
+countryName = PL
+stateOrProvinceName = Slask
+organizationName = Moja Firma Sp. z o.o.
+organizationalUnitName =
+commonName = server.firma.pl
+X509v3 extensions:
+X509v3 Basic Constraints:
+CA:FALSE
+Netscape Comment:
+OpenSSL Generated Certificate
+X509v3 Subject Key Identifier:
+0E: CE: 3E: 06:C4:46:53:78: BO: 05: AB: 18:9B: BA: 90:79:9B: A l : A5 :C8
+X509v3 Authority Key Identifier:
+keyid:FC:B 8 :73:29:C 6 :E4:50:B 2 :3 E :C E :0A:78:8C:62:90:A 5 :62:3 C :87:IB
+DirName:/C-PL/ST=Slask/L-Gliwice/0=Moja Firma Sp. z o.o./
+CN=ca.fi rma.pl/emai 1 Address=admi n@firma.pl
+serial:97:1B:4E:CE:0B:5F:CE:E2
+Certificate is to be certified until Sep 16 12:59:06 2008 GMT (365 days)
+Sign the certificate? [y/n]: y
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+</pre>
+
+Odnośnie pracy z tak wygenerowanym certyfikatem jest jeszcze jeden szczegół. Otóż każde uruchomienie aplikacji korzystającej z tego certyfikatu będzie nas prosić hasło kluczy prywatnego, użytego do jego wygenerowania. Co nie jest zbyt pożądane w środowiskach serwerowych, jest natomiast rozwiązanie tego problemu. Otóż możemy przepisać klucz pomijając hasło.
+
+<strong>Ściąganie hasła z klucza prywatnego serwera</strong>
+
+<pre>
+# openssl rsa -in private/serverkey.pem -out private/serverkey.pem_bezhasla
+</pre>
+
+Nie zaleca się ściągania haseł z certyfikatów klientów, ze względu na możliwość kradzieży komputera, co umożliwi dostęp do VPN.
+
+<strong>Unieważnianie certyfikatów</strong>
+
+Powodów unieważnienia certyfikatów może być wiele. Jednak jeśli już zachodzi taka potrzeba. Możemy użyć parametry <code>revoke</code> programu OpenSSL.
+<pre>
+root@srv:/etc/ssl/# openssl ca -revoke jkowalskicert.pem
+</pre>
+OpenSSL zapyta o hasło klucz CA i po podaniu prawidłowego unieważni certyfikat:
+<pre>
+Using configuration from /usr/1ib/ssl/openssl.cnf
+Enter pass phrase for /etc/ssl/private/cakey.pem:
+DEBUG[load_index]: unique_subject = "yes"
+Revoking Certificate 04.
+Data Base Updated
+</pre>
+Po unieważnieniu certyfikatu należy wygenerować jeszcze listę CRL, w której zapisane są unieważnione certyfikaty.
+
+<strong>Generowanie listy CRL (Listy unieważnionych certyfikatów)</strong>
+
+<pre>
+root@ca:/etc/ssl# openssl ca -gencrl -out crl.pem
+</pre>
+Ważne, aby przenieść plik <em>crl.pem</em> do miejsca, które wskazaliśmy jako <code>crlDistributionPoint</code> w pliku konfiguracyjnym OpenSSL.
+
+<strong>Sprawdzanie ważności certyfikatu</strong>
+
+Aby sprawdzić datę ważności certyfikatu oraz wyświetlić szczegółowe informacje dla kogo został wystawiony możemy użyć polecenia:
+<pre>
+root@ca:/etc/ssl# openssl x509 -noout -text -i <plik certyfikatu>
+</pre>
+
+<strong>Różne formaty certyfikatów</strong>
+
+Niestety wśród certyfikatów nie ma jednego standardu i różni producenci preferują różne formaty. Niemniej za pomocą programu OpenSSL możesz je przekonwertować z jednego formatu na inny. Klucze są najczęściej zapisywane w formie PEM lub DER (binarny). Dla certyfikatów używane są PEM, DER, PKCS12. Aplikacje bazujące na OpenSSL, czyli wszystkie unixowe, używają na ogół formatu PEM (Base64). Rozszerzenia dla formatu PEM to: <em>*.crt</em> <em>*.pem</em>, w systemach Windows <em>*.cer</em>
+
+Aby przekonwertować certyfikat z jednej postaci na drugą, musisz przekazać programowi OpenSSL odpowiednie parametry.
+
+<table>
+<tr>
+<th>Format wejściowy</th>
+<th>Format wyjściowy</th>
+<th>Składnia OpenSSL</th>
+</tr>
+<tr>
+<td>PEM (cert)</td>
+<td>DER (cert)</td>
+<td><code>openssl x509 -in cert.pem -out cert.der -outform DER</code></td>
+</tr>
+<tr>
+<td>DER (cert)</td>
+<td>PEM (cert)</td>
+<td><code>openssl x509 -in cert.der -inform DER -out cert.pem -outform PEM</code></td>
+</tr>
+<tr>
+<td>PEM (key)</td>
+<td>DER (key)</td>
+<td><code>openssl rsa -in input.key -inform PEM -out output.key -outform DER</code></td>
+</tr>
+<tr>
+<td>DER (key)</td>
+<td>PEM (key)</td>
+<td><code>openssl rsa -in input.key -inform DER -out output.key -outform PEM</code></td>
+</tr>
+<tr>
+<td>PEM (key,cert)</td>
+<td>PKCS #12</td>
+<td><code>openssl pkcs12 -export -out cert.p12 -inkey userkey.pem -in usercert.pem</code></td>
+</tr>
+<tr>
+<td>PKCS #12</td>
+<td>PEM (cert)</td>
+<td><code>openssl pkcs12 -clcerts -nokeys –in cert.p12 -out usercert.pem</code></td>
+</tr>
+<tr>
+<td>PKCS #12</td>
+<td>PEM (key)</td>
+<td><code>openssl pkcs12 -nocerts -in cert.p12 –out userkey.pem</code></td>
+</tr>
+</table>
+
+Aby wyświetlić informację o certyfikacie, np. informacje podane podczas tworzenia wniosku, należy uruchomić program OpenSSL z następującymi parametrami:
+<pre>
+root@ca:/etc/ssl# openssl x509 -in servercert.pem -subject –noout
+subject= /C=PL/ST=Slask/O=Helion/CN=server1
+</pre>
+Jeśli dodasz parametr <code>-issuer</code>, OpenSSL zwróci także informację o wystawcy (CA):
+<pre>
+root@ca:/etc/ssl# openssl x509 -in servercert.pem -issuer -subject –noout
+subject= /C=PL/ST=Slask/O=Helion/CN=server1
+issuer= /C=PL/ST=Slask/L=Gliwice/O=Helion/CN=CA
+</pre>
+Jeżeli certyfikat jest w formie binarnej (DER), do powyższej składni należy dodać parametr <code>-inform DER</code>.
+
+== Kompilacja biblioteki OpenSSL ze źródeł ==
+
+Jeśli z jakichś powodów musimy skompilować bibliotekę openssl, poniżej w punktach zamieszczam opis, jak to zrobić.
+
+<ol>
+<li>Pobieramy ze strony http://www.openssl.org/source/ źródła najnowszej wersji pakietu i zapisz w katalogu /usr/src/.</li>
+<li>Porównójemy wartość MD5 pliku pobranego z sieci (polecenie md5sum) z wartością udostępnioną na stronie openssl.org.</li>
+<li>Rozpakowujemy zawartość archiwum poleceniem tar zxf openssl-nr_wersji.tar.gz.</li>
+<li>Przechodzimy do katalogu openssl-nr_wersji.</li>
+<li>Przed przystąpieniem do kompilacji musimy ustalić, w którym katalogu program ma zostać zainstalowany oraz z jakimi dodatkowymi opcjami, podając je jako parametry skryptu <code>./config</code>. 
+W poniższym przykładzie skompilujemy program z obsługą biblioteki zlib, a wynikowy program zostanie zainstalowany w katalogu <em>/usr/local/openssl</em>.<br />
+Wpisujemy polecenie: <code>root@srv:~# ./config --prefix=/usr/local zlib</code></li>
+<li>Jeśli skrypt ./config nie zgłosi błędu, możemy przejść do właściwej kompilacji programu. W tym celu wpisujemy polecenie <code>make</code>.</li>
+<li>Proces kompilacji może potrwać kilka minut, po jego zakończeniu możemy przejść do ostatniego kroku — instalacji skompilowanych plików we właściwych katalogach.</li>
+<li>Aby zakończyć instalację, wpisz polecenie <code>make install</code>.</li>
+</ol>
+
+== Nakładki graficzne na OpenSSL ==
+Aby nie męczyć się ze skomplikowanymi poleceniami OpenSSL, można zainstalować sobie jedną z nakładek graficznych dostępnych także dla systemu Windows.
+
+<strong>XCA</strong><br />
+Dzięki tej nakładce możemy utworzyć własny urząd certyfikacji (Root CA), także generować klucze dla użytkowników i wystawiać im certyfikaty. Dostępna jest dla większości systemów, w tym BSD. 
+
+<strong>My Certificate Wizard</strong><br />
+Drugą nakładką jest "My Certificate Wizard", który co prawda nie jest przeznaczony dla administrator. Tylko dla zwykłych użytkowników, służy on bowiem do generowania kluczy prywatnych oraz wniosków o wydanie certyfikatu (pliki CSR). Program jest nieco stary. Jego ostatnia stabilna wersja pochodzi z 2004, a strona twórcy ostatni raz była aktualizowana w 2008 roku.
+
+
+== Generowanie certyfikatów SSL w systemie Windows Server 2003 ==
+
+Certyfikaty w systemie Windows 2003 Server generuje się za pomocą do dodatku do IIS. Dlatego też na początku musimy zainstalować tę role. 
+
+<strong>Tworzenie urzędu certyfikacji</strong>
+
+<ol>
+<li>Klikamy start, następnie uruchamiamy "Zarządzania tym serwerem". Teraz klikamy na "Dodaj lub usuń rolę". Powinien uruchomić się kreator konfigurowania serwera. Klikamy przycisk Dalej, następnie zaznaczamy rolę "Serwer aplikacji (IIS, ASP.NET)", wszystkie opcje pozostawiamy domyślnie, klikając przycisk Dalej aż do momentu instalacji. Uwaga system może poprosić nas o płytę w trakcie instalacji. </li>
+<li>Po zainstalowaniu roli, przechodzimy do dodania usługi certyfikatów do IIS. W tym celu uruchamiamy "Panel Sterownia", wybieramy aplet "Dodaj/Usuń programy", po lewej stronie okna "Dodaj/Usuń programy znajduje się przycisk "Dodaj/Usuń składniki systemu Windows", klikamy na niego i odszukujemy "Usługi certyfikatów", po uruchomieniu instalacji składnika, instalator zapyta o "typ urzędu certyfikacji". Wybieramy "Autonomiczny główny urząd certyfikacji", klikamy dalej. Następną rzeczą jaką trzeba podać to nazwa pospolita czyli z ang. <em>Common Name</em>. Następnie zostaną na podane wszelkie ścieżki, jakie będą używane, zostawiamy wszystko bez zmian oraz na wszelkie ostrzeżenia odpowiadamy "Tak". Jeśli usługą zainstalowała się bez żadnych większych problemów. To teraz należy uruchomić Internet Explorer i wpisać adres http://adres_ip/certsrv 
+</ol>
+
+<strong>Generowanie certyfikatów</strong>
+<ol>
+<li>Będąc na stronie http://adres_ip/certsrv klikamy na odnośnik "Żądanie certyfikatu", następnie "zaawansowane żądanie certyfikatu". Po czym wybieramy "Utwórz i prześlij żądanie do tego urzędu certyfikacji". Zostaniem przekierowani na stronę z dużym formularzem wypełnienia.</li>
+<li>Wypełniamy część oznaczoną jako "Informacje identyfikujące". Pierwsze pole oznaczone jako nazwa, to nic innego jak <em>Common Name</em> i tu w przypadku generowania kluczy dla serwera podajemy FQDN.</li>
+<li>Wybieramy odpowiedni dla nas typ certyfikatu</li>
+<li>W opcjach klucza zaznaczamy: "Oznacz klucze jako eksportowalne", "Włącz silną ochronę klucza prywatnego".</li>
+<li>W opcjach dodatkowych, zmieniamy format żądania na PKCS10</li>
+<li>Klikamy "Prześlij"</li>
+<li>Po kliknięciu prześlij wyskoczy nam Ostrzeżenie, klikamy "Tak".</li>
+<li>Następnie wyskoczy okienko o generowaniu kluczy, klikamy OK, i nasze żądanie zostało przesłane do urzędu certyfikacji</li>
+<li>Teraz otwieramy konsole MMC "Urząd certyfikacji". Start -> Wszystkie programy -> Narzędzia administracyjne -> Urząd certyfikacji.</li>
+<li>Klikamy na nasz urząd i przechodzimy do foldery "Żądania oczekujące"</li>
+<li>Widzimy już nasz żądanie, klikamy na nie PPM, najeżdżamy na wszystkie zadania i klikamy "Wystaw"</li>
+<li>W tym momencie na podstawie żądania został wygenerowany certyfikat. Certyfikat ten znajduje się w MMC Urząd certyfikacji w folderze "Wystawione certyfikaty"</li>
+<li>Teraz możemy powrócić do strony, i kliknąć w odnośniki "Pokaż stan oczekującego żądania certyfikatu".</li>
+<li>Ostatnim krokiem jest w eksportowanie certyfikatu w formacie PKCS12. Aby tego dokonać w Internet Explorerze klikamy na pasku menu Narzędzie/Opcje internetowe, następnie Zawartość i w sekcji "Certyfikaty", naciskamy przycisk certyfikaty. Zaznaczamy ostatnio zainstalowany certyfikaty i klikamy na "Eksportuj", zostanie uruchomiony "Kreator eksportu certyfikatów", należy pamiętać aby zaznaczyć opcje "Tak, eksportuj klucz prywatny<, w wyniku czego zostanie wygenerowany plik binarny PKCS12, następnie zostaniemy poproszeni o utworzenie hasła dla klucza prywatnego, które w zależności od zastosowania certyfikatu może być puste (certyfikat dla serwera), wybieramy ścieżkę docelową dla certyfikatu klikamy "Dalej", następnie "OK". Certyfikat wyeksportowany.</li>
+<li> ! Jeśli aplikacja przez nas używana wymaga, certyfikatu w postaci tekstowej PEM, to należy certyfikat PKCS12/PFX przekonwertować do postaci tekstowej za pomocą np. OpenSSL. Eksport certyfikatu do postaci PEM przeprowadza się poleceniem: <br /><code>openssl pkcs12 -clcerts -in user1.pfx -nokeys -out user1.crt</code>. <br />Natomiast aby wyeksportować klucz do pliku tekstowego PEM należy użyć następującego polecenia:<br /><code>openssl pkcs12 -nocerts -in user1.pfx -out user1.key</code><br />
+</li>
+<li> ! Eksport certyfikatu urzędu certyfikacji, wykonuje się w podobny sposób, przechodzimy do certyfikatów w Opcja internetowych Internet Explorera. Klikamy na zakładkę "Pośrednie urzędy certyfikacji", odnajdujemy certyfikat naszego urzędu i klikamy przycisk "Eksportuj". Tutaj wybieramy opcje "bez klucza prywatnego", jako format "Certyfikat X.509 szyfrowany algorytmem Base-64(.CER)", wskazujemy ścieżkę do pliku, "Dalej", "Dalej", "Zakończ" i "OK".</li>
+

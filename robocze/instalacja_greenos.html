@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/png" href="https://files.morketsmerke.net/resources/mm.png">
+		<style>
+			.code-block {
+				display: block;
+				background-color: silver;
+				font-family: monospace;
+				font-weight: bolder;
+			}
+			.code-inline {
+				background-color: silver;
+				font-family: monospace;
+
+				font-weight: bolder;
+			}
+			p { text-align: justify; }
+		</style>
+	</head>
+	<body style="font-family: monospace;" >
+<pre>
+                               ____  _____
+   ____ _________  ___  ____  / __ \/ ___/
+  / __ `/ ___/ _ \/ _ \/ __ \/ / / /\__ \ 
+ / /_/ / /  /  __/  __/ / / / /_/ /___/ / 
+ \__, /_/   \___/\___/_/ /_/\____//____/  
+/____/                                    
+
+</pre>
+	<p style="margin: 15px; padding: 0; outline: 0; font-size: 18pt;">
+		&#9760;&nbsp;<a href="https://morketsmerke.net">morketsmerke</a>&nbsp;&#9760;
+	</p>
+	<div style="margin-left: auto; margin-right: auto; width: 80%;">
+    <h1 style="text-align: center;">Instalacja greenOS</h1>
+    <p>
+      GreenOS dostarczany jest bez instalatora. Przez co daje ogromne możliwość
+      konfiguracji systemu przed jego pierwszym uruchomieniem. Instalacja 
+      składa się z kilku poleceń.
+    </p>
+    <ol>
+      <li>
+        Uruchamiamy na naszej maszynie docelowej jakiegoś Linux-a w wersji Live,
+        może być to dowolna dystrybucja, którą akurat mamy pod ręką. Do 
+        instalacji wykorzystywać będzięmy podstawowe narzędzia. GreenOS 
+        również jest dostępny wersji LiveCD, można go uruchomić zarówno w 
+        trybie BIOS jak i UEFI.
+      </li>
+      <li>
+        <p>
+          Instalacja greenOS wymaga połączenia z Internetem, skądś należy 
+          pobrać paczkę z plikami katalogu głównego (rootfs). Oczywiście jeśli 
+          posiadamy sterowniki w zbootowanym systemie. Jeśli będziemy łączyć 
+          się za pomocą sieci Ethernet, to połączenie z internetem spowadza 
+          się do podłączenia kabla następnie wydaniu polecnenia, dzięku któremu
+          pobierzemy adres IP z DHCP: 
+        </p>
+<pre class="code-block">
+# dhclient enp0s3
+</pre>
+        <p>
+          gdzie <code class="code-inline">$interface</code> to nazwa interfejsu
+          Ethernet w systemie, możemy sprawdzić ją za pomocą polecenia 
+          <code class="code-inline">ip a</code>. Jeśli połączenie 
+          przewodowe nie jest dostępne, a mamy możliwość skorzystania z sieci 
+          bezprzewowdowej (tj. mamy widoczną kartę sieciową w systemie, oraz 
+          dostęp do jakiejś sieci bezprzewodowej), to podłaczanie się do sieci
+          bezprzewodowej należy zacząć od włączenia karty, za pomocą polecenia:
+        </p>
+<pre class="code-block">
+ip link set $interface up
+</pre>
+        <p>
+          <code class="code-inline">$interface</code> = interfejs sieci 
+          bezprzewodowej, następnie przeskanować otoczenie w poszukiwaniu
+          sieci bezprzewodowej, do której mamy dostęp. Do tego celu należy 
+          użyć polecenia:
+        </p>
+<pre class="code-block">
+iwlist $interface scan
+</pre>
+        <p>
+          Potrzebujemy tylko SSID, a to polecenie zwraca dużą ilość danych, 
+          należy przepuścić jej wyjście przez polecenie 
+          <em>grep</em> z wyrażeniem "SSID", dzięki temu poleceniu reszta 
+          danych wyjściowych zostanie odfiltrowana, a wyświetlone zostaną 
+          tylko nazwy sieci (SSID). W większości przypadków, połączenie się z 
+          siecią będzie wymagało klucza, w zależności od użytch zabepieczeń 
+          różnić się będzie metoda przyłączenia się do sieci. Jeśli nasza sieć 
+          używa standardu WPA, wtenczas należy użyć programu 
+          <em>wpa_supplicant</em>. Wymaga on pliku konfiguracyjnego, w którym 
+          znajdują się deklaracje sieci. Plik ten generuje się przekierowując 
+          standardowe wyjście polecenia <em>wpa_passphrase</em> do pliku. Plik 
+          może być zapisany gdzie kolwiek, poleceniu <em>wpa_supplicant</em> i 
+          tak podajemy ściężkę do niego. `wpa_passphrase` do wygenerowania 
+          plik musi mieć SSID sieci oraz klucz PSK, podajemy te informacje 
+          jako argumenty pozycjne:
+        </p>
+<pre class="code-block">
+wpa_passphrease RogueAP 123Test123 &gt; wpa_supplicant.conf
+</pre>
+        <p>
+          Po wygenerowaniu pliku konfiguracyjnego możemy przyłączyć się do
+          sieci za pomocą polecenia <em>wpa_supplicant</em>.
+        </p>
+<pre class="code-block">
+wpa_supplicant -B -D wext -i $interface -c $configFile
+</pre>
+        <p>
+          Gdzie:
+            <ul>
+              <li><code class="code-inline">$interface</code> - nazwa
+                bezprzewodowego interfeju sieciowego w systemie
+              </li>
+              <li><code class="code-inline">$configFile</code> - plik
+                konfiguracyjny <em>wpa_supplicant</em>, zawierający
+                profile sieci.
+              </li>
+            </ul>
+          Program powyświetleniu kilku komunikatów, przejdzie w tło, przez co
+          nie będzie zakłócać pracy w terminalu czy konsoli, na której go 
+          uruchmiliśmy. Aby upewnić się czy zostaliśmy przyłączeni możemy 
+          wydać polecenie:
+        </p>
+<pre class="code-block">
+iwconfig $interface
+</pre>
+        <p>
+          Polecenie zwróci informacje na temat połączenia z siecią bezprzwodową
+          w polu <code class="code-inline">Access point:</code>, powiniśmy
+          zobaczyć BSSID punktu dostępowego, jeśli w tym polu widnieje napis
+          <code class="code-inline">Not-Associated</code> oznacza to, że
+          nie zostaliśmy przyłączeni do sieci. Jeśli przyłaczenie się
+          powiodło to jedyne co nam pozostało w tym przypadku to pobrać adres
+          IP z DHCP.
+        </p>
+      </li>
+      <li>
+        <p>
+          Następną czynnością do wykonania jest partycjonowanie dysku. Tutaj
+          w zależności od trybu jakiego wymaga nasz komputer do działania, czy
+          jest to BIOS czy UEFI, musimy odpowiednio spartycjonować nasz dysk.
+          W trybie UEFI, należy pamiętać partycji EFI. Nie chcę tutaj narzuć
+          jak należy spartycjonować dysk. Jednak poniżej wstawie schemat,
+          który powinien działać w każdym możliwym przypadku:
+        </p>
+        <table>
+          <tr>
+            <th>Urządzenie</th>
+            <th>Boot</th>
+            <th>Rozmiar</th>
+            <th>Typ partycji</th>
+          </tr>
+          <tr>
+            <td>/dev/sda1</td>
+            <td>*</td>
+            <td>(<em>Rozmiar dysku</em> - 1GB)</td>
+            <td>Linux</td>
+          </tr>
+          <tr>
+            <td>/dev/sda2</td>
+            <td></td>
+            <td>1GB (<em>Reszta</em>)</td>
+            <td>Rozszerzona</td>
+          </tr>
+          <tr>
+            <td>/dev/sda5</td>
+            <td></td>
+            <td>1GB (<em>cały rozmiar partycji rozszerzonej</em>)</td>
+            <td>Linux swap / Solaris</td>
+          </tr>
+        </table>
+        <p>
+          Narzędziem do partycjonowania dostępnym na <em>LiveCD greenOS</em>
+          jest <em>fdisk</em>.
+        </p>
+        <p>
+          Partycjonowanie dla UEFI różni się nieco do partycjonowania dla BIOS
+          poza tymi powyższymi partycjami potrzebna będzie jeszcze jedna
+          partycja.
+        </p>
+        <table>
+          <tr>
+            <th>Urządzenie</th>
+            <th>Boot</th>
+            <th>Rozmiar</th>
+            <th>Typ partycji</th>
+          </tr>
+          <tr>
+            <td>/dev/sda1</td>
+            <td></td>
+            <td><em>nie mniej niż 512MB</em></td>
+            <td>EFI (FAT-12/16/32)</td>
+          </tr>
+          <tr>
+            <td>/dev/sda2</td>
+            <td></td>
+            <td>(<em>pozostała większość</em> - 1GB)</td>
+            <td>Linux</td>
+          </tr>
+          <tr>
+            <td>/dev/sda3</td>
+            <td></td>
+            <td><em>Reszta</em></td>
+            <td>Rozszerzona</td>
+          </tr>
+          <tr>
+            <td>/dev/sda5</td>
+            <td></td>
+            <td><em>cała partycja rozszerzona</em></td>
+            <td>Linux swap / Solaris</td>
+          </tr>
+        </table>
+        <p>
+          Te schematy partycjonowania powinny się sprawdzić. Po zapisaniu
+          zmian na dyskach, należy partycje sformatować na odpowiednie
+          systemy plików. To jest: 
+        </p>
+        <ul>
+          <li>partycja <strong>EFI</strong>:
+<pre class="code-block">
+# mkfs.vfat -F32 /dev/sda1
+</pre>
+          </li>
+          <li>partycje <strong>Linux</strong>-a, np:
+<pre class="code-block">
+# mkfs.ext4 /dev/sda2
+</pre>
+          </li>
+          <li>partycja <strong>swap</strong>:
+<pre class="code-block">
+# mkswap /dev/sda5
+</pre>
+          </li>
+        </ul>
+        <p>
+          Po sformatowaniu partycji, tę przeznaczoną na główny system plików
+          montujemy w katalogu np. <em>/mnt</em> lub <em>/media</em>.
+        </p>
+<pre class="code-block">
+# mount /dev/sda1 /mnt
+</pre>
+        <p>
+          Następnie aktywujemy swap.
+        </p>
+<pre class="code-block">
+# swapon /dev/sda5
+</pre>
+      </li>
+      <li>
+        <p>
+          Jeśli główny system plików został poprawnie zamontowany, a
+          inne katalogi głównego systemu plików, takiej jak np. <em>/home</em>
+          czy <em>/usr</em> będą na innych dyskach, to należy utworzyć teraz
+          te katalogi w miejscu montowania głównego systemu pliku i zamontować
+          te dyski, zeby poźniej nie bawić się w kopiowanie. Po ewewntualnym
+          zamontowaniu pozostałych katalogów, możemy pobrać archwium z
+          <em>rootfs</em>, w tym celu przechodzimy do katalogu montowania 
+          głównego systemu plików następnie wydajemy polecenie:
+        </p>
+<pre class="code-block">
+/mnt# wget http://ftp.morketsmerke.net/greenOS/rootfs/$arch/$mode/rootfs_$arch_$mode.tgz
+</pre>
+        <ul>
+          <li><code class="code-inline">$arch</code> - architektura procesora
+            komputera. GreenOS posiada wsparcie dla architektur <em>amd64</em>
+            oraz <em>i386</em>.
+          </li>
+          <li><code class="code-inline">$mode</code> - rodzaj instalacji
+            greenOS. Do wyboru są trzy rodzaje: <em>desktop</em> - instalacja
+            systemu ze środowiskiem graficznym - menedżerem okien IceWM, i
+            kilkoma dodatkowymi programami; <em>server</em> - instalacja bez
+            środowiska graficznego, zwierająca tylko edytor <em>vim</em> oraz
+            serwer SSH; <em>hacker</em> - najczystsza wersja posiadająca
+            jedynie pakiety pozwalające na połączenie sieciowe. Wszyskie te
+            wersje zawierają pakiety jądra oraz programy niezbędne do
+            funkcjonowania systemu.
+          </li>
+        </ul>
+        <p>
+          Po ściągnięciu archiwm należy je rozpakować, do tego wystarczy
+          użyć polecnia <em>tar</em> z odpowiednimi przełącznikami.
+        </p>
+<pre class="code-block">
+# tar -xzvf rootfs_$arch_$mode.tgz
+</pre>
+        <p>
+          Po rozpakowaniu, archiwum należy usunać aby nie zalegało na dysku.
+        </p>
+      </li>
+      <li>
+        <p>
+          Teraz kiedy mamy już pliki dystrybucji, możemy wygenerować plik
+          <em>/etc/fstab</em>, w tym celu przekierujemy wyjście polecenia
+          <em>blkid</em>, do pliku <em>/mnt/etc/fstab</em>.
+        </p>
+<pre class="code-block">
+# blkid &gt; /mnt/etc/fstab
+</pre>
+        <p>
+          Niestety samo przkierowania wyjścia <em>blkid</em> nie wygeneruje
+          poprawnego pliku <em>fstab</em>, jednak zaoszczędzi nam przepisywania
+          UUID-ów. Poniżej zamieszcze listing zawierający poprawne wpisy
+          dla poszczególnych partycji.
+        </p>
+<pre class="code-block">
+# Partycja EFI dla instalacji UEFI.
+UUID="..."  /boot/efi vfat  umask=0077  0 1
+
+# Partycje Linuxa
+UUID="..."  $mountPoint ext4  defaults  0 1
+
+# Partycja swap
+UUID="..."  none  swap  sw  0 0
+</pre>
+        <p>
+          <code class="code-inline">$mountPoint</code> - punkt montowania,
+          może być: <em>/</em> jak i <em>/home</em>.
+        </p>
+      </li>
+      <li>
+        <p>
+          Po wygenerowaniu <em>fstab</em>, przyszedł czas na ustawienie nazwy
+          komputera dla instalowanego systemu. Należy zrobić w dwóch miejscach
+          w pliku <em>/mnt/etc/hostname</em> oraz <em>/mnt/etc/hosts</em> pod
+          wpisem adresu <code class="code-inline">127.0.1.1</code>. Nazwa
+          komputera może składać się z małych i dużych liter, cyfr oraz
+          myślinika.
+        </p>
+      </li>
+      <li>
+        <p>
+          Pozostałe czynności należy wykonać już na zmienionym katalogu 
+          głównym. Ta zmiana spowoduje, że będzemy mogli działać 
+          na instalowanym systemie. Ale zanim to jednak nastąpi musimy
+          podmontować w instalowanym systemie kilka katalogów systemowych, aby
+          np. z poziomu zmienionego root-a (katalogu głównego), był
+          widoczny dysk twardy, aby była możliwość zainstalowania programu 
+          rozruchowego (<em>GRUB</em>-a), w tym celu wykorzystamy jedną z 
+          konstrukcji powłoki:
+        </p>
+<pre class="code-block">
+# for i in /dev /dev/pts /proc /run /sys; do mount -B $i /mnt$i; done
+</pre>
+        <p>
+          Po zamontowaniu powyższych katalogów, możemy zmienić katalog główny.
+        </p>
+<pre class="code-block">
+# chroot /mnt /bin/bash
+</pre>
+        <p>
+          W tym momencie powinniśmy przeskoczyć automatycznie do katalogu 
+          głównego, nic innego się nie zmieni, co może nie dezorientujące
+          dlatego warto zmienić sobie znak zachęty (<em>prompt</em>), aby
+          rozróżnić zmieniony katalog główny od katalogu systemu z LiveCD.
+        </p>
+<pre class="code-block">
+# export PS1="(chroot) ${PS1}"
+</pre>
+        <p>
+          Teraz nie pownniśmy mieć wątpliwości, w którym z katalogów głównych 
+          się znajdujemy. Teraz możemy zająć się ustawianiem haseł oraz
+          użytkowników. Na początek zmienimy hasło użytkownika <em>root</em>.
+          Wszystkie polecenia wykonywane na zmienionym katalogu głównym są
+          oznaczone przedrostkiem <code class="code-inline">(chroot)</code>
+        </p>
+<pre class="code-block">
+(chroot)# passwd
+</pre>
+        <p>
+          Następnie utworzymy nowego użytkownika, z którego konta będziemy
+          korzystać podczas pracy na komputerze.
+        </p>
+<pre class="code-block">
+(chroot)# adduser $username
+</pre>
+        <p>
+          <code class="code-inline">$username</code> - nazwa użytownika.
+        </p>
+      </li>
+      <li>
+        <p>
+          Ostatnią czynnością została instalacja programu rozruchowego,
+          istnieje pełna dowolność, jednak w pobranym <em>rootfs</em>,
+          zainstalowany został już <em>GRUB</em> dla <em>i386-pc</em>, więc 
+          przy instalacji
+          w trybie UEFI lub wykorzystaniu przez nas innego bootloadera trzeba
+          będzie zainstalować odpowiedni pakiet. W tym przewodniku skupie się
+          wyłącznie na <em>GRUB</em>. Instalacja <em>GRUB</em> w trybie BIOS 
+          wygląda następująco.
+        </p>
+<pre class="code-block">
+(chroot)# grub-install $disk
+</pre>
+        <p>
+          Gdzie <code class="code-inline">$disk</code> - wystąpienie dysku w
+          katalogu <em>/dev</em>, tj. <em>/dev/sda</em>, <em>/dev/sdb</em> itp.
+          Po zainstalowaniu <em>GRUB</em> na dysku, pozostało jedynie
+          wygenrowanie pliku konfiguracyjnego <em>GRUB</em>-a.
+        </p>
+<pre class="code-block">
+(chroot)# update-grub
+</pre>
+        <p>
+          Powyższe polecenie wygeneruje pliki konfiguracyjne <em>GRUB</em>-a.
+          Po wykonaniu tej czynności instalacja jest zakończona, pozostaje 
+          tylko posprzątać.
+        </p>
+        <p>
+          Instalacje w trybie UEFI, przeprowadza się w nieco inny sposób. Żeby
+          zainstalować <em>GRUB</em>-a w trybie UEFI, będziemy potrzebować
+          odrębnego pakietu niż ten, który jest zainstalowany.
+        </p>
+<pre class="code-block">
+(chroot)# apt update
+(chroot)# apt install grub-efi
+</pre>
+        <p>
+          Po instalacji pakietu musimy zamontować partycje EFI, aby to zrobić
+          należy utworzyć dla niej odpowiedni punkt montowania, będzie nim 
+          katalog <em>/boot/efi</em>:
+        </p>
+<pre class="code-block">
+(chroot)# mkdir /boot/efi
+</pre>
+        <p>
+          Po utworzeniu katalogu montujemy partycję EFI.
+        </p>
+<pre class="code-block">
+(chroot)# mount $efiPartition /boot/efi
+</pre>
+        <p>
+          Gdzie <code class="code-inline">$efiPartition</code> jest partycją
+          EFI w systemie. Po zamontowaniu, możemy przejść do instalacji
+          <em>GRUB</em>-a.
+        </p>
+<pre class="code-block">
+(chroot)# grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian
+</pre>
+        <p>
+          Ostatnia czynność jest identyczna dla obu trybów, pozostało
+          wygenerować plik konfiguracyny.
+        </p>
+<pre class="code-block">
+(chroot)# update-grub
+</pre>  
+        <p>
+          Po wygenerowaniu pliku konfiguracyjnego <em>GRUB</em>-a czy to w
+          trybie UEFI czy BIOS, opuszczamy zmieniony katalog główny.
+        </p>
+<pre class="code-block">
+(chroot)# exit
+</pre>
+        <p>
+          Sprzątnie w tym wpadku będzie polegać na kulturalnym odmontowaniu
+          systemów plików. Do tego celu wykorzystamy konstrukcję powłoki, która
+          została już raz użyta podczas instalacji.
+        </p>
+<pre class="code-block">
+# for i in /dev /dev/pts /proc /sys /run; do umount -R /mnt$i; done
+</pre>
+        <p>
+          Teraz pozostaje odmontować pozostałe zamontowane partycje wraz
+          z katalogiem głównym.
+        </p>
+<pre class="code-block">
+# umount -R /mnt
+</pre>
+        <p>
+          Instalacja została zakończona, jedyne co pozostaje to uruchomić
+          ponownie komputer.
+        </p>
+      </li>
+    </ol>
+  </div>
+  <p style="margin: 15px; padding: 0; outline: 0;">
+	  2021; COPYLEFT; ALL RIGHTS REVERSED;
+  </p>
+
+</body>
+</html>

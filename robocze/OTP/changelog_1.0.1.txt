@@ -1,0 +1,5 @@
+-- Wersja: 1.0.1
+  * Zastąpiono podczas ładowania "on boot" przeglądarkę internetową, programem
+    "Remmina" wraz z pluginami.
+  * Wyłączono z ładowania "on boot" openssh-client. Czas ładowania rozszerzeń
+    został skrócony o 30 sekund.

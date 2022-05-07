@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="resources/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				p { text-align: justify; }
+			</style>
+		</head>
+
+
+		<body style="font-family: monospace;" >
+<pre>
+88                             88
+88                             88
+88                             88
+88,dPPYba,  ,adPPYba,  ,adPPYb,88
+88P'    "8a I8[    "" a8"    `Y88
+88       d8  `"Y8ba,  8b       88
+88b,   ,a8" aa    ]8I "8a,   ,d88
+8Y"Ybbd8"'  `"YbbdP"'  `"8bbdP"Y8
+</pre>
+
+		<p style="margin: 15px; padding: 0; outline: 0; font-size: 18pt;">
+			&#9760;&nbsp;<a href="https://morketsmerke.net/">morketsmerke</a>&nbsp;&#9760;
+		</p>
+
+		<div style="margin-left: auto; margin-right: auto; width: 80%;">
+			<h1 style="text-aling: center;">Dziennik OpenBSD</h1>
+			<p>
+				<strong>Dzień 1 - Instalacja, fluxbox, dwa monitory, dźwięk, youtube-dl i usmb</strong> - <em>2021-04-08</em><br />
+				<br />
+				Do wykorzystania z OpenBSD wybrałem maszynę na której zainstalowełem oraz uruchomiłem system bez zarzutu. Czytając ostatni
+				akapit materiału o instalacja OpenBSD można dojść do wniosku, iż nie zawsze jest to takie banalne jakby się mogło wydawać. Ta
+				maszyna to składak z płytą ITX Sapphire PURE White IPC-E350M1W z procesorem AMD E-350, zintegrowaną grafiką Radeon HD 6310 i
+				małym dyskiem SSD Intela jeszcze na SATA II, Do PC-eta podłączyłem dwa monitory, tak jakoś mi się wygodniej pracuje na dwóch.
+				Po uruchomieniu systemu (zainstalowałem go wraz z uruchomianiem <strong>xenodm</strong>, więc system od razu uruchamił 
+				środowisko graficzne) byłem przekonany że zostaną uruchomione oby dwa i to w rozszerzeniu. Już kiedyś uruchamiałem OpenBSD na
+				laptopie z podłączonym dodatkowym monitorem, co ciekawe serwer <strong>x.org</strong> skonfigurował ten monitor jak 
+				podstawowy. Nie zwracając uwagi na domyślne ustawienia ustawiłem polecenie <strong>doas</strong>, które jest odpowiednikiem 
+				linuxowego polecenia <em>sudo</em> poźniej zainstalowałem  <em>Firefox-a</em> następnie wrzuciłem w 
+				wyszukiwarkę "How to install fluxbox on OpenBSD" przeszedłem na główną stronę projektu, oczywiście już nauczony 
+				wcześniejszymi instalacjami OpenBSD na laptopach, że <strong>fluxbox</strong> jest dostępny w repozytorium, nie pamiętałem 
+				jednak co należy zrobić aby fluxbox uruchamiał się po zalogowaniu, wykonałem więc czynności opisane na strone projektu 
+				(jaki błąd!). Po zrestartowaniu nie zadziałało po zalogowaniu uruchomił się <em>FWVM</em>, <em>fluxbox</em> uruchomiał się 
+				tylko na wyłączonym <em>xenodm</em> i uruchamianiu <em>X</em> z ręki przy użyciu polecnia <em>startx</em>. Na stronie wyników
+				wyszukiwania znalazłem podobnie brzmiący problem do mojego... Na <em>StackOverflow</em>, radzili użyć pliku 
+				<em>~/.xsession</em> a nie <em>~/.xinitrc</em>, tak też zrobiłem i zadziałało. Następną rzeczą jak postanowiłem zrobić to
+				zająć się ekranami, aby były identycznie ustawione jak monitory na biurku, wykorzystałem do tego te dwa poniższe polecenia,
+				które są wykonywane przed uruchomieniem <em>fluxboxa</em> w pliku <em>.xsession</em>.
+<pre class="code-block">
+xrandr --output DVI-0 --primary
+xrandr --output HDMI-0 --right-of DVI-0
+</pre>
+				Polecenie <code class="code-inline">xrandr</code> służy właśnie do sterowania ekranami środowiskach graficznych opartych 
+				o <em>X</em>. Ustawienie monitora podłączonego przez DVI jako podstawowy (stoi po mojej lewej) jest zrozumiałe, ale do czego
+				służy drugie polecenie? Kiedy przestawiłem monitor, okazało się (już wcześniej kiedy instalowałem <em>fluxbox</em>), że jeśli
+				chcemy przenieść kursor na drugi monitor musimy zrobić to przez jego lewą krawedź co jest nienaturalne, bo monitor stoi po 
+				prawej stronie ekranu podstawowego. Kiedy monitory ogarnięte pora na doinstalowanie dodatkowego oprogramownia. Ja głównie
+				wykorzystuje terminal (<em>xterm</em> jako emulator), z pomocą <em>tmux</em> dziele go na trzy części jedna podstawowa z
+				<em>vim</em> oraz dwie mniejsze z odtwarzaczem <em>moc</em> oraz z wierszem polecenia, za pomocą którego np. obsługuje
+				repozytorium git. Jako mangera plików wykorzystuje <em>mc</em>, może czasamy być potrzeba aby otworzyć jakiś plik wideo, więc
+				<em>vlc</em>, generalnie chyba nie ma lepszego odtwarzacza od VLC ostatnim programe jest chyba gkrellm uruchamiany w dolnym
+				prawym rogu dodatkowego ekranu.
+<pre class="code-block">
+$ doas pkg_add -iv mc vim moc vlc gkrellm
+</pre>
+				Kolejnym ciekawym epizodem, było sprawdzenie dźwięku (spoiler! Działa out-of-box, wystarczy zrobić głośniej). Żeby zrobić to
+				w miarę szybko stwierdziłem że wejdę na YT, i oh, boy! Ten komputer raczej do YT się nie ndaje, jako alternatywę wymyśliłem
+				że mogę użyć <em>smtube</em> i okazało się że w repozytorium jest zarówno <em>smtube</em> jak i <em>youtube-dl</em>. 
+				<em>Smtube</em> oczywiście nie działa, ale ja mam dla niego inne zastosowanie, skoro jest w stanie wyszukiwać rzeczy to można
+				użyć go jako wyszukiwarki bez używania <em>firefox-a</em>, potem możemy sobie to ściągnąć przy użyciu <em>youtube-dl</em>.
+				Oczywiście nie namawiam do piractwa.
+<pre class="code-block">
+$ doas pkg_add -iv smtube youtube-dl
+</pre>
+				Przypomniałem sobie że mam dużo muzyki (aż 19 dni) na moim lokalnym NAS-ie. Z NAS-em możemy połączyć się zapomocą SMB, tylko
+				jako to zrealizować w OpenBSD, na GNU/Linux wystarczy jedno polecenie tutaj... Sprawa się komplikuje ponieważ nie ma
+				oficjalnego wsparcia dla CIFS/SMB, możemy zrobić dwa sposoby <s>taki że wylewu można dostać</s> hackerski lub wygodny. Ja
+				użyłem, wiadomo tego pierwszego i w pewnym momencie myślałem że zjem klawiaturę. Hakerski sposób wymaga pakietu 
+				<strong>usmb</strong>, oraz utworzenia specjalnej konfiguracji w pliku <em>~/.usmb.conf</em>:
+
+<pre class="code-block">
+&lt;?xml version="1.0" encoding="ISO-8859-1"?&gt;
+&lt;usmbconfig&gt;
+
+	&lt;credentials id="nas"&gt;
+		&lt;domain&gt;WORKGROUP&lt;/domain&gt;
+		&lt;username&gt;admin&lt;/username&gt;
+		&lt;password&gt;P4ssW0rD&lt;/password&gt;
+	&lt;/credentials&gt;
+
+	&lt;mount id="nas" credentials="nas"&gt;
+		&lt;server&gt;nas.morketsmerke.net&lt;/server&gt;
+		&lt;share&gt;nas&lt;/share&gt;
+		&lt;mountpoint&gt;/home/xf0r3m/NAS&lt;/mountpoint&gt;
+		&lt;options&gt;allow_other,uid=1000,gid=1000&lt;/options&gt;
+	&lt;/mount&gt;
+
+&lt;/usmbconfig&gt;
+</pre>
+				Po zapisniu konfiguracji w pliku musimy nadać mu odpowiednie uprawnienia, bo inaczej skrypt się <s>spruje</s> zwróci uwagę
+				nie są poprawne uprawnienia dla pliku konfiguracyjnego i nie zrobi zupełnie nic. Z racji tego że musimy uruchomić 
+				<em>usmb</em> jako <em>root</em>, to prawa własności musimy ustawić na poniższe:
+<pre class="code-block">
+$ doas chown root:wheel ~/.usmb.conf
+</pre>
+				To nie wszystko jeśli uprawnienia są za wysokie to skrypt znów <s>się spruje</s> nam zwróci uwagę na to że uprawnienia są
+				za wysokie i odmówi wykonania zadania. Prawidłowe uprawenienie ustawimy za pomoca poniższego polecenia:
+<pre class="code-block">
+$ doas chmod 600 ~/.usmb.conf
+</pre>
+				Kiedy już się uporamy z plikiem konfiguracyjnym, możemy wydać poniższe polecenia aby wkońcu zamontować nasz udział w 
+				systemie:
+<pre class="code-block">
+$ doas usmb -c ~/.usmb.conf nas
+</pre>
+				Powiem tak... Montowanie udziału spełnia swoje podstawowe założenia pozwala na główne operacje na plikach. Jednak jak 
+				chcielibyśmy odtworzyć muzykę w <em>moc</em>bezpośrednio z serwera to się nie da ponieważ wczytywanie plików odbywa
+				się bardzpo woli, na debug logu widać jak program się zapętla. Spróbuje na innych jeszcze odtwarzaczach, może to winna
+				<em>moc</em>, ale póki co to duży minus.
+			</p>
+			<p>&nbsp;</p>
+			<p>
+				<strong>Dzień 2 - Obsługa dysków, "Wykorzystanie systemu OpenBSD co codziennej pracy".</strong> - <em>2021-04-09</em><br />
+				<br />
+				Generalnie to chciałem zrobić dzisiaj porządek na dysku, mówie podłącze sobie dysk i zagram wszystko co potrzebne na NAS-a.
+				Po tem go przeformatuje. Jednak nie mogę ponieważ OpenBSD nie obsługuje systemu EXT4, generalnie kolejny minus. Jak się ich
+				zbierze dużo to można grać nimi w bierki. Dysk musiałem podłączyć do GNU/Linuxa. Jak wygląda montowanie partycji w systemie
+				OpenBSD. Za pomocą polecenia <code class="code-inline">dmesg</code> musimy namierzyć nasz dysk.
+<pre class="code-block">
+sd1 at scsibus4 targ 1 lun 0: &lt;SSDPR-CL, 100-240-G2, 0&gt; serial.174c1153201701000004
+sd1: 228936MB, 512 bytes/sector, 468862128 sectors
+</pre>
+				Jeden z moich dysków wygląda tak. Jak znalazłem dysk to jeszcze muszę wskazać partycje do montowania. Do listowania 
+				zawartości dysku służy polecnie <code class="code-inline">disklabel</code>
+<pre class="code-block">
+# /dev/rsd1c:
+type: SCSI
+disk: SCSI disk
+label: 100-240-G2      
+duid: 04289ed5badd948f
+flags:
+bytes/sector: 512
+sectors/track: 63
+tracks/cylinder: 255
+sectors/cylinder: 16065
+cylinders: 29185
+total sectors: 468862128
+boundstart: 0
+boundend: 468862128
+drivedata: 0 
+
+16 partitions:
+#                size           offset  fstype [fsize bsize   cpg]
+  c:        468862128                0  unused                    
+  i:        466860032             2048  ext2fs                    
+  j:          1996800        466864128 unknown                    
+</pre>
+				Kiedy chcę podmontować tą partycję to za pomocą poniższego polecenia otrzymuje tylko komunikat:
+<pre class="code-block">
+$ doas mount -t ext2fs /dev/sd1i /mnt
+mount_ext2fs: /dev/sd1i on /mnt: specified device does not match mounted device
+</pre>
+
+				Rozwinięcie tego komunikatu znajduje się w komunikatach systemowych dostępnych za pomocą polecenia <em>dmesg</em>.
+<pre class="code-block">
+ext2fs: unsupported incompat features: 64bit
+</pre>
+				Niestety nie podmontuje tego dysku. Lista kompatybilnych systemów plików z OpenBSD znajduje się poniżej:
+				<ul>
+					<li>cd9600</li>
+					<li>ext2fs (ext2)</li>
+					<li>msdos (FAT-y)</li>
+					<li>nfs</li>
+					<li>ntfs</li>
+					<li>tmpfs</li>
+					<li>udf</li>
+					<li>vnd</li>
+				</ul>
+				Czyli najlepszym system plików do przenoszenia danych między systemami zostanie FAT32. Na reddicie poświęconym powyższemu
+				problemowi z obsługą systemów plików, jeden z użytkowników napisał, że on to korzysta głównie z FAT32 do przenoszenia danych
+				między OpenBSD a GNU/Linuxem, ale jest jeden haczyk system plików należy utworzyć pod OpenBSD a nie GNU/Linux-em,
+				w przeciwnym razie partycja utworznona na GNU/Linux nie będzie chciała się montować w OpenBSD.<br />
+				<br />
+
+				Po przygodach z dyskiem wpadłem na pomysł, aby spisywać dzień po dniu, to co robie w systemie, o ilę będę robić coś wartego
+				opisania, nie wiem jak to nazwać poki co robocza wersja "Wykorzystanie systemu OpenBSD do codziennej pracy", plik się nazywa
+				<em>dziennik_openbsd.html</em>, nazwę się jeszcze dopracuje. Pisanie zajmuje znacznie więcej czasu niż wykonywanie rzeczy,
+				więc mogę się nie wyrobić na "daily" upload. Pierwsze wersje zawsze piszę na brudno, potem trzeba to jeszcze redagować, ale
+				spróbuje. Ponieważ już jest dzień 3, a ja cały czas pisze dzień drugi wczoraj nie dałem rady fizycznie, nie zawsze też będzie
+				o czym pisać, więc mogą być przeskoki w dniach. Dziś jeszcze muszę przygotować materiał a mam godzinę czasu, jutro
+				ewentualnie dokończe dzień 3, i przeredaguje te 3 dni i zrobię upload. Mam całą listę rzeczy do zrobienia, a ja sobie robie
+				"daily" z obsługi OpenBSD. Dobra, koniec dnia 2-go.
+			</p>
+			<p>
+				<strong>Dzień 3 - dysk do wymiany danych pomiędzy Linux-em a OpenBSD, ustawienie tapety na fluxbox</strong> 
+				- <em>2021-04-10</em><br />
+				<br />
+
+				Po skończeniu redagowania dnia 2, i ekscesach z niekompatybilnością systemów plików przyszedł czas na kompromis w sprawie.
+				Stworze partycję FAT32 na całej długości dysku pod OpenBSD (idąc za wskazówską z reddita). Tworzenie partycji zaczynam od
+				ustawienia odpowiedneiej partycji za pomocą polecenia <code class="code-inline">disklabel</em> z przełącznikiem
+				<code class="code-inline">-E</code> aby uruchmić polecenie w trybie interaktywnym poniżej podałem wybierane polecenia.
+<pre class="code-block">
+&gt; z
+&gt; a a
+offset [0]:
+size [468862128]:
+fstype [4.2BSD]: msdos
+&gt; q
+</pre>
+				Po utworzeniu partycji, przychodzi czas jej sformatowanie. Partycje w OpenBSD przgotowujemy za pomocą róznych wersji 
+				polecenia <code class="code-inline">newfs</code> wybrany system plików określamy po przez przyrostek np. 
+				<code class="code-inline">_msdos</code> - <code class="code-inline">newfs_msdos</em>, polecenie newfs do określenia partycji
+				używają surowych urządzeń (raw devices) - <em>/dev/rsd1a</em>. Formatowanie może nie co potrwać, w zależności od wiekości
+				dysku.
+<pre class="code-block">
+$ doas newfs_msdos /dev/rsd1a
+</pre>
+				Po sformatowaniu partycji, warto sprawdzić jeszcze raz jej tablice partycji, ja miałem tak że tworzyłem partycje o literze
+				<em>a</em>, kiedy już została sformatowana chciałem ją zamontować klasycznie:
+<pre class="code-block">
+$ doas mount -t msdos /dev/sd1a /mnt
+</pre>
+				Dostałem komunikat o tym że urządznie jest nie skonfigurowane. 
+<pre class="code-block">
+mount_msdos: /dev/sd1a on /mnt: Device not configured
+</pre>
+				Coś nie poszło podczas formatowania? Pierwsze co zajrzałem to tablicy partycji i okazało się że po formatowaniu zmieniła się
+				litera dysku.
+<pre class="code-block">
+# /dev/rsd1c:
+type: SCSI
+disk: SCSI disk
+label: 100-240-G2      
+duid: 0000000000000000
+flags:
+bytes/sector: 512
+sectors/track: 63
+tracks/cylinder: 255
+sectors/cylinder: 16065
+cylinders: 29185
+total sectors: 468862128
+boundstart: 0
+boundend: 468862128
+drivedata: 0 
+
+16 partitions:
+#                size           offset  fstype [fsize bsize   cpg]
+  c:        468862128                0  unused                    
+  i:        468862128                0   MSDOS                    
+</pre>
+				Więc kiedy poprawiłem literę w poleceniu, dysk został zamontowany.
+<pre class="code-block">
+$ doas mount -t msdos /dev/sd1i /mnt/disk
+</pre>
+				Przed zamontowanie dysku utworzyłem podkatalog, ponieważ w OpenBSD <strong>nie można zmienić właściciela podkatlogów katalogu
+				głównego, np. takiego jak <em>/mnt</em></strong>, a bez zmiany praw własności zwykły użytkownik nie będzie w stanie nic na
+				dysku zapisać.<br />
+				<br />
+
+				Kolejną rzeczą jaką zrobiłem to zmiana tapety, nie jest ona może jakoś wybitnie skomplikowana. Po pierwsze trzeba
+				zainstalować pakiet <em>feh</em>, który bardzo lekką przeglądarką plików graficznych.
+<pre class="code-block">
+$ doas pkg_add -iv feh
+</pre>
+				Polecenie <code class="code-inline">fbsetbg</code> jest już wbudowane problem w tym że raczej ono nie zadziała, ponieważ nie
+				ma w systemie zainstalowanych pewnych pakietów. Nie trzeba ich instalować. Wystarczy że odnajdziemy ww. polecenie:
+<pre class="code-block">
+$ which fbsetbg
+/usr/local/bin/fbsetbg
+</pre>
+				Rzeczony program do ustawiania tapety na <em>fluxbox</em> jest skryptem powłoki, więc aby program zaczął działać bez 
+				instalacji dodatkowych rzeczy, zmieńmy linię:
+<pre class="code-block">
+[ -n "$1" ] &amp;&amp; hash $1 2&gt; /dev/null
+</pre>
+				na:
+<pre class="code-block">
+which $1 2&gt;&amp;1 &gt; /dev/null
+</pre>
+				Po zapisaniu zamian możemy zmienić nareszcie tapetę.
+<pre class="code-block">
+$ fbsetbg -f ~/Obrazy/1920x1080_32bit.png
+</pre>
+				
+			</p>
+		</div>
+
+		<p style="margin: 15px; padding: 0; outline: 0;">
+			2021; COPYLEFT; ALL RIGHT REVERSED;
+		</p>
+
+		</body>
+	</html>

@@ -1,0 +1,4 @@
+-- Version: 9.0.1
+	* Dodanie pakietów: cryptsetup, ntfs-3g
+	* Aktualizacja pakietów
+	* Wyczyszczenie historii poleceń

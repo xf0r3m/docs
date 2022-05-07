@@ -1,0 +1,42 @@
+﻿Raspberry Pi jako serwer wydruku
+Napisano 2018/09/22 przez Kamil
+Wiemy już że Raspberry Pi posiada cały wachlarz zastosowań. Jak się okazuje jednym z nich jest możliwość zamienienia go w domowy serwer wydruku. Nawet nowe drukarki w dzisiejszych czasach nie zawsze wyposażone są w łączność z siecią  LAN (WiFi / port Ethernet) – tutaj z pomocą może przyjść malinka, do której możemy podłączyć drukarkę USB tak, żebyśmy mogli drukować na niej z każdego komputera w naszej sieci lokalnej. Dziś pokażę Wam jak skonfigurować Raspberry Pi jako printserver.
+Instalacja CUPS
+CUPS, czyli Common UNIX Printing System – jest to oprogramowanie stworzone przez Apple dla systemów macOS / unix służące do zarządzania drukarkami przez interfejs webowy. Aby zainstalować CUPS na malince wpisujemy w konsoli
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install cups
+Konfiguracja CUPS
+Po pomyślnej instalacji CUPS należy skonfigurować go tak, aby dało się dostać do webpanelu spoza malinki, a także abyśmy mieli uprawnienia do dodawania drukarek.
+Pierwszą rzeczą jaką należy zrobić jest udostępnienie webpanelu. W tym celu wpisujemy w konsoli polecenie
+sudo cupsctl --remote-admin --remote-any --share-printers
+Teraz możemy przejść do pliku konfiguracyjnego i ręczenie dodać użytkowników uprawnionych do pewnych grup czynności (w tym przypadku zarządzanie drukarkami)
+W tym celu edytujemy plik cupsd.conf
+sudo nano /etc/cups/cupsd.conf
+Za pomocą skrótu Ctrl + W odnajdujemy linijkę z napisem “Limit CUPS-Add-Modify-Printer“.
+Wewnątrz tego tagu znajdziemy taki napis:
+Require user @SYSTEM
+Po @SYSTEM należy dopisać użytkowników, którzy mają mieć dostęp do zarządzania drukarkami. W moim przypadku jest to domyślny użytkownik – pi
+Require user @SYSTEM pi
+Teraz za pomocą skrótu Ctrl + O zapisujemy plik i wychodzimy z programu za pomocą Ctrl + X
+Po zmianie ustawień należy dokonać restartu serwisu CUPS:
+sudo service cups restart
+Od tego momentu możemy wejść na adres malinki na porcie 631 z dowolnego komputera w sieci LAN. W zakładce Administration wybieramy opcję Add printer. Zostaniemy tam poproszeni o login oraz hasło (używamy takich samych danych jak do logowania w malinie).
+W sekcji Local printers powinniśmy ujrzeć naszą drukarkę podłączoną do portu USB malinki. Jeżeli tak jest to jesteśmy na dobrej drodze. Wybieramy ją i klikamy continue. Zostaniemy poproszeni o podanie szczegółów takich jak nazwa drukarki, opis oraz lokalizacja. Należy pamiętać, aby zazaczyć opcję Share this printer. W kolejnym kroku zostaniemy poproszeni o wybór modelu lub dostarczenie pliku PPD. Jeżeli znajdziemy naszą drukarkę na liście to jesteśmy w domu. Jeżeli nie, to jeszcze nic straconego :)
+Szukamy sterowników do naszej drukarki
+Pierwszym co należy zrobić, jeżeli CUPS domyślnie nie obsługuje naszej drukarki jest udanie się na stronę http://www.openprinting.org/printers w celu wyszukania naszego modelu. W moim przypadku jest to HP LaserJet M1005 MFP.
+foo2xqx
+Z tego co jest napisane na stronie moja drukarka powinna być obsługiwana przez sterownik foo2xqx. Aby go wgrać należy postępować zgodnie z instrukcjami z sekcji Download and Install. Po zainstalowaniu sterownika należy ponownie dodać drukarkę dostarczająć plik .ppd z folderu PPD znajdującego się w pobranym przez nas archiwum.
+hplip
+W przypadku mojej drukarki postanowiłem skorzystać jednak z oficjalnego sterownika od HP o nazwie hplip. Jego konfiguracja jest dużo prostsza niż foo2xqx, niestety jego wadą jest to, że nie każda drukarka obsługiwana przez hplip posiada sterownik skompilowany pod architekturę ARM z której to korzysta malinka. Warto jednak spróbować ;) W tym celu wpisujemy w konsoli
+sudo apt-get install hplip
+Po zainstalowaniu pakietu wpisujemy w konsoli polecenie
+sudo hp-setup -i
+Uruchomi to prostego kreatora do dodawania drukarek. Powinien on zapytać o typ połączenia (usb, lan, lpt), a następnie automatycznie wykryć naszą drukarkę (jeżeli podłączyliśmy tylko jedną) lub poprosić o wybór z listy wykrytych urządzeń. Zostaniemy zapytani o instalację pluginu. Jest on wymagany do obsługi druarki, więc zgadzamy się na pobranie odpowiedniego pluginu ze storny HP.
+W moim przypadku otrzymałem błąd “Unable to recieve key from keyserver”, jednak nie był to błąd krytyczny i po potwierdzeniu, że chcę zainstalować plugin oprogramowanie pobrało go i zainstalowało w systemie. Na koniec zostaniemy zapytani o to, czy chcemy dodać kolejkę wydruku (tak) oraz czy chcemy wydrukować stronę testową. Warto to zrobić, gdyż od razu wiadomo wtedy czy drukarka działa z zainstalowanym przez nas sterownikiem.
+Wracamy do panelu CUPS
+Po znalezieniu działającego sterownika możemy ponownie spróbować dodać drukarkę w CUPS. Teraz mając sterownik HPLIP na mojej liście drukarek poza poprzednim modelem znalazłem tez drukarkę z dopiskiem HPLIP w nazwie. Wybrałem więc ją. Na stronie z wyborem modelu automatycznie został wybrany własnościowy sterownik HP. Drukarka została pomyślnie dodana.
+Dodajemy drukarkę w systmie Windows
+Aby wykryć drukarkę będziemy potrzebowali oprogramowania o nazwie Bonjour. Po zainstalowaniu uruchamiamy program Kreator drukarek Bonjour. Powinien on automatycznie wykryć naszą drukarkę. U mnie widnieje ona pod nazwą HP LaserJet M1005 @ raspberrypi, gdzie raspberrypi to hostname mojej malinki.
+Wybieramy ją, a następnie wybieramy sterownik do niej (chyba że Bonjour znajdzie go automatycznie). Jeżeli nie znajdziemy go na liście to możemy spróbować wybrać załadować go z dysku (zwykle plik sterownika da się wyciągnąć z paczki pobranej ze storny producenta drukarki). Po dodaniu drukarki będzieo na widoczna w systemie i będziemy mogli wysyłać do niej dokumenty do wydrukowania z dowolnego komputera w sieci LAN :)
+

@@ -1,0 +1,9 @@
+PRETTY_NAME="greenOS GNU/Linux 1 (one)"
+NAME="greenOS GNU/Linux"
+VERSION_ID="1"
+VERSION="1 (one)"
+VERSION_CODENAME=one
+ID=greenos
+HOME_URL="https://morketsmerke.net/site/greenos"
+SUPPORT_URL="https://morketsmerke.net/site/greenos"
+BUG_REPORT_URL="https://morketsmerke.net/site/greenos"

@@ -1,0 +1,16 @@
+1. Klasyczna instalacja openbsd, 
+2. Dodanie user do grupy 'wheel', żeby mógł przełączyć się na root-a (su root)
+3. Instalacja wymaganych pakietów: xfce-extras slim slim-themes consolekit2 polkit
+4. Przelogowujemy się na usera.
+5. W pliku .xinitrc wpisujemy linię "exec startxfce4 --with-ck-launch", zapisujemy zmiany w pliku
+6. Przelogowujemy się z powrotem na root-a.
+7. W pliku '/etc/rc.conf.local' wpisujemy linię 'pkg_scripts="messagebus"', zapisujemy zmiany w pliku
+8. W pliku '/etc/rc.local' wpisujemy linię '/etc/rc.d/slim start', zapisujemy zmiany w pliku
+9. Przelogowywujemy się na usera.
+10. W '.profile' na katalogu domowy użytkownika dopisujemy linię 'export LC_ALL=pl_PL.UTF-8', zapisujemy zmiany w pliku.
+11. Restartujemy system.
+12*. Ustawienienie prompta.
+	12.1) W pliku '.profile' w katalogu użytkownika wpisujemy linię "export ENV=$HOME/.kshrc"
+	12.2) W pliku '.kshrc' w katalogu użytkownika wpisujemy linię
+	export PS1="\[\e[34;41m\]\u\[e[m\]@\[\e[31;44m\]\h\[\e[m\]:\[\e[32m\]\w\[\e[m\]$ "
+	12.3) Restart systemu

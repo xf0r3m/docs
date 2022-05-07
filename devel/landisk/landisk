@@ -1,0 +1,300 @@
+#!/bin/bash
+
+function print_banner() {
+
+echo '
+    __                ___      __ 
+   / /___ _____  ____/ (_)____/ /__
+  / / __ `/ __ \/ __  / / ___/ //_/
+ / / /_/ / / / / /_/ / (__  ) ,<  
+/_/\__,_/_/ /_/\__,_/_/____/_/|_| 
+
+© morketsmerke.net 2020
+====================================';
+
+}
+
+function choose() {
+    if [ $1 = 'disk' ]; then
+        count=$(lsblk | grep 'disk' | wc -l | awk '{print $1}')
+    elif [ $1 = 'mount' ]; then
+        count=$(mount | grep '/media' | wc -l | awk '{printf $1}')
+    else 
+        count=$(lsblk $2 | grep 'part' | wc -l | awk '{print $1}')
+    fi
+    i=1;
+                                
+    while [ $i -le $count ]; do
+        if [ $1 = 'disk' ]; then
+            echo "${i}) /dev/$(lsblk | grep 'disk' | sed -n ${i}p | awk '{printf $1" "$4}')";
+        elif [ $1 = 'mount' ]; then
+            echo "${i}) $(mount | grep '/media' | sed -n ${i}p | awk '{printf $1" "$2" "$3}')"; 
+        else
+            part_name=$(lsblk $2 | grep 'part' | sed -n ${i}p | awk '{printf $1}' | grep -o '[a-z]*[0-9]');
+            part_size=$(lsblk $2 | grep 'part' | sed -n ${i}p | awk '{printf $4}');
+            echo "${i}) /dev/$part_name $part_size";
+        fi
+        i=$(expr $i + 1);
+    done
+
+    if [ $1 = 'disk' ]; then
+        echo -n "Numer dysku: ";
+        read disk_number
+        if [ $disk_number -gt $count ]; then exit 1; 
+        else disk_name=$(lsblk | grep 'disk' | sed -n ${disk_number}p | awk '{printf $1}');
+        fi
+    elif [ $1 = 'mount' ]; then
+        echo -n "Punkt montowania: "
+        read mp_number;
+        if [ $mp_number -gt $count ]; then exit 1;
+        else
+            mount_point=$(mount | grep '/media' | sed -n ${mp_number}p | awk '{printf $3}');
+        fi
+
+    else
+        echo -n "Numer partycji: ";
+        read part_number
+        if [ $disk_number -gt $count ]; then exit 1; 
+        else part_name=$(lsblk $2 | grep 'part' | sed -n ${part_number}p | awk '{printf $1}' | grep -o '[a-z]*[0-9]');
+        fi
+    fi
+}
+
+function create_samba_share() {
+    echo "[$1]" > .shares/SMB_$1;
+    echo "comment = \"$1 share\"" >> .shares/SMB_$1;
+    echo "path = $2" >> .shares/SMB_$1;
+    echo "browseable = yes" >> .shares/SMB_$1;
+
+    if [ "$3" ]; then
+        if [ $3 = "rw" ]; then echo "writeable = yes" >> .shares/SMB_$1;
+        elif [ $3 = "gok" ]; then echo "guest ok = yes" >> .shares/SMB_$1;
+        fi
+    fi
+}
+
+print_banner;
+
+menu="\n
+ 1) Dyski\n
+ 2) Udziały\n
+ 3) Użytkownicy\n
+ 4) Usługi\n
+ 5) Sieć\n
+ 0) Wyjście\n
+\n"
+
+menu_option="0";
+prompt='landisk'
+
+while [ true ]; do
+
+    echo -e $menu;
+    echo -n "${prompt}> ";
+
+    read menu_option
+
+    case $menu_option in
+
+        '1') menu_option1=0;
+             prompt='landisk/dyski';
+
+             menu1="\n
+              1) Lista dysków\n
+              2) Inicjuj dysk\n
+              3) Montuj dysk\n
+              4) Odmontuj dysk\n
+              0) Powrót\n
+             \n"
+
+             while [ true ]; do
+
+                echo -e $menu1;
+                echo -n "${prompt}> ";
+
+                read menu_option1;
+
+                case $menu_option1 in
+
+                    '1') lsblk;
+                        echo -n "Kliknij dowolny klawisz aby kontynuować...";
+                        read -n 1;
+                        clear;;
+                    '2') clear; 
+                        if [ $(whoami) = "root" ]; then
+                            echo "Wybierz dysk: ";
+                                
+
+                            choose_disk;
+                            fdisk /dev/$disk_name;
+                                    
+                            part_count=$(lsblk /dev/$disk_name | grep "part" | wc -l | awk '{printf $1}')
+                            i=1;
+                            while [ $i -le $part_count ]; do
+                                        
+                                part=$(lsblk /dev/$disk_name | grep 'part' | sed -n ${i}p | awk '{printf $1}' | grep -o '[a-z]*[0-9]');
+                                fs_type=$(fdisk -l /dev/$disk_name | grep $part | awk '{printf $7}');
+
+                                case $fs_type in
+                                    'Linux') mkfs.ext4 /dev/$part;;
+                                    'HPFS/NTFS/exFAT') mkfs.ntfs -Q /dev/$part;;
+                                    'W95') mkfs.fat -F 32 /dev/$part;;
+                                    *) echo "Nie wspierany system plików";;
+                                esac
+
+                                i=$(expr $i + 1)
+                            done
+                                
+                        else 
+                            echo "Aby móc inicjować dyski niezbędze, jest uruchomienie skrytpu jako root."
+                            echo -n "Kliknij dowolny klawisz aby kontynuować...";
+                            read -n 1;
+                            clear;
+                        fi;;
+                    '3') clear;
+                        if [ $(whoami) = "root" ]; then
+                            choose 'disk';
+                            echo $disk_name;
+                            choose 'part' /dev/$disk_name;
+                            echo $part_name;
+                            if [ ! -d /media/$disk_name/$part_name ]; then mkdir -p /media/$disk_name/$part_name; fi
+                            mount /dev/$part_name /media/$disk_name/$part_name
+                            echo $(mount | grep /dev/$part_name)
+                        else
+                            echo "Aby móc montować partycje niezbędze, jest uruchomienie skrytpu jako root."
+                            echo -n "Kliknij dowolny klawisz aby kontynuować...";
+                            read -n 1;
+                        fi;;
+                    '4') clear;
+                        if [ $(whoami) = "root" ]; then
+                            count=$(mount | grep 'media' | wc -l | awk '{printf $1}')
+                            i=1;
+                            while [ $i -le $count ]; do
+                                echo "${i}) $(mount | grep 'media' | sed -n ${i}p)"
+                                i=$(expr $i + 1)
+                            done
+
+                            echo -n "Numer punktu montowania: ";
+                            read mp_number;
+                            if [ $mp_number -gt $count ]; then exit 1;
+                            else 
+                                mount_point=$(mount | grep 'media' | sed -n ${mp_number}p | awk '{printf $3}');
+                                disk_name=$(mount | grep 'media' | sed -n ${mp_number}p | awk '{printf $1}')
+                            fi
+                            umount $mount_point
+                            if [ $? -eq 0 ]; then
+                                echo "Odmontowano dysk: $disk_name";
+                            fi
+                        else
+                            echo "Aby móc montować partycje niezbędze, jest uruchomienie skrytpu jako root."
+                            echo -n "Kliknij dowolny klawisz aby kontynuować...";
+                            read -n 1;
+                        fi;;
+
+                    '0') break;;
+
+                esac
+
+             done;;
+
+        '2') clear;
+                menu_option2="0";
+                prompt2="landisk/udziały";
+                menu2="\n
+                 1) Lista udziałów\n
+                 2) Utwórz udział\n
+                 3) Usuń udział\n
+                 0) Powrót\n
+                 \n";
+
+                while [ true ]; do
+
+                    echo -e $menu2;
+                    echo -n "$prompt2> "
+                    read menu_option2;
+
+                    case $menu_option2 in
+
+                        '1') clear; 
+                            if [ -d .shares ]; then
+                                if [ -f share_list ]; then
+                                    count=$(cat share_list | wc -l | awk '{printf $1}');
+                                    i=1;
+                                    while [ $i -le $count ]; do
+                                        echo "${i}) $(cat share_list | sed -n ${i}p)"
+                                        i=$(expr $i + 1)
+                                    done
+                                else
+                                    echo "Nie utworzono żadnych udziałów"
+                                fi
+                            else
+                                echo "Nie utworzono żadnych udziałów"
+                            fi
+                             echo -n "Kliknij dowolny klawisz aby kontynuować...";
+                             read -n 1;;
+                        '2') echo "Utwórz udział";
+                            #SMB = -d /etc/samba
+                            if [ -d /etc/samba ]; then
+                                menu2_1="\n 1) SMB/CIFS"
+                            fi
+                            #NFS = -f /etc/exports
+                            if [ -f /etc/exports ]; then
+                                if [ "$menu2_1" ]; then
+                                    menu2_1="${menu2_1}\n 2) NFS";
+                                else
+                                    menu2_1="\n 1) NFS";
+                                fi
+                            fi
+                            #FTP = -x /usr/sbin/vsftpd
+                            if [ -x /usr/sbin/vsftpd ]; then
+                                if [ "$menu2_1" ]; then
+                                    if echo $menu2_1 | grep 'SMB/CIFS' > /dev/null; then
+                                        if  echo $menu2_1 | grep 'NFS' > /dev/null; then
+                                            menu2_1="${menu2_1}\n 3) FTP";
+                                        else
+                                            menu2_1="${menu2_1}\n 2) FTP";
+                                        fi
+                                    else
+                                        if echo $menu2_1 | grep 'NFS' > /dev/null; then
+                                            menu2_1="${menu2_1}\n 2) FTP";
+                                        fi
+                                    fi
+                                else
+                                    menu2_1="\n 1) FTP"
+                                fi
+                            fi
+                            if [ ! "$menu2_1" ]; then
+                                echo "Brak zainstalowanego oprogramowania. Aby zainstalować,";
+                                echo "przejdź do opcji Usługi w menu głównym.";
+                                echo -n "Kliknij dowolny klawisz aby kontynuować...";
+                                read -n 1;
+                            else
+                                clear;
+                                echo -e $menu2_1;
+                                echo -n "Wybierz rodzaj udziału: "
+                                read share_number;
+                                share_type=$(echo -e $menu2_1 | grep $share_number | awk '{printf $4}')
+
+                                case share_type in
+
+                                    'SMB/CIFS') choose 'mount';
+
+
+                                esac
+                        '3') echo "Usuń udział";;
+                        '0') break;;
+
+                    esac
+                done;;
+                
+
+        '3') echo "Użytkownicy";;
+        '4') echo "Usługi";;
+        '5') echo "Sieć";;
+        '0') break;;
+        *) echo "Nieprawidłowa opcja";;
+
+    
+    esac
+
+done

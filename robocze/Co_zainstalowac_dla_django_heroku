@@ -1,0 +1,10 @@
+sudo apt install python3-psycopg2
+sudo apt install python3-dev
+sudo pip3 install --upgrade pip
+sudo apt install libpq-dev postgresql-server-dev-all
+sudo apt install build-essential
+sudo snap install --classic heroku
+(pizza_env) $ pip install wheel
+(pizza_env) $ pip install psycopg2
+(pizza_env) $ pip install django-heroku
+(pizza_env) $ pip install gunicorn

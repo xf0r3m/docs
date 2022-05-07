@@ -1,0 +1,12 @@
+git clone 
+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+
+cd linux-firmware
+
+mkdir /lib/firmware/mediatek/
+
+cp mediatek/mt7610u.bin /lib/firmware/mediatek/
+
+rmmod mt76x0
+
+modprobe mt76x0

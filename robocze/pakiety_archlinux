@@ -1,0 +1,103 @@
+alsa-utils - Advanced Linux Sound Architecture - Utilities
+amd-ucode - Microcode update image for AMD CPUs
+arch-install-scripts - Scripts to aid in installing Arch Linux
+b43-fwcutter - firmware extractor for the b43 kernel module
+base - Minimal package set to define a basic Arch Linux installation
+bind-tools (bind) - A complete, highly portable implementation of the DNS protocol
+brltty - Braille display driver for Linux/Unix
+btrfs-progs - Btrfs filesystem utilities
+clonezilla - ncurses partition and disk imaging/cloning program
+crda - Central Regulatory Domain Agent for wireless networks
+darkhttpd - A small and secure static webserver
+ddrescue - GNU data recovery tool
+dhclient - A standalone DHCP client from the dhcp package
+dhcpcd - RFC2131 compliant DHCP client daemon
+diffutils - Utility programs used for creating patch files
+dmraid - Device mapper RAID interface
+dnsmasq - Lightweight, easy to configure DNS forwarder and DHCP server
+dosfstools - DOS filesystem utilities
+edk2-shell - EDK2 UEFI Shell
+efibootmgr - Linux user-space application to modify the EFI Boot Manager
+espeakup - Allows the Speakup screen review system to use the ESpeak synthesizer.
+ethtool - Utility for controlling network drivers and hardware
+exfatprogs - exFAT filesystem userspace utilities for the Linux Kernel exfat driver
+f2fs-tools - Tools for Flash-Friendly File System (F2FS)
+fatresize -  	A utility to resize FAT filesystems using libparted
+fsarchiver - Safe and flexible file-system backup and deployment tool 	2020-05-21 	
+gnu-netcat - GNU rewrite of netcat, the network piping application
+gpart - Partition table rescue/guessing tool
+gpm -  	A mouse server for the console and xterm
+gptfdisk - A text-mode partitioning tool that works on GUID Partition Table (GPT) disks
+grml-zsh-config - grml's zsh setup
+haveged - Entropy harvesting daemon using CPU timings
+hdparm - A shell utility for manipulating Linux IDE drive/driver parameters
+intel-ucode - Microcode update files for Intel CPUs
+ipw2100-fw -  Intel Centrino Drivers firmware for IPW2100
+ipw2200-fw - Firmware for the Intel PRO/Wireless 2200BG
+irssi - Modular text mode IRC client with Perl scripting
+iwd -  	Internet Wireless Daemon
+jfsutils - JFS filesystem utilities
+kitty-terminfo - Terminfo for kitty, an OpenGL-based terminal emulator
+lftp - Sophisticated command line based FTP client
+linux - The Linux kernel and modules
+linux-atm - Drivers and tools to support ATM networking under Linux.
+linux-firmware - Firmware files for Linux
+livecd-sounds - Sound files for accessibility features in a boot medium
+lsscsi - A tool that lists devices connected via SCSI and its transports
+lvm2 - Logical Volume Manager 2 utilities
+lynx -A text browser for the World Wide Web
+man-db - A utility for reading man pages
+man-pages - Linux man pages
+mc -  	A file manager that emulates Norton Commander
+mdadm - A tool for managing/monitoring Linux md device arrays, also known as Software RAID
+memtest86+ - An advanced memory diagnostic tool
+mkinitcpio - Modular initramfs image creation utility
+mkinitcpio-archiso -  	Mkinitcpio hooks and scripts for archiso
+mkinitcpio-nfs-utils -  	ipconfig and nfsmount tools for NFS root support in mkinitcpio
+mtools -  	A collection of utilities to access MS-DOS disks
+nano -  	Pico editor clone with enhancements
+nbd - tools for network block devices, allowing you to use remote block devices over TCP/IP
+ndisc6 -  	Collection of IPv6 networking utilities
+nfs-utils -  	Support programs for Network File Systems
+nilfs-utils - A log-structured file system supporting continuous snapshotting (userspace utils)
+nmap - Utility for network discovery and security auditing
+ntfs-3g -  NTFS filesystem driver and utilities
+nvme-cli - NVM-Express user space tooling for Linux
+openconnect - Open client for Cisco AnyConnect VPN
+openssh - Premier connectivity tool for remote login with the SSH protocol
+openvpn - An easy-to-use, robust and highly configurable VPN (Virtual Private Network)
+partclone - Utilities to save and restore used blocks on a partition
+parted - A program for creating, destroying, resizing, checking and copying partitions
+partimage - Partition Image saves partitions in many formats to an image file.
+ppp - A daemon which implements the Point-to-Point Protocol for dial-up networking
+pptpclient -  	Client for the proprietary Microsoft Point-to-Point Tunneling Protocol, PPTP.
+reflector -  A Python 3 module and script to retrieve and filter the latest Pacman mirror list.
+reiserfsprogs - Reiserfs utilities
+rp-pppoe - Roaring Penguin's Point-to-Point Protocol over Ethernet client
+rsync - A fast and versatile file copying tool for remote and local files
+rxvt-unicode-terminfo -  	Terminfo files for urxvt
+sdparm - An utility similar to hdparm but for SCSI devices
+sg3_utils - Generic SCSI utilities
+smartmontools -	Control and monitor S.M.A.R.T. enabled ATA and SCSI Hard Drives
+squashfs-tools - Tools for squashfs, a highly compressed read-only filesystem for Linux.
+sudo - Give certain users the ability to run some commands as root
+syslinux - Collection of boot loaders that boot from FAT, ext2/3/4 and btrfs filesystems, from CDs and via PXE
+systemd-resolvconf - systemd resolvconf replacement (for use with systemd-resolved)
+tcpdump - Powerful command-line packet analyzer
+terminus-font -  	Monospace bitmap font (for X11 and console)
+termite-terminfo  -  	Terminfo for Termite, a simple VTE-based terminal
+testdisk - Checks and undeletes partitions + PhotoRec, signature based recovery tool
+tmux - A terminal multiplexer
+udftools - Linux tools for UDF filesystems and DVD/CD-R(W) drives
+usb_modeswitch -  	Activating switchable USB devices on Linux.
+usbutils - A collection of USB tools to query connected USB devices
+vim - Vi Improved, a highly configurable, improved version of the vi text editor
+vpnc - VPN client for cisco3000 VPN Concentrators
+wireless-regdb - Central Regulatory Domain Database
+wireless_tools - Tools allowing to manipulate the Wireless Extensions
+wpa_supplicant - A utility providing key negotiation for WPA wireless networks
+wvdial - A dialer program to connect to the Internet
+xfsprogs - XFS filesystem utilities
+xl2tpd - open source implementation of the L2TP maintained by Xelerance Corporation
+zsh -  	A very advanced and programmable command interpreter (shell) for UNIX
+

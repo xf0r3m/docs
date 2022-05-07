@@ -1,0 +1,11 @@
+$ sudo a2enmod proxy 
+
+$ sudo a2enmod proxy_http
+
+$ sudo vi /etc/apache/sites-available/000-default.conf
+
+ProxyPreserveHost On
+ProxyRequests off
+ProxyPass / http://127.0.0.1:3000/
+ProxyPassReverse / http://127.0.0.1:3000/
+

@@ -1,0 +1,17 @@
+1. Nagrywany obraz z raspbianem na Kartę SD
+2. Wkładamy ją do raspberry i uruchamiamy urządzenie.
+3. Po zbootowaniu się urządzenia wyłączamy je, wyciągamy kartę i wkładamy ją do PC.
+4. Nagrywamy na docelowym dysku obraz z raspbianem, tak samo jak na kartę.
+5. Po nagraniu obrazu, odszukujemy nasz dysku w systemie: sudo fdisk -l
+6. Uruchamiamy go do edycji za pomocą programu fdisk: sudo fdisk /dev/sdX. Gdzie X - oznacza literę dysku.
+7. Na początku wyświetlamy zawartość tablicy partycji: p
+8. Zapamiętujemy lub zapisuje sobie na kartce początek drugiej partycji. W moim przypadku to: 532480
+9. Usuwamy drugą partycje: d, 2
+10. Tworzymy nową partycję: n, p, 2, <początek drugiej partycji (532480)>, <domyślnie (zazwyczaj koniec dysku)>. Jeśli zostaniemy zapytani o sygnaturę to zostawiamy ext4, nie usuwamy jej. Zapisujemy zmiany na dysku poleceniem: w.
+11. Formatujemy nową partycję na ext4: sudo mkfs.ext4 /dev/sdX2 -L "rootfs"
+12. Mountujemy obie partycje "rootfs" (z karty sd oraz z dysku) i kopiujemy zawartość partycji "rootfs" karty sd na partycje "rootfs" dysku twardego z zachowaniem wszelkich uprawnień:
+sudo cp -prvv /media/user/rootfs1/* /media/user/rootfs2
+13. Po przekopiowaniu danych przechodzimy do partycji "boot" na dysku twardym usuwamy z pliku cmdline.txt następującą opcję: init=/usr/lib/raspi-config/init_resize.sh
+14. Jeśli uruchamiamy nasze raspberry pi bez monitora, warto dodać pusty plik o nazwie ssh na partycji boot.
+15. Dysk w Raspberry Pi 3b+ możemy podpiąć bezpośrednio do urządzenia i powinno się ono uruchomić bez karty. Póki co nie jest to jeszcze dostępne w RPI 4, jednak można to oszukać. Wykonując powyższe czynności, następnie na karcie na partycji boot zmieniamy w cmdline.txt opcje root, na UWAGA! wystąpienie dysku w systemie czyli /dev/sdX2. Natomiast na partycji rootfs w pliku /etc/fstab, należy zmienić urządznie montowane w katalogu root ('/') na /dev/sdX2.
+Ograniczenia: Po uruchomieniu już RPI z dysku twardego, lepiej nie podpinać żadnych innych dysków przed uruchomieniem urządzenia, po uruchomieniu raczej nie powinno być problemów jednak może się zdarzyć że litera dysku po podpięciu następnego urządzenia ulegnie zmienie. 

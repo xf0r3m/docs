@@ -1,0 +1,118 @@
+1. Uruchamiamy maszynę z archiso.
+  $ sudo virt-install --name greenOSAE-amd64 --os-type --os-variant archlinux --ram 2048 --vcpu 2 --disk path=/home/xf0r3m/kvm-machines/greenOSAE-amd64.qcow2,size=32 --hvm --cdrom /home/xf0r3m/Pobrane/archlinux-2021.09.01-x86_64.iso --boot cdrom,hd
+
+2. Instalujemy system zgodnie z przewodnikiem instalacji,
+  * wybrane pakiety: base linux linux-firmware networkmanager grub vim man-db man-pages texinfo
+  * na chroot, włączyć networkmanager: systemctl enable NetworkManager.service
+  * w pliku /etc/vconsole.conf: poza zmienną LANG, wpisujemy zmienną FONT
+    ustawiona na "lat2-16" oraz zmienna FONTMAP ustawianą na "8859-2".
+  * Tworzymy użytkownika, instalujemy "sudo", ustawiamy je tak, żeby nie
+    trzeba było wpisywać hasła.
+
+3. Instalacja środowiska graficznego:
+  $ sudo pacman -Syu xfce4 xfce4-goodies xorg lightdm lightdm-gtk-greeter
+
+4. Ustawienie u dla lightdm:
+  $ sudo vim /etc/lightdm/lightdm.conf
+  #w sekcji "[LightDM]"
+  logind-check-graphical=true 
+  #w sekcji "[Seat:*]"
+  greeter-session=lightdm-gtk-greeter
+  #zapisujemy zmiany.
+
+5. Pobieramy tapety 
+  $ sudo pacman -Syu wget
+  $ wget http://files.morketsmerke.net/greenOS/greenos_wallpaper.png
+  $ wget http://files.morketsmerke.net/greenOS/greenos_lightdm_wallpaper.png
+  $ sudo mv greenos_lightdm_wallpaper.png /usr/share/pixmaps
+  $ sudo mv greenos_wallpaper /usr/share/backgrounds/xfce
+
+6. Włączamy lightdm
+  $ sudo systemctl enable lightdm
+
+7. Restatujemy maszynę.
+  $ sudo reboot
+
+8. Po zalogowaniu się do xfce4, usuwamy dolny panel, a górny przenosimy na dół.
+zmienamy ilość przestrzeni roboczych do 1. Następnie pobieramy
+http://files.morketsmerke.net/greenOS/leaf.png i zapisujemy go w
+/usr/share/pixmaps, w "Panel 1" usuwamy menu "Programy", zastępujemy je
+"Whisker Menu". W konfiguracji "Whisker menu zmieniamy "Przycisk panelu"
+wyświetlanie: "Ikona i etykiety", jako etykiety wpisujemy "greenOS" jako ikonę
+wybieramy wcześniej pobrany plik "leaf.png". Usuwamy wskaźnik baterii,
+modyfikujemy przyciski sesji (wygląd: przyciski sesji) aby wskazywał tylko 
+blokadę ekranu oraz
+przycisk zamknięcia systemu. Zmieniamy wygląd na 
+"Adawaita (ciemny)". Na koniec zmienamy tapetę pulpitu.
+
+*Problemy z tapetą użytkownika:
+  $ sudo mv /usr/share/backgrounds/xfce/xfce-verticals.png /usr/share/pixmaps
+  $ sudo ln -s /usr/share/background/xfce/greenos_wallpaper.png /usr/share/backgrounds/xfce/xfce-verticals.png
+
+9. Ustawiamy polskie znaki w terminalu. Uruchamiamy terminal, następnie
+  wpisujmemy poniższe polecenie:
+  $ sudo localectl set-x11-keymap pl
+  Następnie restartujemy maszynę:
+  $ sudo reboot
+
+10. Ustawienia terminala, w preferencjach w zakładce kolory wybieramy profil
+"Zielone na czarnym" oraz kolor aktywnych kart na jaskrawożółty, w zakładce 
+wygląd zmieniamy czcionkę na
+"Source Code Pro Regular" oraz ustawiamy przezroczyste tło na poziomie 0.85.
+
+11. Zmiana kolorystki okna logowania, tapety okna logowania oraz domyślnego
+    obrazu użytkowników.
+    uruchamiamy program lightdm-gtk-greeter-settings i ustawiamy motyw na 
+    "Adwaita-dark" i ikony na "Adwaita", wybieramy tapetę
+    greenos_lightdm_wallpaper.png z folderu /usr/share/pixmaps, wybieramy
+    logo Arch Linux z /usr/share/pixmaps jako domyślny obraz użytkowników.
+
+12. Instalacja opgrogramowania użytkowego.
+  $ sudo pacman -Syu firefox thunderbird vlc qmmp pulseaudio pulseaudio-alsa pavucontrol
+
+13. Instalacja sterowników własnościowych od Nvidii
+  $ sudo pacman -Syu nvidia
+  $ sudo mkinitcpio -P
+
+14. Instalacja oprogramowania Redshift.
+  $ sudo pacman -Syu redshift
+  Pobieramy konfigurację redshift z 
+  https://raw.githubusercontent.com/jonls/redshift/master/redshift.conf.sample 
+  i zapisujemy ją ~/.config/redshift/redshift.conf wypełniamy współrzedne
+  geograficzne zgodnie z naszą przybliżoną lokalizacją. Współrzędne można
+  pobrać ze strony poniżej.
+  https://location.services.mozilla.com/v1/geolocate?key=geoclue
+  Następnie ustawimy autostart Redshift, w ustawieniach przechodzimy do
+  "Sesja i uruchamianie", w zakładce "Uruchamiane programy" kilkamy "+",
+  następnie w oknie dodawanie programu, w polu "Nazwa:" wpisujemy "Redshift",
+  opis możemy pominąć, w polu "Polecenie: " wpisujemy "/usr/bin/redshift". Po
+  ponownym zalogowaniu Redshift powinien zostać uruchomiony. 
+
+15. Instalacja snap oraz ncspot.
+  $ sudo pacman -Syu git
+  $ git clone https://aur.archlinux.org/snapd.git
+  $ cd snapd
+  $ sudo pacman -Syu base-devel
+  $ makepkg -si
+  $ sudo systemctl enable --now snapd.socket
+  $ sudo ln -s /var/lib/snapd/snap /snap
+  Restart maszyny.
+  $ sudo snap install ncspot
+  Jeśli wyświetli błąd "Too early for operations..." to wydajemy polecenie
+  $ sudo snap refresh
+  i ponownie polecenie instalacyjne.
+
+16. Instalacja libvirtd (KVM)
+  $ sudo pacman -Syu virt-manager qemu vde2 ebtables dnsmasq bridge-utils openbsd-netcat
+  $ sudo systemctl enable libvirtd.service
+  $ sudo systemctl start libvirtd.service
+  W pliku /etc/libvirt/libvirtd.conf odblokowujemy opcje
+  'unix_sock_group = "libvirtd"' oraz 'unix_sock_rw_perms = "0770"'
+  $ sudo usermod -a -G libvirt user
+  $ newgrp libvirt
+  $ sudo systemctl restart libvirtd.service
+  
+  
+
+
+

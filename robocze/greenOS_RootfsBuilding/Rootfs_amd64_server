@@ -1,0 +1,74 @@
+1. Tworzymy katalog dla nowego obrazu
+  # mkdir -p ~/greenOS/server
+
+2. Pobieramy obraz Debiana 11
+  # debootstrap --arch=amd64 bullseye ~/greenOS/server http://ftp.icm.edu.pl/debian
+
+3. Zmieniamy katalog główny
+  # chroot ~/greenOS/server /bin/bash
+
+4. Odświerzamy listy pakietów:
+  (chroot) # apt update
+
+7. Instalacja Vim
+  (chroot) # apt install vim
+
+8. Dopisanie repozytoriów "contrib" oraz "non-free":
+  W plik /etc/apt/sources.list w linii:
+  deb http://ftp.icm.edu.pl/debian bullseye main
+  dopisujemy "contrib non-free"
+  deb http://ftp.icm.edu.pl/debian bullseye main contrib non-free
+  zapisujemy zmiany w pliku.
+
+5. Instalujemy jądro oraz najpotrzebniejsze sterowniki
+  (chroot) # apt install linux-image-amd64 firmware-linux firmware-linux-free
+
+5. Konfigurujemy strefę czasową:
+  (chroot) # dpkg-reconfigure tzdata
+
+6. Instalujemy i konfigurujemy locales, keyboard-configuration, console-setup
+  (chroot) # apt install locales keyboard-configuration console-setup
+  (chroot) # dpkg-reconfigure locales
+  (chroot) # dpkg-reconfigure keyboard-configuration console-setup
+
+7. Instalacja oprogramowania dostarczanego w raz z dystrybucją.
+  (chroot) # apt install openssh-server vim ranger wget
+
+8. Pobranie pozostałych pakietów niezbędnych do funkcjonowania systemu
+  (chroot) # tasksel install standard
+
+8. Pobranie plików bazowyhc dystrybucji.
+  (chroot) # cd / <- WAŻNE
+  (chroot) # wget http://ftp.morketsmerke.net/greenOS/greenOS_base-files.tgz
+  (chroot) # tar -xzvf greenOS_base_files.tgz
+  (chroot) # rm greenOS_base_files.tgz
+  (chroot) # rm README 
+
+8. Utworzenie nowego dowiązania symbolicznego dla dpkg
+  (chroot) # rm /etc/dpkg/origins/default
+  (chroot) # ln -s /etc/dpkg/origins/greenos /etc/dpkg/origins/default
+
+9. Usunięcie zbędnych plików dystrybucji.
+  (chroot) # rm -rf ~/.icewm
+  (chroot) # rm -rf ~/etc/skel/.icewm
+  (chroot) # rm -rf ~/.x*
+  (chroot) # rm -rf /etc/skell/.x*
+  (chroot) # rm ~/XTerm
+  (chroot) # rm /etc/skell/XTerm
+
+10. Usunięcie pobrancyh podczas instalacji pakietów:
+  (chroot) # apt-get clean
+
+11. Zatrzymanie pakietu base-files
+  (chroot) # apt-mark hold base-files
+
+12. Opuszczenie katalogu głównego obrazu
+  (chroot) # exit
+
+13. Utworzenie archwum z obrazem
+  # cd ~/greenOS/server
+  # tar -czvf ~/rootfs_amd64_server.tgz *
+
+14. Przekopiowanie archiwum do katalogu zwykłego użytkownika
+  # cp rootfs_amd64_server.tgz /home/user
+  

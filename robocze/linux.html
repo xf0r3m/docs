@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="https://files.morketsmerke.net/resources/mm.png">
+    <style>
+      .code-block {
+        display: block;
+        background-color: silver;
+        font-family: monospace;
+        font-weight: bolder;
+        text-align: left;
+      }
+      .code-inline {
+        background-color: silver;
+        font-family: monospace;
+        font-weight: bolder;
+      }
+      ul { text-align: left; }
+      p { text-align: justify; }
+    </style>
+  </head>
+  <body style="font-family: monospace;" >
+<pre>
+ _                      _             _ _
+| |_ ___ _ __ _ __ ___ (_)_ __   __ _| | | ___   __ _
+| __/ _ \ '__| '_ ` _ \| | '_ \ / _` | | |/ _ \ / _` |
+| ||  __/ |  | | | | | | | | | | (_| | | | (_) | (_| |
+ \__\___|_|  |_| |_| |_|_|_| |_|\__,_|_|_|\___/ \__, |
+			                        |___/
+</pre>
+    <p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+      &#9760;&nbsp;
+      <a href="https://morketsmerke.net">morketsmerke</a>
+      &nbsp;&#9760;
+    </p>
+    <div style="margin-left: auto; margin-right: auto; width: 80%;">
+      <h1 style="text-align: center;">Jak działa Linux</h1>
+      <h2>Spis treści</h2>
+      <ul>
+        <li><a href="#informacje_wstepne">Informacje wstępne</a></li>
+        <li><a href="#podstawowe_polecenia_i_struktura_plikow">
+            Podstawowe polecenia i struktura plików</a>
+            <ul>
+              <li><a href="#podstawowe_polecenia">Podstawowe polecenia</a></li>
+              <li><a href="#polecenia_dzialajace_na_katalogach">
+                  Polecenia działające na katalogach</a>
+                  <ul>
+                    <li><a href="#rozwijanie_nazw">
+                        Rozwijanie nazw (nazwy wieloznaczne)</a></li>
+                  </ul>
+              </li>
+              <li><a href="#polecenia_posredniczace">
+                  Polecenia pośredniczące</a></li>
+              <li><a href="#zmiana_hasla_i_powloki">
+                  Zmiana hasła i powłoki</a></li>
+              <li><a href="#pliki_z_kropka">
+                  Pliki z kropką</a></li>
+              <li><a href="#zmienne_powloki_i_zmienne_srodowiskowe">
+                  Zmienne powloki i zmienne środowiskowe</a></li>
+              <li><a href="#sciezka_polecen">
+                  Ścieżka poleceń</a></li>
+              <li><a href="#znaki_specjalne">
+                  Znaki specjalne</a></li>
+              <li><a href="#edycja_wiersza_polecen">
+                  Edycja wiersza poleceń</a></li>
+              <li><a href="#edytory_tekstu">Edytory tekstu</a></li>
+              <li><a href="#uzyskiwanie_pomocy">Uzyskiwanie pomocy</a></li>
+              <li><a href="#wejscie_i_wyjscie_powloki">
+                  Wejscie i wyjście powłoki</a></li>
+              <li><a href="#odczytywanie_komunikatow_o_bledach">
+                  Odczytywanie komunikatów o błędach</a></li>
+              <li><a href="#przegladanie_procesow_i_manipulowanie_nimi">
+                  Przeglądanie procesów i manipuilowanie nimi</a></li>
+              <li><a href="#tryb_plikow_i_uprawnienia">
+                  Tryb plików i uprawnienia</a></li>
+              <li><a href="#archiwizowanie_i_kompresowanie_plikow">
+                  Archiwizowanie i kompresowanie plików</a></li>
+              <li><a href="#hierarchia_plikow">
+                  Hierarchia plików</a></li>
+              <li><a href="#uruchamianie_polecen_przez_superuzytkownika">
+                  Uruchamianie polecen przez superuzytkownika</a></li>
+            </ul>
+        </li>
+        <li><a href="#urzadzenia">Urządzenia</a></li>
+      </ul>
+      <h2 id="informacje_wstępne">Informacje wstępne</h2>
+      <p>
+        Linux, jest to rodzina systemów operacyjnych podbnych do UNIX-a,
+        bazująca na wspólnym jądrze Linux. Systemy te rozprowadzane są na
+        zasadzie dystrybucji. Programista bierze sobie jądro obudowuje je
+        niezbędnym oprgramowanie następnie dystrybuuje pod swoją nazwą stąd
+        właśnie pojęcie dystrybucji. Taki użytkowy Linux składa się trzech
+        komponentów:
+      </p>
+      <ul>
+        <li>Sprzetu - za ten komponent odpowiedzialni jesteśmy my,</li>
+        <li>Jądra - dostarczanego przez Pana Linusa Torvaldsa oraz
+            tzw. Core Team-u skupionego, głownie wokół Red Hat Inc.,</li>
+        <li>Przestrzeni użytkownika - ten komponent jest tworzony przez
+            społeczność lub firmę opiekującą się dystrybucją, którą używamy
+        </li>
+      </ul>
+      <p>
+        Poniżej przestawię tabelkę, która może pomóc w wyborze dystrybucji.
+        Można znaleźć ją w książce "Unix i Linux, Przewodnik Administratora
+        Systemów", Wydanie V, Helion 2018.
+      </p>
+      <table>
+        <tr>
+          <th>Dystrybucja</th>
+          <th>Strona WWW</th>
+          <th>Komentarz</th>
+        </tr>
+        <tr>
+          <td>Arch</td> 
+          <td>
+            <a href="https://archlinux.org">archlinux.org</a>
+          </td>
+          <td>
+            Dystrybucja dla ludzi, którym potrzebny jest tylko terminal. Tam
+            nie ma nawet instalatora, system instaluje się z ręki, po prostu
+            z powłoki. Jest na stronie dobry poradnik instalacyjny, więc z
+            nie jesteśmy pozostawieni sami sobie. Wprawieni użytkownicy z 
+            dobrym łączem stawiają system w 5 min.
+          </td>
+        </tr>
+        <tr>
+          <td>CentOS</td>
+          <td> 
+            <a href="https://centos.org">centos.org</a>
+          </td>
+          <td>
+            Darmowy odpowiednik RHEL, bardzo stabilna dystrybucja z przyjemnym
+            instalatorem i dużą ilością oprogramowania.
+          </td>
+        </tr>
+        <tr>
+          <td>Debian</td>
+          <td>
+            <a href="https://debian.org">debian.org</a>
+          </td>
+          <td>
+            Dystrybucja uniwersalna, w zależności od rodzaju instalacji, może
+            sprawnie napędzać sprzet od i9 z RTX przez MacBook-a z 2006 do
+            terminala z 2002 roku. Dużo oprogramowania. Nie utrudnia na siłę
+            dostępu do zamkniętego oprogramowania, chcesz własnościowego
+            sterownika? Przełączasz repozytoria i wydajesz dwa polecenia w
+            tym jedno z instalacją sterownika.
+          </td>
+        </tr>
+        <tr>
+          <td>Fedora</td>
+          <td>
+            <a href="https://fedoraproject.org">fedoraproject.org</a>
+          </td>
+          <td>
+            System, na którym testowo wdrażane są pomysły dla RHEL, taki
+            poligon doświadczalny. Potem użytkownicy to weryfikują czy będzie
+            działać czy też, na końcu trafia to do RHEL, Fedora jako pierwsza
+            użyła w gotowej dystrybucji Gnome 40. Korzysta z niej sam Linus
+            Torwalds. Banalna instalacja. Bardzo dużo smaków (wersji 
+            zawierających określone środowiska graficzne, oprogramowanie).
+          </td>
+        </tr>
+        <tr>
+          <td>Kali</td>
+          <td>
+            <a href="https://kali.org">kali.org</a>
+          </td>
+          <td>
+            Dystrybucja skierowana dla inżynierów ds. bezpieczeństa,
+            pentesterów, i sieciowych włamywaczy (black-hat's). Oparta na
+            Debianie, chyba najlepsza zachęta dla dzieciaków/nastolatków do
+            nauki obsługi Linux-a. Poza stabilnym system nadającym się do
+            powszechnego użytkowania, posiada masę wiodących krakerskich
+            narzędzi jak np. "platformę do włamań" Metasploit.
+          </td>
+        </tr>
+        <tr>
+          <td>Linux Mint</td>
+          <td>
+            <a href="https://linuxmint.com">linuxmint.com</a>
+          </td>
+          <td>
+            Dystrybucja dla użytkowników domowych. Bazuje na Ubuntu, a te
+            z kolei bazuje na Debianie. System jest stabilny. Wszystkie zalety
+            Debiana i Ubuntu + kilka udogodnień, dzięki czemu system doskonale
+            sprawdza się na co dzień, jako alternatywa dla MS Windows.
+          </td>
+        </tr>
+        <tr>
+          <td>OpenSUSE</td>
+          <td>
+            <a href="https://opensuse.org">opensuse.org</a>
+          </td>
+          <td>
+            Darmowa wersja europejskiego Linux-a enterprise, SUSE Linux
+            Enterprise. Może wydawać się łudząco podobna do MS Windows Server.
+            Wsparcie dla wielu języków.
+          </td>    
+        </tr>
+        <tr>
+          <td>OpenWRT</td>
+          <td>
+            <a href="https://openwrt.org">openwrt.org</a>
+          </td>
+          <td>
+            Dystrybcja skierowane na systemy wbudowane, głównie routery.
+            Może zrobić z niektórych domowych routerów mikroserwery, jeśli
+            Twój domowy router zaczyna się wieszać, to zamiast go wyrzucać
+            sprawdź czy jest wspierany przez OpenWRT, zainstalowanie tego
+            oprogramowania może zaoszczędzić Twoje pieniądze, a środowisku
+            naturalnemy kosztów jego utylizacji. 90% problemów z takim sprzętem
+            jest z winy oprogramowania.
+          </td>
+        </tr>
+        <tr>
+          <td>Oracle Linux</td>
+          <td><a href=">https://yum.oracle.com/oracle-linux-isos.html">
+              https://yum.oracle.com/oracle-linux-isos.html</a>
+          </td>
+          <td>
+            Dystrybucja klasy enterprise dostarczana przez firmę Oracle za
+            darmo, płatne jest tylko wsparcie techniczne. Posiada wersję z
+            odrębną wersją jądra rozwijąną przez owe przedsiębiorstwo. W 
+            obsłudze podobna do RHEL.
+          </td>
+        </tr>
+        <tr>
+          <td>Red Hat Enterprise</td>
+          <td>
+            <a href="https://redhat.com">redhat.com</a>
+          </td>
+          <td>
+            Wiodąca dystrybucja komercyjna, zwykli użytkownicy mogą wrywać
+            90 dniową wersję deweloperską po zarejstrowaniu się na stronie
+            roczna licencja kosztuje ~=100$. Dystrybucja bardzo stablina i
+            starannie wykonana. Większość Linux-ów enterprise na niej bazuje,
+            poza SUSE-m
+          </td>
+        </tr>
+        <tr>
+          <td>Slackware</td>
+          <td>
+            <a href="http://slackware.com">slackware.com</a>
+          </td>
+          <td>
+              Dystrybucja dla prawdziwych hakerów. Zwykli użytkownicy mogą
+              nie docenić jej potecjału. Została ona zaprojektowana zgodnie z
+              filozofią KISS ("i żeby to było proste, głupku") niestety w 
+              projektowaniu i implementacji ale nie w obsłudze dlatego nie
+              jest polecana dla początkujących Warto dodać że jest obok
+              Debiana najstarszą darmową dystrybucją. Jej początki sięgają
+              kwietnia 1993 roku.
+          </td>
+        </tr>
+        <tr>
+          <td>Ubuntu</td>
+          <td>
+            <a href="https://ubuntu.com">Ubuntu</a>
+          </td>
+          <td>
+            Dystrybucja chyba idealna na początek. Ubuntu lub Mint. Ubuntu
+            jest tak naprawdę uproszczonym Debianem zarządzanym przez firmę
+            Canonical. Wprowdza wiele swoich technologii. Może uchodzić za
+            Linux-a enterprise z dystrybucji opartych ne Debianie.
+          </td>
+        </tr> 
+      </table>
+      <p>
+        Moim pierwszym Linux-em był BackTrack5 z KDE. Chciałem zrobić sobie
+        taką pracownie informatyczną miałem 4 komputery na biurku narożnym
+        każdy z innym systemem. BackTrack wybrałem z racji posiadania narzędzi
+        do 
+        pentestów. Był to pierwszy Linux zainstalowany z własnej woli, bo
+        w technikum na tych złomkach w pracowni mieliśmy VM z Ubuntu Server
+        14.04. Po zmianach w moim pokoju
+        na biurku zostały tylko dwa komputery i na jedym z nich również był
+        Linux jak i procesor Pentium IV, tym razem jeden z najlepszych w
+        serii. Tę maszynę napędzał Kali Linux, ze względu na dalsze moje 
+        zaintersowanie testami penetracyjnymi. Ten system nadawał się nie
+        tylko do testów penetracyjnych ale do codziennej pracy, miał coś
+        czego osobiście mi brakuje w obecnych dystrybucjach. Przeglądarki
+        IceWeasel. Ta przeglądarka jak i Gnome 2 powodowały, że ten system
+        mógł działać i na Pentium IV jaki na 10" netbook z Intel Atom 1GB RAMu.
+        Któregoś dnia dostałem zdezlowany laptop do naprawy, generalnie był
+        trupem. Kupiłem na popularnym serwisie aukcyjnym płytę główną do niego,
+        oznaczoną jako uszkodzona/nie testowana za śmieszne pięniądze 20 czy 30
+        złotych. Po przedładce ożył ale klawiatura nie działała. Nie wiem czy
+        to wina klawiatury czy jakiegoś układu na płycie. Ale za to porty
+        USB działały. Komp ma (bo mam go dzisiaj), mobilne Core2Duo i 2 albo 
+        3 GB Ramu zainstalowałem na nim Debian 7 Wheezy. To był piewszy raz
+        gdy Linux stał się moim domyślnym system operacyjnym. Tego laptopa
+        wymieniłem na Della Optiplex 760 SFF, Core2Quad Q8300, 8GB RAM DDR2,
+        Dyskiem SSD 120 GB i grafiką Radeona ze złączem DMS-59. Dwa 15"
+        monitory. Potrzebowałem tego komputera do testowania rzeczy na 
+        maszynach wirtualnych. Tego komputera używałem przez kilka miesięcy.
+        Poźniej zakupiłem HP Z600 z dwoma 6 rdzeniowymi procesorami Xeon,
+        24 GB Ram DDR3 Ecc Reg. Przez cały czas na tych komputerach używałem
+        Debiana 8 Jessie z Gnome 3. Do pewnego momentu, kiedy zaczęło nie
+        tylko mnie, ale także innych zajaranych Linux-em ludzi denerować to, że
+        kiedy kopiujemy coś na np. dysk wymienny i generalnie kopiowanie
+        skończy się (tak pokazywał program, którym kopiowaliśmy dane) to
+        osoby, które nie miały w zwyczajuj odmontowywać dysku wyciągały go z
+        portu podłączają do innego urządzenia i okazuje się, że danych brak. 
+        Nie skopiowały się. Ten problem występuje nadal, ale ja obecnie przed
+        wyjęciem dysku z portu odmontowuje dysk. Manager plików wyświetli 
+        monit o tym, że wolumin jest nadal w użyciu i czy rzeczywiście chcemy
+        go wymontować. Z Debiana przesiadłem się na Ubuntu i korzystałem z z
+        niego naprawdę długo. W połowie 2018 roku zrobiłem sobie przerwę od
+        Linux-ów i kupiłem sobie MacBooka Pro. Problem z systemami Apple jest
+        taki, że mimo iż to UNIX-y to pewne rzeczy zrobiłbym szybcie na 
+        FreeBSD niż na Macu, one operują na tych samych narzędziach. Na Macach
+        wszystko jest strasznie pochowane i obecnie jako, że jestem zagorzałym
+        orędownikiem otwartego oprogramowanie raczej bym go przystał używać
+        i koniec, końców bym się go pozbył. Wróciłem na stare smiecie, a
+        konkretnie do Ubuntu. Potem miałem krótką przygodę z Mintem, ale
+        dostępne środowiska nigdy nie uchodziły za moje ulubione. Za 
+        fascynowaniu wraz z kolegą z pracy Manjaro po instalowaliśmy je sobie
+        na komputerach. Nawet był pomysł aby w pracy postawić mirror Manjaro
+        mieliśmy odpowiednie do tego zasoby. Niestety nie stabilność tego
+        systemu (a raczej wolnych sterowników) spowodował, że zrezygnowaliśmy
+        z tego pomysłu. Kolejny powrót na Ubuntu. Tutaj doszedłem do wniosku,
+        że cały czas szukam tego jedynego. Potem za autosugestią na podstawie
+        dystrybucji, której używa Linus Torwalds zacząłem korzystać z Fedory
+        zainstalowałem też CentOS-a na naszym wspólnym serwerze w biurze. 
+        Jakiś czas poźniej odciąłem się od Linuxów znowu, by poznać lepiej
+        jeden z systemów, który napędza moje bramki konkretnie chodzi o
+        OpenBSD, poźniej z zainteresowania rozwiązanimi firmy Sun Microsystems
+        zainteresowałem się wolnym Solarisem, chyba ostatnim żyjącym -
+        OpenIndianą. No ten system stanowił dla mnie pewną zagadkę, brak 
+        również w nim 
+        różnorodności jeśli chodzi
+        o multimedia. Więc można ten system skreślić jako do użytku na
+        Desktopie. I koniec końców wróciłem do sprawdzonego rozwiązania, do
+        Debiana. To jest chyba system dla mnie. Przyzwyczajony jestem do
+        do niego. Jaki jest morał, z tej podróży pierszy wybór jest
+        najważniejszy, ponieważ to wiedzę o tym systemie będzie przyswajać.
+        Jeśli zmienym go poźniej na inny, to wiedzę poznaną odnośnie tego
+        drugiego systemu będziemy zestawiać z tym co już wiemy i tak żeby na
+        koniec wrócić do pierwotnego systemu. Wszystko jest kwestią 
+        przyzwyczajenia. Ja przyzwyczajony do Debiana, będę widział wiele wad
+        dyskwalifkujących inne systemy. Warto się dobrze zastanować na wyborem
+        po ściągać obrazy po testować rozwiązania, wybudowane oprogramowanie i
+        nie sugerować się tym opisem. Jest wiele dystrybucji na pewno lepszych
+        niż Debian, ale DLA MNIE jest on najlepszy. 
+      </p>
+      <p>
+        Dystrybucje wybrane to czas na trochę teorii, potem przejdziemy do
+        praktyki.
+      </p>
+      <p>
+        Wracając do budowy systemu. Wiemy, że składa on się trzech
+        podstawowych komponentów. <strong>Sprzęt</strong> jako podstawa, do 
+        niego możemy zaliczyć pamięć RAM, procesory (może ich być wiele), dyski
+        twarde lub półprzewodnikowe czy karty sieciowe.
+      </p> 
+      <p>
+        Powyżej sprzętu znajduje się <strong>jądro</strong>, czyli serce całego 
+        systemu. Zajmuje się ono zarządzaniem pamięcią, bo jak się okaże pełni 
+        ona bardzo ważną rolę. Jest ono również interfejsem dostępu do sprzętu
+        dla poszczególnych procesów.
+      </p>
+      <p>
+        Na samej górze znajdują się <strong>procesy</strong> - aktualnie 
+        działające programy w systemie. Procesy są zarządzane przez jądro. 
+        Często aby ująć je wszystkie w jedno pojęcie używa się nomenklatury 
+        <strong>przestrzeń użytkownika</strong>.
+      </p>
+      <p>
+        Oczywiście nie wszystkie procesy znajdują się w przestrzeni
+        użytkownika. Samo jądro też ma swoje procesy. Te procesy (jako jądro)
+        pracują w <strong>trybie jądra</strong> (ang. <em>kernel mode</em>).
+        Procesy z przestrzeni użytkownika pracują w <strong>trybie 
+        użytkownika</strong>. Kod wykonywujący się w trybie jądra ma 
+        nieograniczony dostęp do procesora oraz pamięci operacyjnej. Jest to
+        przydatne ale niesie ze sobą pewne ryzko. Otóż jądro może - wykonując
+        niewłaściwy/szkodliwy kod uszkodzić cały system. Obszar jądra w 
+        pamięci, do której tylko ono ma dostęp nazwymy <strong>przestrzenią
+        jądra</strong> (ang. <em>kernel space</em>). Tryb użytkownika bardzo
+        ogranicza procesy. Procesy tej przestrzeni mają dostęp do
+        wydzielonych przez jądro obszarów pamięci oraz bezpiecznych instrukcji
+        procesora, przez co błąd w jednym procesie niebędzie miał wpływu na
+        inne, taki źle działający proces zostanie usunięty przez jądro.
+      </p>
+      <p>
+        Z pośród elementów sprzętowych najważniejsza jest <strong>pamięć RAM
+        </strong> ponieważ to ona przechowuje cały system w postaci wydzieloych
+        obszarów wypełnionych bitami w określonych stanach.
+      </p>
+      <p>
+        Jądro systemu jest zarządcą pamięci do jednych z jego zdań jest
+        dzielenie pamięci na procesy. Procesy otrzymują wydzielony
+        obszar pamięci, a jądro musi pilnować tych obszarów, aby nie zostały
+        naruszone przez inne procesy. Ten wydzielony obszar można określić
+        jako przestrzeń prywatna procesu. Jądro musi wykonywać zadania w
+        czterech głównych obszarach systemowych:
+      </p>
+      <ul>
+        <li><strong>Procesy</strong> - jądro musi decydować, który z procesów
+            może korzystać w określonym momencie z procesora.</li>
+        <li><strong>Pamięci</strong> - jądro musi organizować pamięć,
+            przydzielać ją procesom, wyznaczać obszary współdzielone oraz
+            zarządzać wolną pamięcią.</li>
+        <li><strong>Sterownik urządzeń</strong> - jądro ma jeszcze jedną bardzo
+            ważną funkcje - jest interfejsem dostępu procesów do sprzętu,
+            dzięki niemu np. notatnik może zapisać plik na dysku.</li>
+        <li><strong>Wywołania systemowe</strong> - komunikacja między procesami
+            a jądrem</li> 
+      </ul>
+      <p>
+        <strong>Przestrzenią użytkownika</strong> możemy nazwać procesy 
+        rezydujące w pamięci specjalnie wydzielonej przez jądro na programy 
+        uruchamiane przez użytkowników systemu. Nazwa może być nieco myląca. 
+        Bo znane na już powszechnie serwery są procesami przestrzeni 
+        użytkownika. Przestrzeń użytkownika możemy znów podzielić na trzy 
+        części. W warstwie najniższej znajdują się najmniejsze procesy 
+        wykonujące raczej nieskomplikowane zadania. Powyżej znajdują się różnej
+        maści serwery. Procesy, które swiadczą usługi, np. serwery pocztowe. 
+        Najwyżej znajdują się procesy, z którymi użytkownik ma już styczność -
+        jego uruchomione programy. Procesy przestrzeni użytkownika mają to do 
+        siebie, że mogą korzystać z siebie nawzajem, muszą jednak znajdować się
+        na tej samym poziomie bądź wyżej np. magistrala komunikacyjna może 
+        korzystać z protokołu diagnostycznego.
+      </p>
+      <p>
+        Koncepcja użytkownika została zapożyczona z UNIX-a. 
+        <strong>Użytkownik</strong> jest encją (<em>rzeczą</em>, którą można 
+        wyraźnie zidentyfikować) może uruchamiać procesy i być właścicielem 
+        plików. Każdy z użytkowników ma przyspisaną nazwę, system z kolei 
+        rozpoznaje ich za pomocą numerów nazwię <em>userid</em> lub krócej 
+        <em>uid</em>. Użytkownicy istnieją w systemie głównie po to by 
+        rozgraniczać dostęp na podstawie nałożonych na nich uprawnień. 
+        Użytkownik w UNIX-ach (bo to nie tyczy się tylko systemów rodziny 
+        Linux) jest bardzo ograniczny może zarządzać swoimi procesami. Każdy 
+        proces ma swojego użytkownika, który go uruchomił; na którego prawach 
+        działa. Użytkownik może zapisywać dane tylko w obrębie swojego 
+        katalogu domowego, jak i definiować uprawnienia do plików, których 
+        jest wlaścielem. Wyjątkiem od tych zasad jest jedyny predefiniowany 
+        użytkownik, na którego można się zalogować - administrator 
+        (<em>root</em>). Określając go w skrócie jest to użytkownik bez 
+        ograniczeń. Może on nawet zniszczyć cały system wydając jedno 
+        polecenie. Niestety jest on potrzebny administratorom do tak drobnych
+        rzeczy jak instalacja oprogramowania z repozytorium.
+      </p>
+      <p>
+        Innymi bytami w systemie są <strong>grupy</strong>. Grupy są najprostrzą
+        możliwą w UNIX-ach metodą na współdzielenie plików. Plikom możemy 
+        ustalić prawo własności grupy oraz odrębne uprawnienia.
+      </p>
+      <h2 id="podstawowe_polecenia_i_struktura_plikow">
+        Podstawowe polecenia i struktura plików</h2>
+      <p>
+        Polecenia wykonujemy za pomocą procesu powłoki. <strong>Powłoka</strong>
+        jest małe środowisko programistyczne umożliwiające uruchamianie 
+        programów z pomocą wiersza poleceń. <strong>Wiersz polecenia</strong>
+        jest to linia tekstu interpretowana przez powłokę, Powłok w Linuxie
+        możemy wymienić kilka. Najczęściej spotykaną powłoką jest
+        <em>BASH</em>, czyli poprawiona i dostosowana do aktualnych czasów 
+        wersja oryginalnej powłoki UNIX-a - powłoki Bourna (<em>sh</em>).
+        Obecjnie wielu entuzajastów korzysta z <em>zsh</em> - powłoka Z.
+        Wzorowana na powłoce Korna, posiada masę udogodnień. Nie mnie oceniać
+        czy jest lepsza od BASH. Do BASH-a, jak i do Debiana jestem 
+        przyzwyczajony - uprzedzając pytania. Powłoka Korna -
+        <em>ksh</em> spotkamy głównie w systemach BSD. Obecnie oryginalną 
+        powłokę możemy spotkać przeważnie w trybie jednego użytkownika (trybie
+        awaryjnym). Pozostała jeszcze powłoka <em>tcsh</em> - rozszerzona
+        powłoka C, sama powłoka C <em>csh</em> jest wzorowana na składni języka
+        C. TCSH jest domyślną powłoką systemów FreeBSD.
+      <p>
+        Programy pozwalające na dostęp powłoki w Linux-ach są nazywane 
+        "Emulatorami terminala" lub poprostu terminalem. Każdy wiersz
+        polecenia zaczyna się od znaku zachęty. Owy znak przestawia nam
+        wiele informacji:
+      </p>
+      <ul>
+          <li><strong>nazwa użytkownika</strong></li>
+        <li><strong>nazwa komputera</strong></li>
+        <li><strong>Obecna/y ścieżka/katalog robocza/y</strong></li>
+        <li><strong># lub $</strong>
+          <ul>
+            <li><strong>#</strong> - użytkownik root</li>
+            <li><strong>$</strong> - użytkownik bez uprawnień administratora</li>
+          </ul>
+        </li>
+      </ul>
+      <p>
+        Na temat znaków kończących symbol zachęty, to mam pewną hipoteże, iż
+        wydaje mi się że są one zaszłością jeszcze z czasów powłoki Bourna
+        gdzię znak zachęty miał tylko te dwie wersje (<em>#</em> lub 
+        <em>$</em>). <em>Prompt</em> możemy też dostoswać do własnych
+        potrzeb, ale o tym poźniej.
+      </p>
+      <p>
+        Pierwszym poleceniem będziem <strong>cat</strong> - wypisuje ono
+        zawartość pliku lub plików na ekranie. Składnia tego polecenia
+        jest następująca:
+      </p>
+<pre class="code-block">
+$ cat plik1 plik2 ...
+</pre>
+      <p>
+        Polecenie to wyświetli po kolei zawartość plików 
+        <code class="code-inline">plik1</code>, 
+        <code class="code-inline">plik2</code> oraz wszystkich innych podanych 
+        jako parametry polecenia.
+      </p>
+      <p>
+        Polecenie <code class="code-inline">cat</code> przedstawiłem w nieco
+        inny sposób, pownieważ posłuży do zobrazowania pewnej rzeczy. Chodzi
+        o strumień wejścia/wyjścia. Procesy wykorzystują go aby zapisywać bądź
+        odczytwać dane. Strumienie są bardzo elastyczne. Strumieniami wejścia
+        mogą być pliki, urządzenia, terminal a nawet strumień wyjściowy innego
+        procesu. Właśnie za pomocą polecenia 
+        <code class="code-inline">cat</code>, możemy zobaczyć jak działa
+        strumień wejściowy. Kiedy wykonamy owe polecenie bez żadnych parametrów
+        będzie wyglądało jakby program się zawiesił albo na coś czekał.
+        Właśnie czeka na dane ze standardowego wejścia, które w tym przypadku
+        jest terminal. Możemy pisać aż nam się znudzi, aby wyjść naciskamy
+        kombinację klawiszy <strong>Ctrl+d</strong>. To, że wydzieliśmy to co
+        piszemy na ekranie, też jest dziełem tego mechanizmu, ale innego
+        strumienia - strumienia wyjścia. Jądro przekazuje każemy procesowi 
+        strumień standardowego wyjścia. Po uruchomieniu polecenia, standardowe
+        wyjście polecenia zostało połączone z oknem terminala przez to dane, 
+        które wpisywaliśmy były jakby automatycznie wypisywane, taki mechanizm
+        nazywany jest <strong>echem</strong>. Są procesy które ze względów
+        bezpieczeństwa wyłączają <em>echo</em>, takim programem jest polecenie
+        <em>passwd</em> służące do zmiany hasła użytkownika.
+      </p>
+      <p>
+        Istnieje trzeci strumień, strumień błędów służy on procesom głównie do
+        wyświetlania komunikatów diagnostycznych.
+      </p>
+      <h3 id="podstawowe_polecenia">Podstawowe polecenia</h3>
+      <ul>
+        <li><code class="code-inline">ls</code> - wypisuje zawartość katalogu.
+            <ul>
+              <li><code class="code-inline">-l</code> - wyświetlenie dokładnej
+                  informacj o zawartości katalogu.</li>
+              <li><em>-F</em> - wyświetlenie dodatkowej informacji o typach
+                  plików</li>
+            </ul>
+<pre class="code-block">
+$ ls -al
+</pre>
+            Po wydaniu tego polecenie zostanie nam wyświetlona szczegółowa 
+            lista z zawartością katalogu. Pierwsze kolumna określa 
+            <strong>tryb pliku</strong>. Drugą kolumną jest liczba łączy, 
+            narazie nie istotna. Trzecią jest nazwa właściciela (użytkownika), 
+            czwartą przypisana do pliku grupa, piąta kolumna przedstawia 
+            wielkość pliku w bajtach, pomiędzy nazwą pliku (ostatnia kolumna) a
+            rozmiarem  znajduje się data ostatniej modyfikacji.
+        </li>
+        <li><code class="code-inline">cp</code> - (ang. <em>copy</em>)
+            kopiuje pliki
+<pre class="code-block">
+$ cp plik1 plik2
+</pre>
+            Za pomocą polecenia <code class="code-inline">cp</code> możemy
+            skopiować wiele plików do katalogu.
+<pre class="code-block">
+$ cp plik1 ... plikN katalog
+</pre>
+        </li>
+        <li><code class="code-inline">mv</code> - (ang. <em>move</em>)
+            przenosi pliki. Jesli przenoszenie plików odbędzie się w tym samym
+            katalogu, to zostanie zmieniona nazwa pliku. Polecenie to w tej
+            sytuacji jest wykorzystane do zmiany nazwy.
+<pre class="code-block">
+$ mv plik1 plik2
+</pre>
+            Przeniesienie wielu plików do katalogu odbywa się na tej samej
+            zasadzie co przy poleceniu <code class="code-inline">cp</code>.
+<pre class="code-block">
+$ mv plik1 ... plikN katalog
+</pre>
+        </li>
+        <li><code class="code-inline">touch</code> - polecenie zmienia
+            czas ostatniej modyfikacji pliku. Jeśli plik nie istnieje
+            zostanie utworzony nowy pusty plik.
+<pre class="code-block">
+$ touch plik
+</pre>
+            Jeśli teraz uruchomimy polecenie 
+            <code class="code-inline">ls -l</code> zobaczymy, że czas 
+            modyfikacji pliku jest identyczny z czasem wydania polecenia
+            <code class="code-inline">touch</code>
+        </li>
+        <li><code class="code-inline">rm</code> - usuwanie istniejących plików
+            plik usunięte tym poleceniem są tracone bezpowrotnie.
+<pre class="code-inline">
+$ rm plik
+</pre>
+        </li>
+        <li><code class="code-inline">echo</code> - wyświetla przekazane
+            parametry na standardowe wyjście. Polecenie wykorzystywane
+            do wyświetlania zmiennych oraz komunikatów w skryptach powłoki.
+<pre class="code-block">
+$ echo "Hello, World!"
+</pre>
+        </li>
+      </ul>
+      <h3 id="polecenia_dzialajace_na_katalogach">
+        Polecenia działające na katalogach</h3>
+      <p>
+        UNIX-y korzystają z hierarchii katalogów zaczynających się od katalogu
+        głównego określanego jak <strong>/</strong> - <em>root</em>. Droga
+        do katalogu na nazywana jest <strong>ścieżką</strong>. Znakiem 
+        rozdzielającym katalogi na ścieżce jest ukośnik (<strong>/</strong>). 
+        Element ścieżki składający się z dwóch kropek (<strong>..</strong>) 
+        określa katalog nadrzędny względem aktualnego. Inny element składający 
+        się z kropki (<strong>.</strong>) wskazuje na aktualny katalog. Ścieżki
+        nie zaczynające się od początkowego ukośnika są ścieżkami względnymi.
+        Początek takiej ścieżki jest określany względem aktualnego katalogu.
+      </p>
+      <p>
+        Poniżej zostaną opisane najważniejsze polecenia działające na
+        katalogach.
+      </p>
+      <ul>
+        <li><code class="code-inline">cd</code> - zmienia aktualny katalog
+            roboczy.
+<pre class="code-block">
+$ cd kat
+</pre>
+            Jeśli pominiemy parametr <code class="code-inline">kat</code> 
+            polecenie zmieni aktualny katalog roboczy na katalog domowy.
+        </li>
+        <li><code class="code-inline">mkdir</code> - tworzy nowy katalog
+<pre class="code-block">
+$ mkdir kat
+</pre>
+        </li>
+        <li><code class="code-inline">rmdir</code> - usuwa katalog podany jako
+            parametr. 
+<pre class="code-block">
+$ rmdir kat
+</pre>
+            Jeżli katalog nie jest pusty, to operacja się nie powiedzie. 
+            Aby nie trzeba było wchodzić katalogu i usuwać wszystkiego po kolei
+            częściej wykorzystywanym poleceniem jest
+<pre class="code-block">
+$ rm -rf kat
+</pre>
+            Polecenie <code class="code-inline">rm</code> znamy, służy do
+            trwałego usuwania plików, natomiast przełącznik
+            <code class="code-inline">-r</code> - powoduje usuwanie rekursywne
+            przeskanuje zawartość tego katalogu, usunie wszystkie pliki, jeśli
+            napotka podkatalog wtedy przeskanuje jego zawartość i usunie
+            wszystkie znajdujące się w nim pliki i tak w kółko. Kiedy katalog
+            w końcu będzie pusty wtedy go usunie, 
+            <code class="code-inline"> -f</code> - wymusza kasowanie, bez tego 
+            przełącznika polecenie pytałoby się czy kasować kolejne pliki. Przy
+            stosowaniu tego polecenia należy zachować szczególną ostrożność. 
+            Najwyżej w najgorszym przypadku pozbędziemy się wszystkich swoich 
+            danych. A nie wspomnę o wykonaniu tego polecenia jako <em>root</em>.
+        </li>
+      </ul>
+      <h4 id="rozwijanie_nazw">Rozwijanie nazw (nazwy wieloznaczne)</h4>
+      <p>
+        Rozwijanie nazw w UNIX-ach opiera się na dwóch znakach wieloznacznych,
+        na znaku gwiazdki (<strong>*</strong>) oraz na znaku zapytania
+        (<strong>?</strong>). Gwiazdka oznaczna dowolną ilość dowolnych znaków,
+        natomiast znak zapytania to jeden dowolny znak, więc jeśli nasze nazwy
+        zawierają pięć znaków to ich nazwa wieloznaczna będzie wyglądać
+        następująco:
+      </p>
+<pre class="code-block">
+?????
+</pre>
+      <p>
+        Jeśli chodzi o gwiazdkę to przychodzą mi do głowy trzy 
+        najpopularniejsze przypadki, mianowicie:
+      </p>
+      <ul>
+        <li><code class="code-inline">at*</code> - nazwa rozpoczyna się od
+            znanych nam znaków, reszta nazwy jest dowolna,</li>
+        <li><code class="code-inline">*at*</code> - nazwa zawiera znane nam
+            znaki,</li>
+        <li><code class="code-inline">*at</code> - nazwa kończy się znanymi 
+            znakami.</li>
+      </ul>
+      <p>
+        Rozwijanie nazw, nazywane jest często <em>globbingiem</em>. Oczywiście
+        znaki zapytnia jak gwiązdki mogą reprezentować część nazw.
+      </p>
+      <h3 id="polecenia_posredniczace">Polecenia pośredniczące</h3>
+      <ul>
+        <li><code class="code-inline">grep</code> - polecenie wypisuje ze
+            strumienia lub z pliku wiersze pasujące do wyrażenia regularnego
+            (wzorca ciągu znaku - więcej na ten temat na stronie podręcznika
+            polecenia grep).
+<pre class="code-block">
+$ grep "^r.*" /etc/passwd
+</pre>
+            To polecenie wyświetli tylko linie rozpocznające się od znaku 'r'.
+            Opis poszczególnych znaków wyrażenia znajduje się wyżej wymienionej
+            stronie podręcznika. 
+        </li>
+        <li><code class="code-inline">less</code> - polecenie umożliwia
+            wypisanie dużej ilość tekstu, przyczym na początku wpisze
+            tekst wypełniając cały terminal, następnie za pomocą strzałek
+            możemy się po nim poruszać wyświetlając jego dalszy ciąg bądz
+            wracać do poprzedniej cześci tekstu. Tekst możemy podać w postaci
+            pliku lub strumienia.
+<pre class="code-block">
+$ less .bash_history
+</pre>
+        </li>
+        <li><code class="code-inline">pwd</code> - polecenie wyświetla katalog,
+            w którym się obecnie znajdujemy.
+<pre class="code-block">
+$ pwd
+</pre>
+        </li>
+        <li><code class="code-inline">diff</code> - polecenie wskazuje różnice
+            pomiędzy dwoma plikami.
+<pre class="code-block">
+$ diff plik1 plik2
+</pre>
+        </li>
+        <li><code class="code-inline">file</code> - polecenie wyświetla format
+            (zawartość) pliku.
+<pre class="code-block">
+$ file test.txt
+</pre>
+        </li>
+        <li><code class="code-inline">find</code> - polecenie wyszukuje pliki.
+            Jest ono dosć rozbudowane, więc do najprostrzego wyszukiwania
+            jako pierwszy argument podaje się przeszukiwany katalog następnie 
+            po opcji <code class="code-inline">-name</code> nazwę wyszukiwanego
+            pliku.
+<pre class="code-block">
+$ find /home -name test.txt
+</pre>
+        </li>
+        <li><code class="code-inline">head</code>,
+            <code class="code-inline">tail</code> - polecenia słuzące do
+            wypisania linii początkowych 
+            (<code class="code-inline">head</code>) lub linii konćowych
+            (<code class="code-inline">tail</code>) oba polecenia przyjmują
+            liczbę linii po opcji <code class="code-inline">-n</code>. Ich
+            domyślną liczbą linii jest 10. Polecenia mogą wypisywać informacje
+            z pliku lub ze strumienia.
+<pre class="code-block">
+$ head -n 5 /etc/passwd
+$ tail -n 5 &lt; /etc/passwd
+</pre>
+        </li>
+        <li><code class="code-inline">sort</code> - polecenie sortuje wiersze
+            tekstu w porządku alfabetycznym, jeśli na początku wiersza
+            znajdują się liczby to aby były posortowane to należy użyć
+            <code class="code-inline">-n</code>. Odwrócenie kolejności
+            sortowania wymaga użycia <code class="code-inline">-r</code>.
+        </li>
+      </ul>
+      <h3 id="zmiana_hasla_i_powloki">Zmiana hasła i powłoki</h3>
+      <p>
+        Do zmiany hasła służy polecenie <code class="code-inline">passwd</code>
+        Polecenie zapyta o obecne hasło, następnie poprosi o dwukrotne podanie
+        nowego hasła (w celach weryfikacjynych).
+      </p>
+<pre class="code-block">
+# passwd root
+</pre>
+      <p>
+        Zamiany powłoki można dokonać na dwa sposoby, pierwszym z nich jest
+        użycie polecenia <code class="code-inline">chsh</code>, drugim jest
+        uruchomienie poprostu kolejnej powłoki wpisując poprostu jej nazwę
+        <code class="code-inline">sh</code>, 
+        <code class="code-inline">tcsh</code>,
+        <code class="code-inline">ksh</code>. Chociaż ten materiał zakłada
+        korzystanie z <em>BASH</em>.
+      </p>
+<pre class="code-inline">
+$ chsh 
+lub
+$ sh
+lub
+$ tcsh
+lub
+$ ksh
+</pre>
+      <p>
+        Po uruchomieniu polecenie <code class="code-inline">chsh</code>, każe
+        nam podać hasło, następnie podać nazwę nowej powłoki. Uruchomienie
+        interesującej nas powłoki jako podpowłoki możebyć znacznie lepszym 
+        pomysłem, oczywiście mamy już ją zainstalowaną.
+      </p>
+      <h3 id="pliki_z_kropka">Pliki z kropką</h3>
+      <p>
+        Plik, których nazwa rozpoczyna się od kropki na początku są plikami
+        ukrytmi, najczęściej zawierają one konfiguracje jakiś programów czy
+        opcje środowiskowa powłoki. Katalogi również można ukryć, w analogiczny
+        sposób jak pliki. Ukrywanie plików nie ma na celu ich ochrony w
+        przypadku systemu rodziny UNIX, a jedynie oddzielenie ich od danych
+        osobistych użytkownika. Ukryte plik/katalogi możemy wyświetlić
+        wydając polecenie:
+<pre class="code-block">
+$ ls -a
+</pre>
+      </p>
+      <h3 id="zmienne_powłoki_i_zmienne_srodowiskowe">
+        Zmienne powłoki i zmienne środowiskowe</h3>
+      <p>
+        W powłokach UNIX-a istnieją zmienne. Zmienne służą do tymczasowego
+        przechowywania danych dla poleceń lub innych operacji.
+        Chociaż najczęściej są one wykorzystywane podczas programowania
+        skryptów powłoki. Symbol zachęty, jest przechowywany w zmiennej 
+        powłoki.
+      </p>
+<pre class="code-block">
+$ PI=3.14
+</pre>
+      <p>
+        Zmienne powłoki mogą stać zmiennymi środowiskowymi przechowującymi
+        wartości konfiguracyjne dla wielu programów. Aby zmienna powłoki stała 
+        się zmienną środowiskową należy poprzedzić jej deklaracje polecniem 
+        <code class="code-inline">export</code>
+      </p>
+<pre class="code-block">
+$ export PI=3.14
+</pre>
+      <p> 
+        Niestety polecnie <code class="code-inline">export</code> nie zapewnia
+        nie ograniczonego dostępu do zmiennej środowiskowej tego typu. Ta
+        zmienne będzie dostępna tylko dla podpowłoki uruchomionej w powłoce
+        gdzie zostało wykonane polecenie <code class="class-code">export</code>.
+      </p>
+      <h3 id="sciezka_polecen">Ścieżka poleceń</h3>
+      <p>
+        Wpiswanie poleceń w wierszu polecenia jest tak naprawdę uruchamianiem
+        małych, jak i dużych programów rozsianych po całym systemie. Powłoka
+        musi wiedzieć gdzie te programy się znajdują. Do tego służy jej
+        zmienna środowiskowa <code class="code-inline">PATH</code>. Wartość
+        tej zmiennej zawiera ścieżki, na których należy szukać programów
+        (poleceń) rozdzielone dwukropkiem. Kolejność ułożenia ścieżek w
+        zmiennej <code class="code-inline">PATH</code> ma wpływ na szybkość
+        wyszukiania polecenia.
+      </p>
+<pre class="code-block">
+$ echo $PATH
+</pre>
+      <p>
+        Dodawanie katalogów do zmiennej <code class="code-inline">PATH</code>
+        wygląda następująco:
+      </p>
+<pre class="code-block">
+$ export PATH=/home/test/bin:${PATH}
+$ export PATH=${PATH}:/home/test/bin
+</pre>
+      <p>
+        W pierwszym poleceniu dodatkową ścieżkę wstawiono na początku wartości
+        tej zmiennej. Powłoka rozpocznie poszukiwania polecenia od tej ścieżki
+        natomiast drugie polecenie wstawia ścieżkę na końcu, przez co powłoka
+        przeszuka wszystkie katalogi ze zmiennej 
+        <code class="code-inline">PATH</code> następnie przejrzy ostatni
+        dodany do niej katalog. Dodawanie ścieżek na początku zmiennej może
+        przesłonić podstawowe polecenia, więc to warto zachować ostrożność.
+        Jednak jeśli uda nam się nieźle na bałaganić, to wystarczy zamknąć
+        powłokę i uruchomić jeszcze raz terminal. Stała zmiana owej zmiennej
+        wymagałaby ingerencji w pliki konfiguracyjne.
+      </p>
+      <h3 id="znaki_specjalne">Znaki specjalne</h3>
+      <p>
+        Istnieje grupa znaków, które warto znać pracując na Linux-ie czy tez
+        systemach UNIX-opodobnych.
+      </p>
+      <table>
+        <tr>
+          <th>Znak</th>
+          <th>Nazwa</th>
+          <th>Zastosowanie</th>
+        </tr>
+        <tr>
+          <td><strong>*</strong></td>
+          <td>gwiazdka</td>
+          <td>Wyrażenia regularne, znak nazwy wieloznacznej</td>
+        </tr>
+        <tr>
+          <td><strong>.</strong></td>
+          <td>kropka</td>
+          <td>Aktualny katalog, ogranicznik nazwy lub hosta</td>
+        </tr>
+        <tr>
+          <td><strong>!</strong></td>
+          <td>wykrzyknik</td>
+          <td>Negacja, historia poleceń</td>
+        </tr>
+        <tr>
+          <td><strong>|</strong></td>
+          <td>potok</td>
+          <td>Potok poleceń</td>
+        </tr>
+        <tr>
+          <td><strong>/</strong></td>
+          <td>ukośnik</td>
+          <td>Ograniczniki katalogów, polecenie szukania</td>
+        </tr>
+        <tr>
+          <td><strong>\</strong></td>
+          <td>lewy ukośnik</td>
+          <td>Literały, makra (<em>nigdy</em> katalogi)</td>
+        </tr>
+        <tr>
+          <td><strong>$</strong></td>
+          <td>dolar</td>
+          <td>Oznaczenie zmiennych, koniec wiersza</td>
+        </tr>
+        <tr>
+          <td><strong>'</strong></td>
+          <td>pojedynczy cudzysłów</td>
+          <td>Ciągi znaków literałów</td>
+        </tr>
+        <tr>
+          <td><strong>`</strong></td>
+          <td>lewy cudzysłów</td>
+          <td>Podmiana polecenia</td>
+        </tr>
+        <tr>
+          <td><strong>"</strong></td>
+          <td>podwójny cudzysłów</td>
+          <td>Ciąg znaków pseudoliterałów</td>
+        </tr>
+        <tr>
+          <td><strong>^</strong></td>
+          <td>daszek</td>
+          <td>Negacja, początek wiersza</td>
+        </tr>
+        <tr>
+          <td><strong>~</strong></td>
+          <td>tylda</td>
+          <td>Negacja, skrót katalogu</td>
+        </tr>
+        <tr>
+          <td><strong>#</strong></td>
+          <td>krzyżyk</td>
+          <td>Komentarze, dyrektywy preprocesora, podmiany</td>
+        </tr>
+        <tr>
+          <td><strong>[]</strong></td>
+          <td>nawiasy kwadratowe</td>
+          <td>Zakresy</td>
+        </tr>
+        <tr>
+          <td><strong>{}</strong></td>
+          <td>nawiasy klamrowe</td>
+          <td>Bloki poleceń, zakresy</td>
+        </tr>
+        <tr>
+          <td><strong>_</strong></td>
+          <td>podkreślenie</td>
+          <td>Prosty zamiennik znaku spacji</td>
+        </tr>
+      </table>
+      <p>
+        Symbol daszka można spotkać jako graficzne przedstawienie klawisza
+        <em>Ctrl</em>
+      </p>
+      <h3 id="edycja_wiersza_poleceń">Edycja wiersza poleceń</h3>
+      <p>
+        Wiersz poleceń możemy edytować nie tylko za pomocą strzałek. Poniżej
+        znajduje się kilka skrótów klawiszowych, które ułatwią nam pracę
+        jeśli będziemy pracować na klawiaturze bez strzałek, klawiszy home-end
+        itp.
+      <p>
+      <table>
+        <th>
+          <td>Klawisze</td>
+          <td>Operacja</td>
+        </th>
+        <tr>
+          <td><em>Ctrl+b</em></td>
+          <td>Przesunięcie kursora w lewo</td>
+        </tr>
+        <tr>
+          <td><em>Ctrl+f</em></td>
+          <td>Przesunięcie kursora w prawo</td>
+        </tr>
+        <tr>
+          <td><em>Ctrl+p</em></td>
+          <td>Powrót do poprzedniego polecenia (lub przesunięcie kursora
+              w górę)</td>
+        <tr>
+        <tr>
+          <td><em>Ctrl+n</em></td>
+          <td>Przjeście do następnego polecenia (lub przesunięcie kursora
+              w dół.</td>
+        </tr>
+        <tr>
+          <td><em>Ctrl+a</em></td>
+          <td>Przesunięcie kursora na początek wiersza</td>
+        </tr>
+        <tr>
+          <td><em>Ctrl+e</em></td>
+          <td>Przesuniecie kursora na koniec wiersza</td>
+        </tr>
+        <tr>
+          <td><em>Ctrl+w</em></td>
+          <td>Usunięcie słowa poprzdzającego kursor</td>
+        </tr>
+        <tr>
+          <td><em>Ctrl+u</em></td>
+          <td>Usunięcie tekstu od kursora do początku wiersza</td>
+        </tr>
+        <tr>
+          <td><em>Ctrl+k</em></td>
+          <td>Usunięcie tekstu od kursa do końca wiersza</td>
+        </tr>
+        <tr>
+          <td><em>Ctrl+y</em></td>
+          <td>Wklejenie usuniętego tekstu (na przykład usuniętego poleceniem
+              <em>Ctrl+u</em>)</td>
+        </tr>
+      </table>
+      <h3 id="edytory_tesktu">Edytory tekstu</h3>
+      <p>
+        Tak naprawdę to na Linux-ie są tylko dwa edytory warte uwagi. 
+        <code class="code-inline">GNU Emacs</code>
+        oraz <code class="code-inline">Vi/Vim</code>. Oba działają z poziomu 
+        terminala oraz oba są dość specyficzne w swojej obsłudze. Niestety 
+        tylko jeden z nich jest preinstalowany prawie w każdym UNIX-ie i jest 
+        nim <em>Vi</em>. Dlatego warto skupić się na tym edytorze. Warto 
+        doinstalować sobie <em>Vim</em>, ponieważ wraz z tym program 
+        dostartczane polecenie <em>vimtutor</em>, które jest samouczkiem 
+        <em>Vim</em>, jednak podstawy dla <em>Vi</em> czy <em>Vim-a</em> są 
+        takie same.
+      </p>
+      <h3 id="uzyskiwanie_pomocy">Uzyskiwanie pomocy</h3>
+      <p>
+        Jeśli pracujemy offline, to jedyną pomocą jaką samodzielnie możemy
+        uzyskać są strony podręcznika, wywoływane poleceniem 
+        <code class="code-inline">man</code>. Poniżej znajduje polecenie
+        wywołujące stronę podręcznika dla polecenia 
+        <code class="code-inline">ls</code>
+      </p>
+<pre class="code-block">
+$ man ls
+</pre>
+      <p>
+        Strony te zawierają głównie alfabetyczny/usystemtyzowny opis opcji 
+        danego polecenia czy programu, rzadko zdarzają się samouczki czy 
+        tutoriale rzadkim zjawiskiem są też przykłady. Mimo to jeśli
+        wykażemy się cierpliwością znajdziemy odpowiedź na nurtujące nas
+        pytania.
+      </p>
+      <p>
+        Istnieje możliwość przeszukania stron podręcznika pod kątem jakiegoś
+        słowa kluczowego. Przydatne gdy znamy zagadnienie a nie znamy polecenia.
+      </p>
+<pre class="code-block">
+$ man -k desktop
+</pre>
+      <p>
+        Po opcji <code class="code-inline">-k</code> podajemy zagdnienie, 
+        którego szukamy. Strony podręcznika są podzielone na 8 rozdziałów.
+      </p>
+      <table>
+        <tr>
+          <th>Rodział</th>
+          <th>Opis</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Polecenia użytkownika</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Niskopoziomowe wywołania systemowe</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Dokumentacja wysokopoziomowych bibliotek Unix-a</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Informacje o interfejsach urządzeń i sterownikach</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Opisy plików (konfiguracji systemu)</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Gry</td>
+        </tr>
+        <tr>
+          <td>7</td>
+            <td>Formaty plików, konwencje, i kodowania (ASCII, przyrostki itd.)
+            </td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td>Polecenia systemowe i serwery</td>
+        </tr>
+      </table>
+      <p>
+        Rodziały 1,5,7 i 8 mogą być uzupełnieniem informacji z tego materiału.
+      </p>
+      <h3 id="wejscie_i_wyjscie_powloki">Wejście i wyjście powłoki</h3>
+      <p>
+        Powłoka posiada trzy standardowe mechnizmy strumieni danych. Pierwszy
+        z nich nazwany standardowym wejściem. Domyślnie jego danymi są dane 
+        pobierane z klawiatury jednak możemy oprogramowniu oczekujące na dane
+        na tym strumieniu przekierować np. plik.
+      </p>
+<pre class="code-block">
+$ head -n 5 &lt; /etc/passwd
+</pre>
+      <p>
+        Warto zapamiętać, że symbol mniejszości lub ostry lewy nawias
+        (<strong>&lt;</strong>) to symbol przekierowania standardowego wejścia
+      </p>
+      <p>
+        Podobnie jest ze strumieniem standardowego wyjścia. O ile rzadko
+        spotyka się przekierowanie wejście, to już przekierowania wyjścia można
+        użyć do generowania plików dziennika aplikacji czy też skryptu.
+        W przypadku strumienia wyjścia możemy wyróżnić trzy przypadki, 
+        przypisane do konkrenych symboli.
+      </p>
+      <ul>
+        <li><strong>&gt;</strong> - (symbol większości, ostry prawy nawias), 
+            służy do przekierowania danych ze standardowego wyjścia do pliku. 
+            Jeśli coś jest w tym pliku to dochodzi to czegoś
+            takiego jak wymazywanie (ang. <em>clobbering</em>) - wszystko co
+            było w pliku zostaje zastąpione danymi ze strumienia. Mechanizm ten
+            można zablokować wydając jedno polecenie:
+            <code class="code-inline">set -C</code>,</li>
+        <li><strong>&gt;&gt;</strong> - (podwójny symbol większości) podbnie do
+             pojedyńczego symbolu jednak ten dopisuje dane ze strumienia na 
+             koniec pliku,</li>
+        <li><strong>|</strong> - (potok) - przekierowuje wyjście jednego 
+            polecenia lub programu na wejście drugiego. Przydane podczas
+            obróbki ciągu znaków.</li>
+      </ul>
+      <p>
+        Ostatnim strumieniem jest standardowy strumień błędów. Najprostszym 
+        sposobem na kontakt ze strumieniem błędów jest sytuacja kiedy polecenie
+        lub program nadal wyświetlają komunikaty mimo przekierowania wyjścia
+        do pliku. Przekierowanie tego strumienia odbywa się za pomocą 
+        identyfikatora, dla strumienia błedów identyfikator to 
+        <strong>2</strong>.
+        a samo przekierowanie wygląda podobnie do poprzednich przekierowań.
+      </p>
+<pre class="code-block">
+$ ls ~/Wideo/movie24.mp4 2&lt; /dev/null
+</pre>
+      <p>
+        Istnieje możliwość podłączenia strumienia błędów do tego samego miejsca
+        co strumień wyjścia (zazwyczaj tak się robi) za pomocą specjalnego 
+        symbolu ampesendu (<strong>&amp;</strong>).
+      </p>
+<pre class="code-block">
+$ bash -x script.sh &gt; debug.log 2&lt;&amp;1
+</pre>
+      <h3 id="odczytywanie_komunikatow_o_błędach">
+        Odczytywanie komunikatów o błędach</h3>
+      <p>
+        Klasyczny komunikat o błedzie przeważnie składa się z:
+      </p>
+      <ul>
+        <li>Nazwy programu,</li>
+        <li>Argumentów mu przekazanych,</li>
+        <li>Opisu problemu,</li>
+      </ul>
+      <p>
+        Do najczęściej spotykanych należą:
+      </p>
+      <ul>
+        <li><em>No such file or directory</em> - (nie ma takiego pliku lub
+            katalogu), najczęściej wynika z uzyskania dostępu do
+             nieistniejącego pliku lub katalogu</li>
+        <li><em>File exists</em> - (plik istnieje) - pojawia się gdy chcemy
+            utworzyć plik, który już istnieje w systemie.</li>
+        <li><em>No left space on device</em> - (brak miejsca na urządzeniu)
+            Na dysku zabrakło wolnego miejsca. Czasami ten komunikat można
+            otrzymać w momencie gdy program <em>dd</em> skonczy nadpisywać
+            dysk zerami.</li> 
+        <li><em>Permission denied</em> - (niewystarczające uprawnienia).
+            Otrzymujemy go gdy nasze uprawnienia są za małe aby odczytać plik
+            lub zapisać plik w danym katalogu.</li>
+        <li><em>Operation not permited</em> - (brak zezwolenia na wykonanie
+            operacji), pojawia się gdy próbujemy zakończyć proces, który nie
+            należy do nas.</li>
+        <li><em>Segmentation fault</em> - (błąd segmentacji) - Błąd programisty
+            w programie. Program próbował uzyskać dostęp do fragmentu pamięci,
+            do którego nie miał żadnych uprawnień.</li>
+      </ul> 
+      <h3 id="przegladanie_procesow_i_manipulowanie_nimi">
+       Przeglądanie procesów i manipulowanie nimi</h3>
+      <p>
+        Jeśli użyjemy polecenia <code class="code-inline">ps -a</code>, to
+        wyświetlimy wszystkie procesy, które uruchomiliśmy systemie. Wydruk
+        podzielony jest na cztery kolumny. Każda z kolumn ma konkretne
+        znaczenie
+      </p>
+<pre class="code-block">
+$ ps -a
+</pre>
+      <ul>
+        <li><strong>PID</strong> - identyfikator procesu.</li>
+        <li><strong>TTY</strong> - urządzenie terminala, w którym działa dany
+            proces.</li>
+        <li><strong>STAT</strong> - status procesu. Oznacza on, czym w danym
+            momencie zajmuje się proces i gdzie znajduje się jego pamięć.
+            Przykładowo <code class="code-inline">S</code> oznacza uśpienie
+            procesu, natomiast <code class="code-inline">R</code> jego 
+            działanie. Wszystkie symbole są opisane na stronie podręcznika 
+            polecenia ps.
+        </li>
+        <li><strong>TIME</strong> - ilość czasu procesora (podawana w minutach
+            i sekundach [zależy od systemu]) jak dany proces zużył do tej pory.
+            Czas ogólny jaki proces przeznaczył na wykonywanie instrukcji
+            w procesorze.</li>
+        <li><strong>COMMAND</strong> - treść polecenia (choć należy pamiętać o
+            tym że procesy mogą zmieniać zawartość tego pola).</li>
+      </ul>
+      <p>
+        Polecenie <code class="code-inline">ps</code> ma bardzo dużo opcji,
+        najlepszym jednak sposobem na rozeznanie wśród procesów jest użycie
+        polecenia <code class="code-inline">ps</code> wraz opcjami
+        <code class="code-inline">aux</code> co powoduje wyświetlenie 
+        wszystkich procesów w systemie wraz ze szczegółami.
+      </p>
+      <p>
+        Procesy możemy kontrolować za pomocą dość brutalnego polecenia
+        <code class="code-inline">kill</code>. Do kontroli procesów potrzebuje
+        on jednak <em>PID</em>, który możemy pobrać z wyżej wymienionego
+        polecenia <code class="code-inline">ps</code> z odpowiednimi
+        przełącznikami. Polecenie <code class="code-inline">kill</code> steruje
+        procesami za pomocą sygnałów. <strong>Sygnał</strong> to komunikaty
+        wysyłane przez jądro do procesu. Domyślnym sygnałem polecenia
+        <code class="code-inline">kill</code> jest <em>TERM</em>, oznaczający 
+        zakończenie procesu. Procesy można zamroźić sygnałem 
+        <code class="code-inline">STOP</code>.
+      </p>
+<pre class="code-block">
+$ kill -STOP &lt;PID&gt;
+</pre>
+      <p>
+        Proces zatrzymany w ten sposób jest przechowywany w pamięci i gotowy do
+        wznowienia działania. Wznowienia procesu dokonujemy za pomocą polecenia:
+      </p>
+<pre class="code-block">
+$ kill -CONT &lt;PID&gt;
+</pre>
+      <p>
+        Klasyczne naciśnięcie kombinacji klawiszy <em>Ctrl+c</em>, kończy
+        działanie programu, identycznie jak wysłanie sygnały <em>INT</em>.
+        (ang. <em>interrupt</em> - przerwanie). Najbardziej brutalną metoda
+        kończenia procesów jest użycie sygnału <em>KILL</em>, inne sygnały
+        dają możliwość procesowi posprzątania po sobie, natomiast <em>KILL</em>
+        nie, system opracyjny zamyka go a następnie siłą usuwa z pamięci.
+      </p>
+      <p>
+        Powłoki także posiadają mechnizm kontroli zadań. Działący proces możemy
+        zatrzymać za pomocą kombinacji klawiszy <em>Ctrl+z</em> a następnie
+        wznowić na pierwszym planie za pomocą polecenia <em>fg</em> lub w tle
+        za pomocą polecenia <em>bg</em>.
+      </p>
+      <p>
+        Normalnie uruchomiony proces w powłoce zwróci nam znak zachęty dopiero
+        kiedy skończy wszystkie swoje zadania, lub zostanie przerwany przez
+        użytkownika. Jeśli taki proces przewidujemy, że będzie trwać bardzo 
+        długo możemy go uruchomić w tle dodając na końcu ampersand (<strong>&</strong>).
+      </p>
+<pre class="code-block">
+$ tar -czvf backup.tar.gz Dokumenty/ &amp;
+</pre>
+      <p>
+        Niestety wszystko ma swoje wady. Pierwszą znich jest irytujące
+        wyświetlanie danych wyjściowych, które mogą przeszkadzać nam w pracy.
+        Temu możemy zaradzić przekierowując wyjście do np. <em>/dev/null</em>.
+        Kolejną rzeczą jest wzięcie pod uwagę możliwości oczekiwania na dane
+        wejściowe i to pobierane ze standardowego wejścia. W zależności od 
+        danych należy rozważyć również przekierowanie wejścia lub użycie 
+        polecenia <em>yes</em> jeśli program będzie wymagał potwierdzeń co 
+        jakiś czas. Jeśli komunikaty zaburzą prace w powłoce, oraz wygląd 
+        danych wyjściowych to możemy odświerzyć ją za pomocą kombinacji 
+        klawiszy <em>Ctrl+l</em>.
+      </p>
+      <h3 id="tryb_plików_i_uprawnienia">Tryby plików i uprawnienia</h3>
+      <p>
+        <strong>Tryb plików</strong> czyli uprawnienia wyświetlane przez 
+        polecenie <code class="code-inline">ls -l</code> w pierwszej kolumnie.
+        Tryb pliku można podzielić na cztery części:
+      </p>
+<pre class="code-block">
+-rwxr-xr-x
+</pre>
+      <p>
+        Pierwszą grupą jest typ pliku. Wskazujący czy dana nazwa jest:
+      </p>
+      <ul>
+        <li><code class="code-inline">-</code> - zwykłym plikiem</li>
+        <li><code class="code-inline">d</code> - katalogiem</li>
+        <li><code class="code-inline">l</code> - dowiązaniem symbolicznym</li>
+      </ul>
+      <p>
+        Drugą, trzecią i czwartą grupę stanowią uprawnienia. Uprawnienia do 
+        pliku czy katalogu w UNIX-ach podzielone są trzy podmioty: właściciela
+        (<strong>u</strong>), grupę (<strong>g</strong>) oraz pozostałych 
+        użytkowników systemu (<strong>o</strong>). Te
+        poszczególne literki w nawiasach będą mieć znaczenie przy zmianie
+        uprawnień.
+      </p>
+      <p>
+        Uprawnienia jakie możemy przypisać do plików to:
+      </p>
+      <ul>
+        <li><code class="code-inline">r</code> - prawo do odczytu,</li>
+        <li><code class="code-inline">w</code> - prawo do zapisu,</li>
+        <li><code class="code-inline">x</code> - prawo do 
+            wykonywania/uruchamiania</li>
+      </ul>    
+      <p>
+        Przypisywanie uprawnień można wykonać na dwa sposoby. Pierwszym z nich
+        jest dodawanie bądz odejmowanie uprawnień do konkretnych grup. 
+        Uprawnienia zarówno pierwszym jak drugim sposobem będziemy przypisywać
+        za pomocą polecenia <code class="code-inline">chmod</code> Dodawanie
+        uprawnień wygląda następująco:
+      </p>
+<pre class="code-block">
+$ chmod go+x script.sh
+</pre>
+      <p>
+        Za pomocą powyższego polecenia nadałem grupie oraz pozostałym 
+        użytkownikom prawo do wykonywania mojego skrytu. Odejmowanie wygląda
+        analogicznie, jednak zamiast plusa (<strong>+</strong>) jest minus
+        (<strong>-</strong>).
+      </p>
+<pre class="code-block">
+$ chmod go-x script.sh
+</pre>
+      <p>
+        Teraz uprawnienia do wykonania zostały odjęte od tych grup. Drugim 
+        sposób polega na bezwzględnej zmianie uprawnienień do pliku. Jednak na
+        początku trzeba wiedzieć czym się operuje. Więc przy bezwględnej
+        zmianie uprawnień operuje się na cyfrach systemy oktalnego (ósemkowego),
+        uprawnienia każdej z grup (właściciel, grupa, pozostali) opisuje suma
+        wartości przypisywanych praw. wartości jakie prawa reprezentują to:
+      </p>
+      <ul>
+          <li><code class="code-inline">r</code> - <strong>4</strong> - prawo
+              do odczytu</li>
+          <li><code class="code-inline">w</code> - <strong>2</strong> - prawo
+              do zapisu</li>
+          <li><code class="code-inline">x</code> - <strong>1</strong> - prawo
+              do wykonywania/uruchamiania</li>
+     </ul>
+     <p>
+       Zatem jeśli chciałbym dać możliwość uruchomienia mojego skryptu innym
+       użytkownikom systemu za pomocą bezwzględnego przypisania uprawnienień,
+       muszę ustawić sobie pełne prawa (jestem właścicielem pliku): 7
+       (4 + 2 + 1) a grupie i pozostałym prawo do odczytu i wykonania: 5
+       (4 + 1). Wiemy że uprawnienia każdej grupy opisuje jedna cyfra zatem 
+       uprawnienia bezwzględne dla całości pliku będą wynosić: 755
+       (siedem-pięć-pięć, nie siedemsetpięćdziesiątpięć). Za pomocą polecenia 
+       <code class="code-inline">chmod</code> ustawiam określone uprawnienia.
+    </p>
+<pre class="code-inline">
+$ chmod 755 script.sh
+</pre>
+    <p>
+      Pytanie może nasuwać się takie, dlaczego dałem pozostałym grupą prawo
+      do odczytu? Nie wystraczyłoby samo wykonanie? Nie, jest skrypt to więc 
+      jest odczytywany przez inny program, który go interpretuje linia po linii.
+      Pliki binarne, mogą posiadać wyłącznie uprawnienia wykonania/uruchomienia.
+    </p>
+    <p>
+      Aby nie męczyć się ciągłą zmianą uprawnień do swoich danych, w UNIX-ach
+      istnieje możliwość zdefiniowania domyślnych uprawnień dla swoich plików
+      za pomocą polecenia <code class="code-inline">umask</code> umieszczonego
+      w plikach urchomioniowych (o plikach uruchomieniowych będzie w dalszej
+      części materiału). Uprawnienia dla polecenia 
+      <code class="code-inline">umask</code> są inne niż dla polecenia
+      <code class="code-inline">chmod</code>. Na stronie podręcznika jest to
+      wyjaśnione, jednak tłumaczenie może być nie aktualne więc lepiej
+      skorzystać z oryginalnej strony 
+      <code class="code-inline">man --locale=C 2 umask</code>.
+    </p>
+    <h4>Dowiązania symboliczne</h4>
+    <p>
+      Na Unix-ach instnieje możliwość utworzenia skrótu do katalogu czy też 
+      pliku takie skróty nazywana są 
+      <strong>dowiązaniami symbolicznymi</strong>. Dowiązania symboliczne 
+      tworzymy za pomocą polecenia <code class="code-inline">ln</code> wraz
+      przełącznikiem <code class="code-inline">-s</code> podając następnie cel
+      dowiązania oraz jego nazwę.
+    </p>
+<pre class="code-inline">
+$ ln -s /var/www/html WWW
+</pre>
+    <p>
+      To polecenie utworzy dowiązanie symboliczne o nazwie WWW w obecnym
+      katalogu wskazujace na <em>/var/www/html</em>.
+    </p>
+    <h3 id="archiwizowanie_i_kompresowanie_plikow">
+     Archiwizowanie i kompresowanie plików</h3>
+    <p>
+      Może zajść potrzeba wysłania wielu plików, na serwer FTP z racji tego
+      iż nie mamy żadnego dogodnego narzędzia (lub go nieznamy) musieli być
+      wysyłać te pliki po kolei, istnieje jednak mniej pracochłonna metoda. 
+      Możemy te plik na początek z archiwizować, do tego służy polecenie
+      <code class="code-inline">tar</code> wraz z przełącznikami
+      <code class="code-inline">-cvf</code> kolejno:
+    </p>
+    <ul>
+      <li><code class="code-inline">-c</code> - tworzy nowe archiwum.</li>
+      <li><code class="code-inline">-v</code> - wyświetla nazwy przetwarzanych
+          danych.</li>
+      <li><code class="code-inline">-f</code> - archiwum zostanie utworzone w
+          pliku.</li>
+    </ul>
+    <p>
+      Następnie podajemy nazwę archiwum z rozszerzeniem <em>.tar</em> po 
+      nazwie, katalog lub pliki jakie należy zarchiwizować. Po zakończeniu 
+      działania archiwum jest gotowe do przesłania.
+    </p>
+<pre class="code-block">
+$ tar -cvf accounting_data.tar accountant/
+</pre>
+    <p>
+      Okazuje się że plik jest duży i jego przesłanie może zająć masę czasu.
+      W UNIX-ach dostępne są dwa algorytmy kompresji: GNU zip (<em>gzip</em>) 
+      oraz <em>bzip2</em>. Archiwum można skompresować podczas jego tworzenia,
+      dodając jeden przełącznik do polecenia tworzącego archiwum. W zależności
+      od algorytmu kompresji:
+    </p>
+    <ul>
+      <li><code class="code-inline">-z</code> - GNU zip (gzip) - rozszerzenie
+          <em>.gz</em></li>
+      <li><code class="code-inline">-j</code> - bzip2 - rozszerzenie 
+          <em>.bz2</em></li>
+    </ul>
+    <p>
+      W niektórych dystrybucjach może zabraknąć <em>bzip2</em> dlatego też
+      (najczęściej aby rozpakować archiwum skompresowane tym algorytmem) będzie
+      trzeba go doinstalować.
+    </p>
+<pre class="code-block">
+$ tar -czvf accounting_data.tgz accountant/
+</pre>
+    <p>
+      Istnieją inne narzędzia do archiwizacji i kompresji danych. Jednym z nich
+      jest popularny <em>7-zip</em> wykorzystywany np. do tworzenia
+      zaszyfrowanych AES-em archiwów. Możemy również spotkać się z takim
+      reliktem przesłości jak archwa skompresowane z rozszerzeniem <em>.z</em>.
+      Takie archwia zostały skompresowane narzędziem <em>compress</em> znanym
+      jeszcze z epoki UNIX-a. Takie archiwum możemy rozpakować za pomocą
+      polecenia <em>gunzip</em>. Inymi programem do tworzenia archwów na 
+      Linux-ie jest znany z MS Windows program <em>zip</em> oraz <em>unzip</em>
+      jednak jest wolna implementacja <em>Info-Zip</em>.
+    </p>
+    <h3 id="hierarchia_katalogow">Hierarchia katalogów</h3>
+    <p>
+      Poniżej zostanie przedstawiona główna struktura katalogów w systemie.
+      Linux składa się z głównego katalogu zwanego <em>root</em> oraz z wielu
+      podkatalogów, które przchodwują różne rzeczy tworząc tak zwaną hierarchię.
+    </p>
+    <p>
+      Główny system plików (root) <strong>/</strong>: 
+    </p>
+    <ul>
+      <li><strong>/bin</strong> - przechowuje pliki binarne, najprostsze
+          polecenia jak <em>cp</em> lub <em>ls</em>.</li>
+      <li><strong>/dev</strong> - przechowuje pliki urządzeń. Na Linux-ie
+          wszystko jest plikiem.</li>
+      <li><strong>/etc</strong> - przechowuje najważniejsze plik konfiguracji
+          systemu.</li>
+      <li><strong>/home</strong> - przechowuje katalogi domowe 
+          użytkowników.</li>
+      <li><strong>/lib</strong> - przechodzuje pliki współdzielonych bibliotek, 
+          z których mogą korzystać pliki wykonywalne.</li>
+      <li><strong>/proc</strong> - przechowuje statyski systemowe w postaci
+          intefejsu składającego się z plików i katalogów.</li>
+      <li><strong>/sys</strong> - katalog podobny do <em>/proc</em>, tylko że
+          tworzy interfejs dla urządzeń oraz systemu.</li>
+      <li><strong>/sbin</strong> - systemowe pliki wykonywalne, programy 
+          przeznaczone do zarządzania systemem. Zwykli użytkownicy nie mają
+          nawet tego katalogu w zmiennej <em>PATH</em>.</li>
+      <li><strong>/tmp</strong> - katalog na niewielkie dane tymczasowe 
+          większość dystrybucji czyści ten katalog w trakcie uruchamianiaj
+          systemu.</li>
+      <li><strong>/usr</strong> - katalog przechowywujący znaczną część
+          oprogramowania systemu Linux, wewnątrz zawiera strukturę podobną 
+          do głównego katalogu.</li>
+      <li><strong>/var</strong> - miejsce na dane programów, serwerów podczas
+          ich działania.</li>
+      <li><strong>/boot</strong> - przechowuje pliki ładujące jądro systemu w
+          czasie uruchamiania komputera.</li>
+      <li><strong>/media</strong> - główny punkt montowania pamięci przenośnych
+      </li> 
+      <li><strong>/opt</strong> - katalog może przechowywać oprogramowanie firm
+          trzecich. Nie jest on wykorzystywany w zbyt wielu dystrybucjach.</li>
+    </ul>
+    <p>
+      Jądro (plik <em>vmlinuz</em>) na tym całym drzewie może znajdować się
+      albo bezpośrednio w głównym katalogu <em>root</em> wraz z plikiem 
+      <em>initrd</em>, albo w katalogu <em>/boot</em>. W trakcie pracy jądro 
+      korzysta z modułów, które są usuwane oraz ładowane z katalogu 
+      <em>/lib/modules</em>.
+    </p>
+    <h3 id="uruchamianie_polecen_przez_superuzytkownika">
+      Uruchamianie poleceń przez superużytkownika</h3>
+    <p>
+      Zwykli użytkownicy mogę wykonywać polecenia z poziomu użytkownika
+      <em>root</em> za pomocą polecenia <code class="code-inline">sudo</code>
+      warunkiem jest jednak dodanie takiego użytkownika do pliku 
+      <em>/etc/sudoers</em>.
+    </p>
+<pre class="code-block">
+user ALL=(ALL) ALL 
+</pre>
+    <p>
+      Powyżej umieszczono wpis, który umożliwia użytkownikowi
+      <code class="code-inline">user</code> możliwość wykonania każdego
+      polecenia trybie superużytkownika, podnad to słowo
+      <code class="code-inline">ALL</code> w nawiasie oznacza, że dodatkowo 
+      użytkownik będzie mógł uruchamiać inne polecenia podając się za innych
+      użytkowników. Przy wywołaniu polecenia program <em>sudo</em> poprosi o 
+      hasło użytkownika.
+    </p>
+    <p>
+      Do edycji pliku <em>/etc/sudoers</em> służy odzielne polecenie
+      <em>visudo</em> uruchamiające edytor tekstu wraz z otwartym plikiem. 
+      Można wykorzytać je lub zmieniać jak każdy inny plik konfiguracyjny.
+    </p>
+    <h2 id="urzadzenia">Urządzenia</h2>
+    <p>
+      W systemach Linux urządzeniami zajmują się dwa mechanizmy: interfejs
+      <strong>sysfs</strong> służący do prezentowania przez jądro informacji
+      o konfiguracji urządzeń oraz system <strong>udev</strong> pozwalający
+      programom przestrzeni użytkownika konfigurowanie i używanie nowych
+      urządzeń.
+    </p>
+    <p>
+      Manipulowanie urządeniami w UNIX-ach jest proste, ponieważ są one
+      udostępnione pod postacią plików. Pliki te są nazywane czasami
+      <strong>węzłami urządzeń</strong>. Do pracy z nimi programista
+      może wykorzystać standardowe operacje na plikach. Nie które urządzenia
+      są dostępne dla standardowych poleceń takich jak <em>cat</em>.
+    </p>
+    <p>
+      Jeśli wylistujemy sobie zawartość katalogu <em>/dev</em>, to w trybie
+      pliku w pierwszej grupie oznaczającej typ pliku, zobaczymy litery inne
+      niż w przypadku typów plików znajdujących się np. w naszym katalogu
+      domowym. Te litery oznaczają rodzaje urządzeń, a jest ich kilka.
+    </p>
+    <ul>
+      <li><strong>Urządzenia blokowe <em>(b)</em></strong> - Programy mogą 
+          odczytywać dane
+          z urządzeń blokowych wyłącznie za pomocą bloków o stałej wielkości.
+          Dyski, partycje są urządzeniami blokowymi. Dyski można bardzo
+          łatwo podzielić na bloki. Za pomocą jądra procesy mogą mieć dostęp
+          dowolnego bloku danych na dysku ponieważ są one takiej samej 
+          wielkości i łatwo je zindeksować.</li>
+      <li><strong>Urządzenia znakowe <em>(c)</em></strong> - Urządzenia znakowe
+          funkcjonują
+          w oparciu o strumienie danych. Do tego typu urządzeń można zapisywać
+          i odczytywać pojedyńcze znaki. Jądro podczas zapisu lub odczytu
+          danych do takiego urządzenia wykonuje operacje na faktycznym
+          urządzeniu. W systemie za pomocą urządzeń znakowych prezentowane są
+          np. drukarki. Zapisu do urządzenia znakowego nie można cofnąć, a
+          odczytu powtórzyć.</li>
+      <li><strong>Urządzenia potokowe <em>(p)</em></strong> - <strong>Potoki
+          nazwane</strong> (ang. <em>named pipes</em>) są podobne do urządzeń
+          znakowych, ale drugim końcu strumienia wejścia i wyjścia znajduej się
+          inny proces, a nie obsługiwane przez jądro urządzenie.</li>
+      <li><strong>Urządzenia gniazdkowe <em>(s)</em></strong> - Gniazda są
+          interfejsami specjalnymi służącymi do komunikacji międzyprocesowej.
+          Często występują poza katalogiem <em>/dev</em>.</li>
+    </ul>
+    <p>
+      Inną rzeczą, która wyróżnia listing katalogu <em>/dev</em> od innych
+      katalogów są dwie cyfry zamiast rozmiaru pliku. Te cyfry umożliwiają
+      prostą identyfikacje urządzeń przez jądro. Pierwsza z nich to numer
+      główny urządzenia druga (po przecinku) numer poboczny. Najlepiej,
+      działanie tych cyfr możemy zaobserwować na dyskach i ich partycjach.
+      Dyski zazwyczaj będą miały jakiś numer główny oraz numer poboczny
+      wynoszący <em>0</em>, z kolei partycję będą posiadać numer główny 
+      odziedziczony po dysku, i kolejno numer poboczny <em>1</em> dla pierwszej
+      partycji, <em>2</em> dla drugiej itd.
+    </p>
+    <p>
+      Jedynymi urządzeniami, których nie spotkamy w katalogu <em>/dev</em> są
+      interfejsy sieciowe. Wykorzystują one inny system wejścia-wyjścia.
+    </p>
+    <h3>Ścieżka urządzeń sysfs</h3>
+    <p>
+      Klasyczny katalog <em>/dev</em> daje procesom użytkownika bardzo wygodną
+      metodę odwoływania się i korzystania z urządzeń udostępnionych przez
+      jądro. Warto mieć na uwadze to, że jest bardzo uproszczona metoda
+      interakcji. Nazwa pliku urządzenia w tym katalogu może zdradzić kilka
+      informacji na temat samego urządzenia. Jądro przypisuje urządzeniom nazwy
+      w kolejności takiej, w jakiej są wykrywane w systemie. Przez co po
+      ponownym uruchomieniu komputera to samo urządzenie może mieć już inną
+      nazwę.
+    </p>
+    <p>
+      Dla wszystkich urządzeń w celu ujednoliconego widoku bazującego na ich
+      atrybutach sprzętowych jądro systemu Linux tworzy interfejs <em>sysfs</em>
+      będcy całym system plików i katalogów. Główną ścieżką dla tej
+      prezentacji urządzeń jest <em>/sys/devices</em> Przykładowo dysk twardy
+      SATA widoczny jako plik <em>/dev/sda</em> może być przedstawiony w 
+      systemie <em>sysfs</em> jako:
+    </p>
+<pre class="code-block">
+/sys/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+</pre>
+    <p>
+      Ścieżka jak widać jest dłuższa od <em>/dev/sda</em>. Oczywiście nie można
+      porównywać tych dwóch ścieżek. Plik w katalogu <em>/dev</em> pozwala
+      procesom użytkownika na używanie urządzenia, natomiast ścieżki w katalogu
+      <em>/sys/devices</em>, umożliwiają przeglądanie informacji o urządzeniach
+      i zarządzanie nimi.
+    </p>
+    <p>
+      W przestawionym powyższą ścieżka katalogu znajduje się pliki, które
+      raczej powinny być odczytywane przez programy a nie przez ludzi. Jednak
+      można z nich uzyskać co nieco informacji. Jeśli wyświetlimy sobie na
+      ekranie zawartość pliku <em>dev</em>, który znajduje się na ścieżce
+      powyżej (<strong>Uwaga!</strong> Nie we wszytkich systemach dysk
+      dysk występuje na tej ścieżce.), to zobaczymy numer główny oraz numer
+      poboczny urządzenia <em>/dev/sda</em>.
+    </p>
+    <p>
+      Łatwiejszym sposobem na zlokalizowanie dysku niż mozolne przszukiwanie
+      katalogów pośród ścieżek systemu <em>sysfs</em>, jest wykorzystanie 
+      katalogu <em>/sys/block</em>. Kiedy wylistujemy zawartość tego folderu
+      za pomocą polecenia <em>ls</em> z przełącznikiem <em>-l</em>, to
+      znajdziemy ścieżkę gdzie znajduje się nasz dysk w tej hierarchi.
+    </p>
+    <p>
+      Odczytywanie informacji ten sposób może być nieefektywne. Dlatego też
+      wykorzystamy narzędzie nowszego systemu 
+      <code class="code-inline">udevadm</code>.
+    </p>
+<pre class="code-block">
+$ udevadm info --query=all --name=/dev/sda
+</pre>
+    <p>
+      W nie których systemach, narzędzie 
+      <code class="code-inline">udevadm</code> 
+      znajduje się w katalogu <em>/sbin</em>, więc aby go użyć potrzebne są
+      uprawnienia administratora. 
+    </p>
+    <h3>Polecenie <em>dd</em> i urządzenia</h3>
+    <p>
+      Polecenie <em>dd</em> jest bardzo przydatnym narzdziem podczas pracy
+      z urządzeniami blokowymi. Obecnie jego najpowszechniejsze zastosowanie
+      w pracy to zerowanie dysków oraz nagrywanie <u>hybrydyzowanych</u>
+      obrazów płyt na pamięci typu pendrive. Jest ono bardzo potężnym
+      programem. Jedena pomyłka w literce dysku, a zniszczymy wszelkie dane
+      zapisane na tym nośniku.
+    </p>
+    <p>
+      Co takiego robi to polecenie? Kopiuje dane z pliku <em>A</em> do pliku
+      <em>B</em>, w częściach o podanej wielkości.
+    </p>
+<pre class="code-block">
+# dd if=/dev/zero bs=1M of=/dev/sdc count=1
+</pre>
+    <p>
+      To polecenie stosuje do niszczenia tablicy partycji na istniejącym dysku.
+      Poniżej zajduje się opis najważniejszych opcji programu <em>dd</em>.
+      Nie wszystkie zostały użyte w powyższym przykładzie.
+    </p>
+    <ul>
+      <li><code class="code-inline">if=plik</code> - plik danych wejściowych,
+          jeśli pliku brak, stosowane jest standardowe wejście.</li>
+      <li><code class="code-inline">of=plik</code> - plik danych wyjściowych,
+          jeśli pliku brak, stosowane jest standardowe wyjście.</li>
+      <li><code class="code-inline">bs=rozmiar</code> - rozmiar bloku danych,
+          który będzie kopiowany przez polecenie (to własnie ta podawana
+          wielkość), wartość opcji może być podawana w bajtach lub w ich
+          wielkorotnościach (jak na przykładzie: 1M = 1024*1024B).</li>
+      <li><code class="code-inline">ibs=rozmiar, obs=rozmiar</code> -
+          rozmiary bloków wejścia (<code class="code-inline">ibs</code>)
+          i wyjścia (<code class="code-inline">obs</code>), ta opcja jest
+          stosowana w przypadku gdy nie możemy ustawić jednego rozmiaru
+          bloku danych dla pliku wejściowego i wyjściowego.</li>
+      <li><code class="code-inline">count=liczba</code> - liczba skopiowanych
+          bloków danych. Używane przy ogromnych ilościach danych wejściowych
+          lub nieskończynych strumieniach danych (jak np. 
+          plik <em>/dev/zero</em>). Przy zerowaniu dysku, polcenie samo
+          zakończy działanie kiedy dojedzie do końca dysku. Wyświetlając
+          charakterystyczny komunikat <em>"No left space on device."</em>, 
+          który w tym przypadku nie oznacza nic złego.</li>
+      <li><code class="code-inline">skip=liczba</code> - ta opcja powoduje
+          ominięcie podanej liczby bloków danych. Nie zostaną one skopiowane
+          do pliku wyjściowego.</li>
+    </ul>
+    <h3>Podsumowanie nazewnictwa urządzeń</h3>
+    <p>
+      Czasami możemy mieć problem z odnalezieniem konkretnego urządzenia w
+      systemie, a narzędzi którymi robiliśmy to do tej pory brak. Poniżej
+      przedstawiam kilka metod, którymi możemy posiłkować podczas
+      pracy z urządzeniami.
+    </p>
+    <ul>
+      <li>Odpytanie systemu <em>udev</em> za pomocą programu <em>udevadm</em>.
+          (Więcej o tym programie poniżej).</li>
+      <li>Poszukanie urządzenia w katalogu <em>/sys</em></li>
+      <li>Ustalenie nazwy na podstawie wyniku działania polecenia 
+          <em>dmesg</em> (wypisuje ostatnie komunikaty jądra) albo zawartość
+          plików dziennika jądra (będą omawiane w dalszej części materiału).
+          Oba te źródła mogą zawierać opisy urządzeń znalezionych w systemie.
+      </li>
+      <li>W przypadku urządzenia blokowego widocznego już w systemie możemy 
+          przejrzeć odpowiedź polecenia <em>mount</em>.</li>
+      <li>Uruchomienie polecenia
+          <code class="code-inline">cat /proc/devices</code> wypisującego 
+          urządzenia blokowe i znakowe, którym system przydzielił sterownik.
+          Każdy z uzyskanych w ten sposób wierszy składa się z liczby oraz
+          nazwy. Podawana liczba jest numerem głównym urządzenia jeśli będziemy
+          wstanie rozpoznać urządzenie po nazwie, to w katalogu <em>/dev</em>
+          musimy szukać urządzeń znakowych lub blokowych z takim samym numerem
+          głównym.</li>
+    </ul> 
+    <p>
+      Spośród opisanych powyżej metod polegać całkowicie na pierwszej z nich,
+      niestety może wymagać uprawnienień administratora. Pamiętać musimy 
+      oczywiście
+      o jednej bardzo ważnej przy poszukiwaniu urządzeń, nie wszystkie
+      urządzenia będą mieć swój plik.
+    </p>
+    <h4>Dyski twarde - /dev/sd*</h4>
+    <p>
+      W dziesiejszych systemach Linux większość dysków twardych kojarzona jest
+      z urządzenimi o wspólnym przedrostku <strong>sd</strong>. Przedrostek
+      ten jest skrótem od słów <strong>SCSI Disk</strong>. Interfejs SCSI
+      został opracowany jako standard sprzętowy i protokół komunikacyjny dla
+      dysków oraz innych peryferiów. Obecnie sprzęt SCSI we współczenych
+      komputerach nie jest już widywany, jednak protokół dzięki zdolnościom
+      adaptacyjnym wykorzystywany jest prawie wszędzie nawet dla dysków
+      wymiennych USB.
+    </p>
+    <p>
+      Niestety ten tradycyjny sposób przypisywania urządzeń od zawsze powodował
+      problem. Dlatego w pliku <em>fstab</em> (więcej o nim, w dalszej części
+      materiału), obecnie wykorzystuje się <strong>UUID</strong> - unikatowy
+      identyfikator, ponieważ te nazwy nie są stałe, mogą zmieniać się w wyniku
+      podłączenia innych urządzeń tego typu do komputera.
+    </p>
+    <h4>Napęd CD i DVD - /dev/sr*</h4>
+    <p>
+      Linux uznaje wszystkie napędy optyczne za napędy SCSI, nadając im nazwy
+      <em>/dev/sr0</em>, <em>/dev/sr1</em>. Jeśli napęd korzysta ze starszego
+      interfejsu może pojawić się jako urządzenie PATA. Urządzenia
+      <em>/dev/sr*</em> służą wyłącznie odczytowi danych z dysków optycznych
+      jeśli chcielibymśmy skorzystać z kasowania lub zapisu danych musimy
+      odwołać się do jednego z urządzeń ogólnych <em>/dev/sg0</em>.
+    </p>
+    <h4>Dyski twarde PATA: /dev/hd*</h4>
+    <p>
+      W Linuxie urządzenia blokowe: <em>/dev/hda</em>, <em>/dev/hdb</em>,
+      <em>/dev/hdc</em>, <em>/dev/hdd</em> pojawiają się w starszych wersjąch
+      jądra oraz na komputerach ze starszym sprzętem. Nazwy te są nadawane
+      urządzeniom na sztywno, że względu na konstrukcję interfejsu PATA. Dyski
+      podłączane są na taśmie i konfigurowane zworką, każdy port PATA mogł
+      obsługiwać tylko dwa urządznia podłączone wspólną taśmą, a rzadko
+      zdarzały się w komputerach osobistych płyty główne z większą ilością
+      portów PATA niż 2.
+    </p>
+    <p>
+      Może zdarzyć że nasz system wykryje dysk SATA jako dysk PATA i przydzieli
+      mu właśnie taką nazwę, oznacza to że cały interfejs SATA komputera
+      pracuje w trybie zgodności, co wiąże się z dużym spadkiem wydajności.
+      W tym przypadku należy zmienić ustawienia BIOS-u komputera i ustawić
+      tryb normalny (<em>AHCI</em>).
+    </p>
+    <h4>Terminale - /dev/tty*, /dev/pts/* i /dev/tty</h4>
+    <p>
+      Terminale są urządzenia służącymi do przesyłania znaków pomiędzy system
+      urządzeniem wejścia-wyjścia, co zazwyczaj ma na celu wyświetlenie tekstu
+      na ekranie terminala.
+    </p>
+    <p>
+      Urządzeniami pseudoterminali są emulatory terminala. Posiadają one
+      wszystkie funkcje charakteryzujące terminale. Róznica polega na tym, że
+      jądro nie komunikuje się z rzeczywistym terminalem, ale z programowym
+      interfejsem wejścia-wyjścia. Pseudoterminalami są wszystkie te programy,
+      które w systemie zwą się <em>Terminal</em>.
+    </p>
+    <p>
+      Dwoma najczęściej spotykanymi urządzeniami terminala są 
+      <em>/dev/tty1</em> (pierwsza wirtualna konsola) oraz <em>/dev/pts/0</em>
+      (pierwsze urządzenie pseudoterminala - pierwsze otwarte okno/karta 
+      programu <em>Terminal</em>).
+    </p>
+    <p>
+      Linux korzysta dwóch trybów wyświetlania: trybu tekstowego (konsoli,
+      urządzeń terminali), i serwera okien <em>X Window</em> (tryb graficzny
+      najczęsciej wykorzystujący menedżera wyświetlania). W nie których
+      dystrybucjach tryb graficzny może uruchamiać się samodzielnie podczas
+      startu systemu, ale to wszystko zależy od samej dystrybucji oraz jej
+      konfiguracji. W powszechnych dystrybucjach takich konfiguracji dokonuje
+      się podczas instalacji. Możemy system skonfigurować w taki sposób, że
+      będzie startował do pierwszej wirtualnej konsoli <em>/dev/tty1</em>,
+      tak się przeważnie dzieje na serwerach oraz przy ręcznej instalacji
+      trybu graficznego (jest jak najbardziej możliwe). Jeśli jednak
+      preferujemy pracę w konsoli, to do dyspozycji mamy kilka wirtualnych
+      konsol, którę będą dla nas pełnić funkcję kolejnych okien terminala.
+      Przełączanie się pomiędzy konsolami dokonujemy za pomocą skrótu
+      klawiszowego <em>Ctrl + Alt + </em> klawisze funkcyjne od <em>F1</em>
+      do <em>F6</em>.
+    </p>
+    <h4>Porty szeregowe - /dev/ttyS*</h4>
+    <p>
+      Porty RS-232 są specjalanymi urządzeniami terminalowymi. Z poziomu
+      wiersza poleceń nie mamy zbyt wiele możliwości wykorzystania tego
+      portu, ponieważ wymagają zbyt wielu ustawień. Istnieją jednak programy,
+      które umożliwiają komunikację z urządzeniami podłączonymi do tego
+      portu, fizyczne porty COM reprezentowane są w systemie przez pliki
+      <em>/dev/ttyS*</em> gdzie <em>*</em> oznacza numer portu liczony od 0.
+      Pierszy port - <em>/dev/ttyS0</em> itd. Problemem są współczesne laptopy
+      w których już nie montuje się fizycznych portów COM, w takich przypadkach
+      stosuje się adaptery szeregowe, która są widoczne w systemie pod nazwami
+      <em>/dev/ttyUSB*</em> lub <em>/dev/ttyAMC*</em>.
+    </p>
+    <h4>Porty równoległe - /dev/lp0, /dev/lp1</h4>
+    <p>
+      Jednokierunkowe porty równległe otrzymują pliki o nazwach 
+      <em>/dev/lp0</em> i <em>/dev/lp1</em>, można przesłać do nich plik
+      bezpośrednio za pomocą polecenia <em>cat</em> jednak nawet w drukarkach,
+      które obsługują tego typu połączenia samo przesłanie danych może
+      nie wystarczyć potrzebne mogą być róznego rodzaju znaki sterujące. Do
+      wykorzystania drukarek w UNIX-ach lepiej sprawdza się system 
+      <strong>CUPS</strong> niż wysyłanie danych bezpośrednio.
+      We współczesnych komputerach port LPT całkowicie wyparty przez USB.
+    </p>
+    <h4>Urządzenia audio - /dev/dsp, /dev/audio, /dev/snd* i inne</h4>
+    <p>
+      Dżwiek na Linux-ie to generalnie bardzo skomplikowany temat, przez
+      istnienie zbyt wielu warstw. Istnieją dwa rozwiązania serwer
+      <strong>PulseAudio</strong>, który zarządza dzwiękiem z wielu źródeł
+      oraz pośredniczy w wymianie informacji pomiędzy procesami użytkownika
+      a urządzeniami dżwięku. Drugim rozwiązaniem jest interfejs ALSA, który
+      dostarcza własne urządzenia, rozwiązania <strong>ALSA</strong> są 
+      stosowane przy ręcznych
+      konfiguracjach. Zmiana ustawień interfejsu ALSA wymaga uprawnień
+      administratora. Podstawowe urządzenia audio dostarczane są przez
+      interfejs OSS.
+    </p>
+    <h4>Tworzenie własnych urządzeń</h4>
+    <p>
+      W nowoczesnych systemach Linux-owych nie trzeba samodzielnie tworzyć
+      plików urządzeń ponieważ zajmują się tym systemy <em>devtmpfs</em> i 
+      <em>udev</em>.
+    </p>
+    <p>
+      Do utworzenia pojedyńczego pliku urządzania służy polecenie
+      <strong>mknod</strong>. Należy podać nazwę urządzenia oraz jego numery -
+      główny i poboczny.
+    </p>
+<pre class="code-inline">
+# mknod /dev/sda1 b 8 2
+</pre>
+    <p>
+      W przypadku urządzeń znakowych po nazwie urządzenia znajdowała by się
+      litera <em>c</em> a gdyby miał by być to nazwany potok to <em>p</em>.
+      Gdy tworzmy nazwane potoki numery urządzenia można pominąć.
+    </p>
+    <p>
+      Obecnie to polecenie <code class="code-inline">mknod</code> nadaje się
+      głównie do okzjonalnego tworzenia brakujących nazwanych potoków lub
+      interfejsów sieci VPN, przy ręcznej kompilacji pakiety <em>OpenVPN</em>.
+    </p>
+    <h3>System udev</h3>
+    <p>
+      Jądro Linux-a po wykryciu nowego urządzenia w systemie (na przykład po
+      podłączeniu dysku wymiennego typu pendrive) może wysłać powiadomienie do
+      procesu w przestrzeni użytkownika - proces ten nazywa się
+      <strong>udev</strong>. Proces ten może zbadać urządzenie, utworzyć dla
+      niego odpowiedni plik, a następnie przeprowadzić jego inicjację. Niestety
+      wiąże się z tym kilka problemów, pierwszym z nich jest to że proces ten
+      musi być uruchomiony bardzo wcześnie, nie może być zależny od jakiego
+      kolwiek urządzenie, które miałby kreować, a sama procedure jego inicjacji
+      musi być błyskawiczna aby jego start nie opóźniał zbytnio załadowania
+      systemu.
+    </p>
+    <h4>System plików devtmpfs</h4>
+    <p>
+      System plików <strong>devtmpfs</strong> został opracowany w reakcji na
+      problemy z dostępnością urządzeń podczas uruchamiania systemu. Jądro
+      tworzy w razie potrzeby pliki urządzeń, a jednocześnie informuje system
+      <em>udev</em>, że dostępne jest nowe urządzenie. System ten po
+      utrzymaniu sygnału, nie próbuje tworzyć pliku urządzenia, ale przystępuje
+      do jego inicjacji i powiadamiania innych procesów. Oprócz tego tworzy
+      kilka dowiązań symbolicznych w katalogu <em>/dev</em>, które dokładniej
+      identyfikują nowe urządzenie. Przykład takie działania można zobaczyć
+      na listingu katalogu <em>/dev/disk/by-id</em>, w którym każdy dysk
+      podłączony do komputera ma przynajmniej jeden opisujący go wpis.
+    </p>
+    <h4>Konfiguracja i działanie procesu udevd</h4>
+    <p>
+      Demon <em>udevd</em> działa zgodnie z poniższymi zasadami. 
+    </p>
+    <ul>
+      <li>Poprzez wewnętrzne łącze sieciowe jądro wysyła do demona <em>udevd</em>
+          powiadomienie o nazwie <em>uevent</em>.
+      </li>
+      <li>Demon <em>udevd</em> pobiera wszystkie atrybuty powiadomienia
+          <em>uevent</em></li>
+      <li>Demon <em>udevd</em> przegląda własne reguły i na ich podstawie 
+          wykonuje zaplanowane działania lub definiuje kolejne atrybuty</li>
+    </ul>
+<pre class="code-block">
+ACTION=change
+DEVNAME=sde
+DEVPATH=/devices/pci0000:00/0000:00:1a.0/usb1/1-1/1-1.2/1-1.2:1.0/host4/target4:0:0/4:0:0:4/block/sde
+DEVTYPE=disk
+DISK_MEDIA_CHANGE=1
+MAJOR=8
+MINOR=64
+SEQNUM=2752
+SUBSYSTEM=block
+UDEV_LOG=3
+</pre>
+    <p>
+      Powyżej znajduje się przykładowy komunikat powiadomienia <em>uevent</em>
+      jakie demon <em>udevd</em> otrzymuje od jądra. Po otrzymaniu takiej
+      informacji proces <em>udevd</em> zna ścieżkę <em>sysfs</em> urządzenia
+      oraz numery innych powiązanych z nim atrybutów, a zatem może przystąpić
+      do obsługi reguł.
+    </p>
+    <p>
+      Pliki reguł znajduja się w katalogach <em>/lib/udev/rules.d</em>
+      oraz <em>/etc/udev/rules.d</em>. Ich domyślna postać zapisana jest w 
+      katalogu <em>/lib</em>, natomiast w katalogu <em>/etc</em> znajdują się
+      ewentualne poprawki. Tutaj przyjrzymy się tylko dowiązaniom symbolicznym
+      dysku <em>/dev/sda</em>. Dowiazania te zostały zdefiniowane w regułach
+      zapisanych w pliku <em>/lib/udev/rules.d/60-persistent-storage.rules</em>
+      Przeglądając ten plik można natknąć się na poniższe zapisy:  
+    </p>
+<pre class="code-block">
+# ATA devices using the "scsi" subsystem
+KERNEL=="sd*[!0-9]|sr*", ENV{ID_SERIAL}!="?*", SUBSYSTEM=="scsi", ATTRS{vendor}=="ATA",
+  IMPORT{program}="ata_id --export $tempnode"
+# ATA/ATAPI devices (SPC-3 or later) using the "scsi" subsystem
+KERNEL=="sd*[!0-9]|sr*", ENV{ID_SERIAL}!="?*", SUBSYSTEM=="scsi", ATTR{type}=="5",
+  ATTRS{scsi_level}="[6-9]*", IMPORT{program}="ata_id --export $tempnode"
+</pre>
+    <p>
+      Powyższe reguły pasują do dysków ATA dostępnych przez podsystem SCSI
+      będący częścią jądra systemu. Jak widać zdefiniowano tutaj kilka
+      reguł pozwalących wychwycić różne metody opisywania urządzenia.
+      Najważniejsze jest jednak to że proces <em>udevd</em> będzie próbował
+      dopasować regułę do urządzenia o nazwię zaczynającej się od liter
+      <em>sd</em>, lub <em>sr</em>, ale niezawierającej cyfr (wyrażenie
+      <code class="code-inline">KERNEL=="sd[!0-9]|sr*"</code>). Oprócze tego
+      dopasowany będzie też podsystem urządzenia 
+      (<code class="code-inline">SUBSYSTEM=="scsi"</code>) oraz kilka innych
+      atrybutów. Jeżli wszystkie te wyrażenia warunkowe zwrócą prawdę, proces
+      <em>udevd</em> przejdzie do kolejnego wyrażenia:
+    </p>
+<pre class="code-block">
+IMPORT{program}="ata_id --export $tempnode"
+</pre>
+    <p>
+      Tym razem nie mamy do czynienia z wyrażeniem warunkowym, ale z dyrektywą
+      nakazującą zaimportowania zmiennych z polecenia <em>/lib/udev/ata_id</em>.
+      Poniżej znajduje się wynik działania powyższego polecenia: 
+    </p>
+<pre class="code-block">
+$ sudo /lib/udev/ata_id --export /dev/sda
+
+ID_ATA=1
+ID_TYPE=disk
+ID_BUS=ata
+ID_MODEL=WDC_WD3200AAJS-22L7A0
+ID_MODEL_END=WDC\x20WD3200AAJS22L7A0\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+  \x20\x20\x20\x20\x20\x20\x20\x20\x20
+ID_REVISION=01.03E10
+ID_SERIAL=WDC_WD3200AAJS-22L7A0_WD-WMAV2FU80671
+...
+</pre>
+    <p>
+      Operacja importu tak konfiguruje środowisko, żeby wszystkie nazwy
+      zmiennych z powyższego wyniku otrzymały podane obok wartości. Przykładowo
+      każda wykonywana do tej pory reguła będzie mogła uznać wyrażenie
+      <em>ENV{ID_TYPE}</em> z dysk.
+    </p>
+    <p>
+      Należy wspomnieć tu jeszcze o zmiennej 
+      <code class="code-inline">ID_SERIAL</code>. W każdej z reguł pojawia się
+      następujące wyrażenie warunkowe:
+    </p>
+<pre class="code-block">
+ENV{ID_SERIAL}!="?*"
+</pre>
+    <p>
+      Oznacza to, że kontrola zmiennej <code class="code-inline">ID_SERIAL</code>
+      zwróci wartość prawdy w przypadku gdy ta zmienna nie ma jeszcze wartości.
+      Wynika z tego, że jeżeli zmienna ma już wartość, to wyrażenie warunkowe
+      będzie fałszywe, a co za tym idzie cała reguła będzie fałszywa i proces
+      <em>udevd</em> przjedzie do następnej reguły.
+    </p>
+    <p>
+      Koniec końców, zadaniem wyżej wymienionych dwóch reguł jest odszukanie
+      numery seryjnego urządzenia dyskowego. Jeżeli wyrażenie 
+      <code class="code-inline">ENV{ID_SERIAL}</code> będzie miało wartość,
+      proces <em>udevd</em> będzie przetwarzać poniższe wyrażenie:
+    </p>
+<pre class="code-block">
+KERNEL=="sd*|sr*|cciss*", ENV{DEVTYPE}="disk", ENV{ID_SERIAL}=="?*",
+  SYMLINK+="disk/by-id/$env{ID_BUS}-$env{ID_SERIAL}"
+</pre>
+    <p>
+      Jak widać ta reguła wymaga, żeby wyrażenie
+      <code class="code-inline">ENV{ID_SERIAL}</code> miało wartość, a potem
+      wykonuje tylko jedną dyrektywę:
+    </p>
+<pre class="code-block">
+SYMLINK+="disk/by-id/$env{ID_BUS}-$env{ID_SERIAL}"
+</pre>
+    <p>
+      Po natknięciu się na tę dyrektywę proces <em>udevd</em> tworzy dowiązanie
+      symboliczne, dla nowego urządzenia. W ten sposób w katalogu <em>/dev</em>
+      pojawiają się wszystkie te dowiązania.
+    </p>
+    <p>
+      Aby odróznić dyrektywy od wyrażeń warunkowych w regułach należy skupić
+      sie na znakach. W wyrażeniach warunkowych występuje podwójny znak
+      równości (<strong>==</strong>) albo znak nierówności
+      (<strong>!=</strong>), natomiast w dyrektywach znajduje się znak 
+      równości (<strong>=</strong>), znak dodawnia i równości
+      (<strong>+=</strong>) lub dwukropek i znak równości (<strong>:=</strong>).
+    </p>
+    <h4>Program udevadm</h4>
+    <p>
+      Program <em>udevadm</em> jest narzędziem do administrowania procesem
+      <em>udevd</em>. Pozwala on na ponowne załadowanie reguł oraz uruchamianie
+      zdarzeń. Jednak chyba najważniejszą funkcją tego programu jest możliwość
+      poszukiwania i przeglądania urządzeń w systemie oraz monitorowania
+      powiadomień <em>uevent</em>, jakie proces <em>udevd</em> otrzymuje od
+      jądra systemu. Jedynym problemem jest to, że składania tego polecenia
+      może niebyć całkiem przejrzysta.
+    </p>
+    <p>
+      Zbadamy dokładniej jedno z urządzeń. Przyjrzymy się atrybutom systemu
+      <em>udev</em>, które zostały w tym przykładzie użyte i wygenerowane w
+      połączeniu z regułami właściwymi dla urządzenia <em>/dev/sda</em>.
+      Uruchommy zatem poniższe polecenie:
+    </p>
+<pre class="code-block">
+$ udevadm info --query=all --name=/dev/sda
+</pre>
+    <p>
+      W efekcie otrzymamy odpowiedź podobną do poniższej:
+    </p>
+<pre class="code-block">
+P: /devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+N: sda
+S: disk/by-id/ata-WDC_WD3200AAJS-22L7A0_WD-WMAV2FU80671
+S: disk/by-id/scsi-SATA_WDC_WD3200AAJS-22L7A0_WD-WMAV2FU80671
+S: disk/by-id/wwn-0x50014ee057faef84
+S: disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0
+E: DEVLINKS=/dev/disk/by-id/ata-WDC_WD3200AAJS-22L7A0_WD-WMAV2FU80671
+  /dev/disk/by-id/scsi-SATA_WDC_WD3200AAJS-22L7A0_WD-WMAV2FU80671
+  /dev/disk/by-id/wwn-0x50014ee057faef84
+  /dev/disk/by-path/pci-0000:00:1f.2-scsi-0:0:0:0
+E: DEVNAME=/dev/sda
+E: DEVPATH=/devices/pci0000:00/0000:00:1f.2/host0/target0:0:0/0:0:0:0/block/sda
+E: DEVTYPE=disk
+E: ID_ATA=1
+E: ID_ATA_DONWLOAD_MICROCODE=1
+E: ID_ATA_FEATURE_SET_AAM=1
+...
+</pre>
+    <p>
+      Przedrostek każdego wiersza oznacza atrybut lub inną charakterystykę
+      urządzenia.
+    </p>
+    <ul>
+      <li><code class="code-inline">P:</code> - oznacza ścieżkę urządzenia w
+          systemie <em>sysfs</em>,</li>
+      <li><code class="code-inline">N:</code> - oznacza węzeł urządzenia
+          (czyli nazwę nadaną plikowi w katalogu <em>/dev</em>).</li>
+      <li><code class="code-inline">S:</code> - dowiązanie symboliczne do
+          urządzenia utworzone przez proces <em>udevd</em> w katalogu
+          <em>/dev</em> zgodnie z regułami tego procesu.</li>
+      <li><code class="code-inline">E:</code> - to dodatkowe informacje o
+          urządzeniu pobrane z reguł procesu <em>udevd</em>.
+    </ul>
+    <h4>Monitorowanie urządzeń</h4>
+    <p>
+      Do monitorowania powiadomień <em>uevent</em> za pomocą programu
+      <code class="code-inline">udevadm</code> należy użyć polecenia 
+      <code class="code-inline">monitor</code>.
+    </p>
+<pre class="code-block">
+$ udevadm monitor
+</pre>
+    <p>
+      W odpowiedzi (na przykład po podłączeniu nośnika danych w postaci
+      dysku wymiennego typu pendrive). Możemy otrzymać następujące
+      komunikaty:
+    </p>
+<pre class="code-block">
+KERNEL[5677.320111] add      /devices/pci0000:00/0000:00:1c.5/0000:06:00.0/usb3/3-2 (usb)
+KERNEL[5677.328790] add      /devices/pci0000:00/0000:00:1c.5/0000:06:00.0/usb3/3-2/3-2:1.0 (usb)
+KERNEL[5677.329085] add      /devices/pci0000:00/0000:00:1c.5/0000:06:00.0/usb3/3-2/3-2:1.0/host4 (scsi)
+KERNEL[5677.329112] add      /devices/pci0000:00/0000:00:1c.5/0000:06:00.0/usb3/3-2/3-2:1.0/host4/scsi_host/host4 (scsi_host)
+UDEV  [5677.344314] add      /devices/pci0000:00/0000:00:1c.5/0000:06:00.0/usb3/3-2 (usb)
+UDEV  [5677.347027] add      /devices/pci0000:00/0000:00:1c.5/0000:06:00.0/usb3/3-2/3-2:1.0 (usb)
+UDEV  [5677.348834] add      /devices/pci0000:00/0000:00:1c.5/0000:06:00.0/usb3/3-2/3-2:1.0/host4 (scsi)
+UDEV  [5677.349674] add      /devices/pci0000:00/0000:00:1c.5/0000:06:00.0/usb3/3-2/3-2:1.0/host4/scsi_host/host4 (scsi_host)
+</pre>
+    <p>
+      Każdy komunikat występuje w dwóch kopiach, ponieważ domyślnym zachowaniem
+      systemu jest wypisywanie zarówno powiadomienia przychodzącego z jądra
+      (oznaczonego słowem <code class="code-inline">KERNEL</code>), jak i
+      komunikatów wysyłanych przez proces <em>udevd</em> do innych programów po
+      zakończeniu przetwarzania i filtrowania tego powiadomienia. Jeśli
+      chcielibyśmy zobaczyć wyłącznie powiadomiena pochodzące z jądra,
+      należało by użyć opcji <em>--kernel</em>. Z kolei opcja <em>--udev</em>
+      pozwala na przeglądanie wyłącznie komunikatów wychodzących. Aby zobaczyć
+      całość przychodzących powiadomień <em>uevent</em>, należy użyć opcji 
+      <em>--property</em>.
+    </p>
+    <p>
+      Możliwe jest też filtrowanie powiadomień według podsystemu. Gdy na 
+      przykład, chcemy zobaczyć jedynie komunikaty jądra dotyczące zmian w
+      podsystemie SCSI, należy uzyć poniższego polecenia.
+    </p>
+<pre class="code-block">
+$ udevadm monitor --kernel --subsystem-match=scsi
+</pre>
+    <p>
+      System <em>udev</em> ma wiele dodatkowych możliwości. Przykładowo system
+      <em>D-Bus</em> służący do komunikacji międzyprocesowej dysponuje własnym
+      demonem <em>udisk-daemon</em>, który nasłuchuje wychodzących komunikatów 
+      procesu
+      <em>udevd</em> w celu automatycznego podmontowania dysku i poinformowania
+      pozostałego oprogramowania o pojawieniu się nowego napędu.
+    </p>
+   </div>
+  <p style="margin: 15px; padding: 0; outline: 0;">
+    2021; COPYLEFT; ALL RIGHT REVERSED;
+  </p>
+</body>
+</html>

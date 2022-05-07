@@ -1,0 +1,65 @@
+1. cd ~
+2. apt install build-essential
+3. git clone git://git.kernel.org/pub/scm/git/git.git
+4. cd git/
+
+# Dla git web potrzebny było by jakieś repozytorium jeśli jest to serwer to
+# można użyć prywatnego repozytorium SSH opis instalacji jest dostępny na
+# morketsmerke.net/articles/terminallog/Git_-_podstawy_systemu_kontroli_wersji.html
+
+# GITWEB_PROJECTROOT wskazuje na katalog w którym będą przechowywane
+# repozytoria, w przypadku instalacji prywatnego serwera git będzie to
+# katalog domowy użytkownika git na serwerze.
+
+5. make GITWEB_PROJECTROOT="/home/git" prefix=/usr gitweb
+6. sudo cp -Rf gitweb /var/www
+
+# Możemy wyedytować plik domyślnego hostnigu lub na jego podstawie utworzyć
+# nowy. W pliku umieszczamy poniższą konfigurację.
+
+<VirtualHost *:80>
+    ServerName gitserver
+    DocumentRoot /var/www/gitweb
+    <Directory /var/www/gitweb>
+        Options +ExecCGI +FollowSymLinks +SymLinksIfOwnerMatch
+        AllowOverride All
+        order allow,deny
+        Allow from all
+        AddHandler cgi-script cgi
+        DirectoryIndex gitweb.cgi
+    </Directory>
+</VirtualHost>
+
+# Plik zapisujemy w zależności od tego czy jest nowa witryna na tym serwerze
+# włączamy ją:
+  $ sudo a2ensite gitweb.conf
+  $ sudo systemctl restart apache2
+# lub restartujemy apache-a jeśli jest to domyślna witryna:
+  $ sudo systemctl restart apache2
+
+# Po przejściu na stronę jest wielce prawdopodbne, że wyświetli nam się kod
+# strony - gitweb to skrypt Perla. Przeglądając stronę z piewszego przypisu
+# natrafiłem na takie polecenie (zaintersował mnie jego fragment):
+  $ sudo a2enmod cgi
+  $ sudo systemctl restart apache2
+
+# Po odświerzeniu strony dostaniemy "Internal Server Error - 500", w loga
+znajdować się będzie taka oto linia:
+
+Can't locate CGI.pm in @INC (you may need to install the CGI module) (@INC contains: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.28.1 /usr/local/share/perl/5.28.1 /usr/lib/x86_64-linux-gnu/perl5/5.28 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl/5.28 /usr/share/perl/5.28 /usr/local/lib/site_perl /usr/lib/x86_64-linux-gnu/perl-base) at /var/www/gitweb/gitweb.cgi line 15.
+
+# Po wrzuceniu jej początku do Google-a "Can't locate CGI.pm in @INC" drugim
+# wynikiem wyszukiwania jest strona "linuxquestion" zawierająca informacje
+# o tym że brakuje modułu Perla - CGI. Przypis nr. 2
+
+  $ perl -e shell -MCPAN
+  cpan[1]> install CGI
+  $ sudo systemctl restart apache2 
+
+# Po restartcie serwera gitweb powinien już normalnie się uruchomić.
+
+Zródła:
+
+1: https://askubuntu.com/questions/10452/setting-up-gitweb-apache2
+2: https://www.linuxquestions.org/questions/programming-9/perl-cgi-can%27t-locate-cgi-pm-330706/
+ 

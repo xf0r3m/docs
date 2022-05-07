@@ -1,0 +1,105 @@
+1. Aktualizacja list pakietów
+  # apt update
+
+2. Instalacja pakietu debootstrap
+  # apt install debootstrap
+
+4. Pobranie pełnego obrazu dystrybcji do jednego z katalogów
+  # debootstrap --arch=amd64 etiona greenOSTe/rootfs http://mirror.linux.pizza/trisquel/packages
+
+5. Zmiana katalogu głównego na katalog obrazu
+  # chroot ~/DISK/ROOT_GREENOS_AMD64/chroot
+
+6. Aktualizcja list pakietów
+  (chroot) # apt update
+
+7. Instalacja Vim
+  (chroot) # apt install vim
+
+10. Konfiguracja strefy czasowej
+  (chroot) # dpkg-reconfigure tzdata
+
+11. Instalacja oraz konfiguracja locales
+  (chroot) # apt install locales
+  (chroot) # dpkg-reconfigure locales
+
+12. Instalacja oraz konfiguracja keyboard-configuration i console-setup
+  (chroot) # apt install keyboard-configuration console-setup
+  (chroot) # dpkg-reconfigure keyboard-configuration
+  (chroot) # dpkg-reconfigure console-setup
+
+13. Instalacja jądra oraz sterowników
+  (chroot) # apt install linux-image-amd64 firmware-linux-free
+
+14. Pobranie części pakietów niezbędnych do kompilacji mendżera okien IceWM
+  (chroot) # cd
+  (chroot) # apt install wget lzip xorg
+
+15. Pobranie i uruchomienie skryptu os-depends.sh 
+  (chroot) # wget http://ftp.morketsmerke.net/greenOS/os-depends.sh
+  (chroot) # bash -x os-depends.sh
+
+16. Pobranie i kompilacja menedżera okien IceWM
+  (chroot) # wget https://github.com/ice-wm/icewm/releases/download/2.9.0/icewm-2.9.0.tar.lz
+  (chroot) # tar -x --lzip -vpf icewm-2.9.0.tar.lz
+  (chroot) # cd icewm-2.9.0
+  (chroot) # bash configure --prefix=/usr
+  (chroot) # make
+  (chroot) # make install
+  (chroot) # cd
+  (chroot) # rm -rf icewm-2.9.0*
+  (chroot) # rm os-depends.sh
+
+17. Skopiowanie konfiguracji managera pakietów do odpowiednich katalogów
+  (chroot) # cd
+  (chroot) # mkdir .icewm
+  (chroot) # cp -prvv /usr/share/icewm/* .icewm
+  (chroot) # mkdir /etc/skel/.icewm
+  (chroot) # cp -prvv /usr/share/icewm/* /etc/skel/.icewm 
+
+18. Instalacja dostarczanego wraz z obrazem oprogramowania
+  (chroot) # apt install network-manager net-tools iproute2 wireless-tools wget openssh-client alsa-utils firefox-esr vim-gtk3 geany iputils-ping man man-db texinfo less mc vlc qmmp feh dosfstools isc-dhcp-client fdisk whiptail curl xfe lightdm rsync git conky cifs-utils
+
+19. Instalacja pozostałych pakietów wymaganych do działania systemu:
+  (chroot) # tasksel install standard
+
+20. Wyczyszczenie pamięci podręcznej APT
+  (chroot) # apt-get clean
+
+21. Zatrzymanie pakietu base-files
+  (chroot) # apt-mark hold base-files
+
+22. Nadanie setuid poleceniu ping
+  (chroot) # chmod +s /usr/bin/ping
+  (chroot) # chmod +s /usr/bin/xinit
+  (chroot) # chmod +s /sbin/halt
+
+23. Pobranie i instalacja plików bazowych dystrybucji
+  (chroot) # cd / <- WAŻNE!
+  (chroot) # wget http://ftp.morketsmerke.net/greenOS/greenOS_base-files.tgz
+  (chroot) # tar -xzvf greenOS_base-files.tgz
+  (chroot) # rm greenOS_base-files.tgz
+  (chroot) # rm README
+
+24. Utworzenie nowego dowiązania symbolicznego dla dpkg:
+  (chroot) # rm /etc/dpkg/origins/default
+  (chroot) # ln -s /etc/dpkg/origins/greenos /etc/dpkg/origins/default
+  
+25. Usunięcie niepotrzebnych plików z logo Debiana:
+	(chroot) # rm -rf /usr/share/images
+	
+25. Zmiana domyślnych kolorów menu GRUB-a:
+	(chroot) # vim /etc/grub.d/05_debian_theme
+	#Wewnątrz funkcji "set_default_theme"
+	echo "${1}set menu_color_normal=green/black"
+	echo "${1}set menu_color_highlight=black/green"
+
+25. Opuszczenie katalogu głównego obrazu
+  (chroot) # exit  
+
+26. Utworzenie archiwóm z obrazem:
+  # cd ~/DISK/ROOT_GREENOS_AMD64/chroot
+  # tar -czvf ../rootfs.tgz *
+
+27. Skopiowanie archiwum do katalogu domowego zwykłego użytkownika
+  # cp ~/DISK/ROOT_GREENOS_AMD64/rootfs.tgz  ~/NAS/greenOS

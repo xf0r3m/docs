@@ -1,0 +1,31 @@
+<strong>VPN</strong> (ang. Virtual Private Network) - Wirtualna Sieć Prywatna jest to usługa sieciowa, która 
+pozwala na bezpieczne i swobodne (chyba że konfiguracja stanowi inaczej) połączenie odległych hostów.
+
+<strong>Ta strona jest oparta o książkę Marka Serfina pt. "Sieci VPN. Zdalna praca i bezpieczeństwo danych. Wydanie II rozszerzone.". Oznacza to tyle że mogą znaleźć się tu fragmenty, przykłady, fragmenty kodu, a nawet całe rozdziały przepisane 1:1 z książki.
+Materiał na tej stronie został dostosowany tak aby był jak szybciej przyswajany oraz tak aby służy czytelnikowi za ściągę pod czas
+wdrażania/administracji technologią VPN.</strong>
+
+== Spis treści ==
+
+<ol>
+<li>[[Strona_główna#Wstęp|Wstęp]]</li>
+<li>[[Strona_główna#Słabość protokołów sieciowych i związane z tym problemy|Słabość protokołów sieciowych i związane z tym problemy]]</li>
+<li>[[SSL|SSL jako standard bezpiecznego przesyłania danych]]</li>
+<li>[[Tunel|Tunelowanie portów]]</li>
+<li>[[OpenVPN|OpenVPN - praktyczna implementacja tuneli VPN]]</li>
+<li>[[IPSec|IPSec]]</li>
+<li>[[IPSec w systemie Linux|IPSec w systemie Linux]]</li>
+</ol>
+
+== Wstęp ==
+
+Żyjemy w czasach ogromnej informatyzacji przedsiębiorstw. Trudno wyobrazić sobie obecnie działanie korporacji bez przynajmniej jednego serwera plików czy bazy danych. Współczesne aplikacje pisane są prawie zawsze w architekturze klient-serwer, co umożliwia łatwy dostęp do zasobów wielu użytkownikom z różnych komputerów. Budowa protokołu IP sprawia, że serwer w sieci wewnętrznej może w łatwy sposób stać się osiągalny z innej sieci lub internetu. Popularyzacja stałego, a często także szybkiego dostępu do internetu sprawia, że miejsce, w którym się pracuje, przestaje mieć znaczenie. Liczy się za to stały dostęp do zasobów firmowych, a co za tym idzie — możliwość pracy w dowolnym miejscu o każdej porze.<br />
+
+== Słabość protokołów sieciowych i związane z tym problemy ==
+
+Leżący u podstaw działania internetu protokół IP nie zapewnia sam w sobie bezpiecznego przesyłu danych przez sieć. Podobnie rzecz ma się z protokołami warstwy transportowej TCP/UDP — nie zaimplementowano w nich żadnego algorytmu szyfrowania, uwierzytelniania i sprawdzania integralności danych. Na domiar złego w powszechnym użyciu są aplikacje zaprojektowane jeszcze na początku poprzedniej dekady — takie, jak POP3 czy IMAP, które przesyłają dane (w tym hasła) jawnym tekstem.
+
+Mnogość aplikacji klienckich oraz skala internetu sprawiają, że nie można z dnia na dzień wycofać z użycia danego protokołu i zastąpić go nowszym — łatwo wyobrazić sobie panujący w konsekwencji tego posunięcia chaos.
+
+W odpowiedzi na przedstawione problemy specjaliści IT opracowali różne metody, a także standardy bezpiecznej transmisji danych w niezabezpieczonej sieci. Najpopularniejsze z nich to: tunele SSL — dla pojedynczych aplikacji, lub połączenia VPN — gdy potrzebujemy przepuścić cały ruch szyfrowanym kanałem (niezależnie od protokołu warstw wyższych).
+

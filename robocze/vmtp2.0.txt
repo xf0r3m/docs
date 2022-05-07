@@ -1,0 +1,30 @@
+Odnośnie eksportu maszyn:
+* Nazwa OS - vboxmanage export "xyz" --vsys 0 --product
+* Wersja - vboxmanage export "xyz" --vsys 0 --version
+* Architektura - vboxmanage export "xyz" --vsys 0 --description
+* Domyślne SSH - po ; pole nr 2 za architekturą w description
+* Rozmiar - z rozmiaru pliku z w systemie
+* Data utworzenia - z pliku ovf
+* VTMPc - vboxmanage export "xyz" --vsys 0 --producturl 
+* OS Bazowy - z pliku ovf OSType
+* Adnotacje - po ; od pola 3 za domyślnym ssh w description.
+
+Do zrobienia:
+1. Przygotować skrypt PHP dla VTMP 2.0 + Bootstrap
+2. Rozbudować klienta o możliwość exportu
+3. Usunąć drupal z VTMP (pozostawić listing z katalogów z maszynami z VTMP 1.0)
+
+Tabela VTMP
+
+name: STRING
+version: STRING
+arch: STRING
+ssh: STRING
+size: STRING
+doc: STRING
+vtmpc: STRING
+family: STRING
+addnote: STRING
+ovafile:  STRING
+vmdkfile: STRING
+

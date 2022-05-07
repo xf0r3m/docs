@@ -1,0 +1,21 @@
+sudo apt-get install nodejs openjdk-8-jdk npm
+git clone https://AhMyth/AhMyth-Android-RAT
+cd AhMyth-Android-RAT/AhMyth_Server
+npm install
+npm install --save-dev electron@9.0.0
+cd AhMyth-Android-RAT/AhMyth_Server/node_modules/electron/dist
+sudo chown root chrome-sandbox
+sudo chmod 4755 chrome-sandbox
+cd
+cd AhMyth-Android-RAT/AhMyth_Server/
+npm install --save-dev electron-rebuild
+npm install electron@nightly
+
+Also make sure you have openjdk 8 selected if have more than one version of openjdk installed, you can do this by typing
+sudo update-alternatives --config java
+
+Then type "2" and press enter for the option of openjdk-8, if it is not already selected
+
+Also turn Bridged Adapters on in your virtualbox Network settings, switch it from NAT to Bridged Adapter
+
+Hopefully this helps

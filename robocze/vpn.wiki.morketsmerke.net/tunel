@@ -1,0 +1,48 @@
+<strong>Tunel</strong>, <strong>Tunele</strong> - właść. <strong>Tunelowanie portów</strong>, technika pozwalając na przesłanie jednego połączenia wewnątrz drugiego (tunelu). Najczęstszym zastosowanie tuneli jest szyfrowanie połączeń, które nie zostały przystosowane do korzystania SSL czy TLS oraz kompresja danych czy obejście blokad portów.
+
+Tunelowania używa się też jako prostszej alternatywy dla sieci VPN. Jednak diametralna różnica między tunelami a siecią VPN jest taka że przez VPN operując na warstwie 3 (IP) wprowadzają własną adresacje modyfikują tabele routingu tak aby cały ruch niezależnie od aplikacji czy protokołu przechodził przez szyfrowany kanał.
+
+Duża zaletą tuneli jest to że działają one warstwie użytkownika, to znaczy że nie potrzeba uprawnień administratora aby zestawić tunel.
+
+W praktyce tunele wyglądają tak, że użytkownik za pomocą specjalnej aplikacji zestawia szyfrowane połączenie, stanowiąc tunel. W momencie zestawienia tunelu otwierany jest nowy port na interfejsie pętli zwrotnej (<code>127.0.0.1</code>) komputera klienta. Aplikacja na komputerze użytkownika (np. program pocztowy) zamiast łaczyć się bezpośrednio z IP serwera łączy się ze swoim adresem <code>127.0.0.1</code>, wysyłając dane, które program obsługujący tunel pobiera, następnie szyfruje i przesyła przez internet drugą stronę tunelu. Po drugiej stronie połączenia program tunelujący odbiera dane odszyfrowuje i przekazuje - po interfejsie (<code>127.0.0.1</code>) - do właściwej aplikacji (np. serwera POP3).
+
+Oczywiście tunele, nie są alternatywą ale obsługi przez daemony SSL czy TLS, główną różnicą jest tutaj ruch między aplikacją daemona, czy klienta a programem tunelującym. Nie stanowi to jak zagrożenia, do momentu zarażenia systemu złośliwym oprogramowaniem.
+
+Wśród administratorów najpopularniejszymi programami do tworzenie tuneli są <strong>Stunnel</strong> oraz <strong>SSH</strong>, oba posiadają wersje na unixy oraz na Win32.
+
+== Stunnel ==
+
+*<em>Osobny artykuł: </em>[[Stunnel|Stunnel]]
+
+== SSH ==
+*<em>Osobny artykuł: </em>[[SSH|SSH]]
+
+== Tunel UDP po SSH ==
+W przykładach na powyższych stronach, tunelowane były inne połączenia TCP. To zostanie przedstawiony pomysł na tunelowanie UDP przez połączenie SSH (TCP). Generalnie do tunelowanie UDP bardziej nadają się sieci VPN, jednak przestawiony sposób działa dobrze i może przydać do prostych zastosowań.
+
+Załóżmy że musimy połączyć się z usługa UDP na porcie 7777, jednak nasz komputer jest podłączony do sieci która blokuje połączenia UDP.
+
+W tym celu musimy zestawić połączenie TCP naszego komputera z serwerem pośredniczącym SSH na interesujących nas portach. W tym celu serwerze UDP wpisujemy polecenie:
+<pre>xf0r3m@srv01:~$ ssh -L 7777:localhost:7777 xf0r3m@srv02.morketsmerke.net</pre>
+
+Teraz na serwerze SSH musimy utworzyć "przekaźnik" danych, który dane odczytane z TCP 7777 prześle do portu 7777 UDP do serwera. Wykorzystamy do tego kolejkę FIFO oraz program Netcat. Na serwerze pośredniczącym wpisujemy polecenie:
+<pre>root@srv02:~# mkfifo /tmp/fifo</pre>
+
+Kolejnym krokiem będzie uruchomienie programu Netcat, który będzie słuchał na porcie TCP 7777 serwera (pobierał dane z tunelu) a następnie już bezpośrednio będzie przekazywał je do serwera:
+<pre>
+xf0r3m@srv02:~$ nc -l -p 7777 < /tmp/fifo | nc -u 123.10.12.11 7777 > /tmp/fifo
+</pre>
+
+W pierwszej części <code>nc</code> nasłuchuje na adresie pętli zwrotnej na porcie 7777, pobierając dane z kolejki a następnie przekaż je do potokiem to kolejnej instancji nc, która wyśle je do serwera, natomiast odpowiedzi przekaże z powrotem do kolejki. 
+
+Teraz wracamy do naszego komputera i tam tworzymy nową kolejkę FIFO.:
+<pre>xf0r3m@srv01:~# mkfifo /tmp/fifo</pre>
+
+Następnie uruchamiamy program Netcat z odpowiedni parametrami:
+<pre>xf0r3m@srv01:~#nc -l -u -p 7777 < /tmp/fifo | nc localhost 7777 > /tmp/fifo</pre>
+
+NC uruchamia port 7777 UDP, to z nim będzie się łączyć nasza aplikacja, dane wejściowe będziemy pobierać z kolejki FIFO, natomiast Dane wyjściowe przekazywane są do tunelu gdzie przekazywane są do serwera odpowiedzi są przekazywane do kolejki, a następnie jako dane wejściowe do aplikacji.
+
+Powinniśmy teraz móc się połączyć. Jeśli jest z czymś problem to warto upewnić się czy do kolejki trafią dane, na wolnej konsoli możemy wyświetlić jej zawartość poleceniem(na obu maszynach):
+<pre>tail -f /tmp/fifo</pre>
+

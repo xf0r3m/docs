@@ -1,0 +1,10 @@
+Następujący problem występuje przy złym położeniu plików na obrazie.
+W katalogu /EFI/boot powinien zajndować się plik:
+*bootx64.efi
+lub
+*bootia32.efi
+
+Plik z obrazem partycji efi (efiboot.img), powinien znajdować się ewntualnie 
+w katalogu /boot/grub/. W odniesieniu do tego katalogu należy przebudować obraz
+dysku. 
+

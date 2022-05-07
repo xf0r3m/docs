@@ -1,0 +1,9 @@
+deb http://ftp.icm.edu.pl/debian bullseye main contrib non-free
+deb-src http://ftp.icm.edu.pl/debian bullseye main contrib non-free
+
+deb http://ftp.icm.edu.pl/debian bullseye-updates main contrib non-free
+deb-src http://ftp.icm.edu.pl/debian bullseye-updates main contrib non-free
+
+deb https://security.debian.org/debian-security bullseye-security main contrib non-free
+deb-src https://security.debian.org/debian-security bullseye-security main contrib non-free
+

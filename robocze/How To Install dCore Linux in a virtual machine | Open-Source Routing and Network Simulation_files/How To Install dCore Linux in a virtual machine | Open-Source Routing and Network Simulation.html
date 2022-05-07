@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<!--[if IE 8 ]><html id="ie8" lang="en-US"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--><html lang="en-US"><!--<![endif]-->
+	<head>	
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="profile" href="http://gmpg.org/xfn/11" />
+		<link rel="pingback" href="https://www.brianlinkletter.com/xmlrpc.php" />
+		<title>How To Install dCore Linux in a virtual machine | Open-Source Routing and Network Simulation</title>
+							<link rel="shortcut icon" href="https://www.brianlinkletter.com/wp-content/uploads/2014/09/favicon-144.png" />
+			<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://www.brianlinkletter.com/wp-content/uploads/2014/09/favicon-144.png" />
+																	<script type="text/javascript">
+					var _gaq = _gaq || [];
+					_gaq.push(['_setAccount', 'UA-34996602-1']);
+					_gaq.push(['_trackPageview']);
+		
+					(function() {
+						var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+						ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+						var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+					})();
+				</script>
+							<meta name='robots' content='max-image-preview:large' />
+<link rel='dns-prefetch' href='//secure.gravatar.com' />
+<link rel='dns-prefetch' href='//s.w.org' />
+<link rel='dns-prefetch' href='//v0.wordpress.com' />
+<link rel='dns-prefetch' href='//i0.wp.com' />
+<link rel='dns-prefetch' href='//i1.wp.com' />
+<link rel='dns-prefetch' href='//i2.wp.com' />
+<link rel="alternate" type="application/rss+xml" title="Open-Source Routing and Network Simulation &raquo; Feed" href="https://www.brianlinkletter.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Open-Source Routing and Network Simulation &raquo; Comments Feed" href="https://www.brianlinkletter.com/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Open-Source Routing and Network Simulation &raquo; How To Install dCore Linux in a virtual machine Comments Feed" href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/feed/" />
+		<script type="text/javascript">
+			window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/13.0.1\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/13.0.1\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/www.brianlinkletter.com\/wp-includes\/js\/wp-emoji-release.min.js?ver=5.7.4"}};
+			!function(e,a,t){var n,r,o,i=a.createElement("canvas"),p=i.getContext&&i.getContext("2d");function s(e,t){var a=String.fromCharCode;p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,e),0,0);e=i.toDataURL();return p.clearRect(0,0,i.width,i.height),p.fillText(a.apply(this,t),0,0),e===i.toDataURL()}function c(e){var t=a.createElement("script");t.src=e,t.defer=t.type="text/javascript",a.getElementsByTagName("head")[0].appendChild(t)}for(o=Array("flag","emoji"),t.supports={everything:!0,everythingExceptFlag:!0},r=0;r<o.length;r++)t.supports[o[r]]=function(e){if(!p||!p.fillText)return!1;switch(p.textBaseline="top",p.font="600 32px Arial",e){case"flag":return s([127987,65039,8205,9895,65039],[127987,65039,8203,9895,65039])?!1:!s([55356,56826,55356,56819],[55356,56826,8203,55356,56819])&&!s([55356,57332,56128,56423,56128,56418,56128,56421,56128,56430,56128,56423,56128,56447],[55356,57332,8203,56128,56423,8203,56128,56418,8203,56128,56421,8203,56128,56430,8203,56128,56423,8203,56128,56447]);case"emoji":return!s([55357,56424,8205,55356,57212],[55357,56424,8203,55356,57212])}return!1}(o[r]),t.supports.everything=t.supports.everything&&t.supports[o[r]],"flag"!==o[r]&&(t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&t.supports[o[r]]);t.supports.everythingExceptFlag=t.supports.everythingExceptFlag&&!t.supports.flag,t.DOMReady=!1,t.readyCallback=function(){t.DOMReady=!0},t.supports.everything||(n=function(){t.readyCallback()},a.addEventListener?(a.addEventListener("DOMContentLoaded",n,!1),e.addEventListener("load",n,!1)):(e.attachEvent("onload",n),a.attachEvent("onreadystatechange",function(){"complete"===a.readyState&&t.readyCallback()})),(n=t.source||{}).concatemoji?c(n.concatemoji):n.wpemoji&&n.twemoji&&(c(n.twemoji),c(n.wpemoji)))}(window,document,window._wpemojiSettings);
+		</script>
+		<style type="text/css">
+img.wp-smiley,
+img.emoji {
+	display: inline !important;
+	border: none !important;
+	box-shadow: none !important;
+	height: 1em !important;
+	width: 1em !important;
+	margin: 0 .07em !important;
+	vertical-align: -0.1em !important;
+	background: none !important;
+	padding: 0 !important;
+}
+</style>
+	<link rel='stylesheet' id='wp-block-library-css'  href='https://www.brianlinkletter.com/wp-includes/css/dist/block-library/style.min.css?ver=5.7.4' type='text/css' media='all' />
+<style id='wp-block-library-inline-css' type='text/css'>
+.has-text-align-justify{text-align:justify;}
+</style>
+<link rel='stylesheet' id='mediaelement-css'  href='https://www.brianlinkletter.com/wp-includes/js/mediaelement/mediaelementplayer-legacy.min.css?ver=4.2.16' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-mediaelement-css'  href='https://www.brianlinkletter.com/wp-includes/js/mediaelement/wp-mediaelement.min.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='bootstrap-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/css/lib/bootstrap.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='bootstrap-responsive-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/css/lib/bootstrap-responsive.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='standard-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/style.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='standard-activity-tabs-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/lib/activity/css/widget.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='gcse-widget-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/lib/google-custom-search/css/widget.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='standard-ad-468x60-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/lib/standard-ad-billboard/css/widget.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='standard-personal-image-widget-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/lib/personal-image/css/widget.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='standard-influence-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/lib/influence/css/widget.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='social-logos-css'  href='https://www.brianlinkletter.com/wp-content/plugins/jetpack/_inc/social-logos/social-logos.min.css?ver=10.4' type='text/css' media='all' />
+<link rel='stylesheet' id='jetpack_css-css'  href='https://www.brianlinkletter.com/wp-content/plugins/jetpack/css/jetpack.css?ver=10.4' type='text/css' media='all' />
+<link rel='stylesheet' id='standard-ad-300x250-widget-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/lib/standard-ad-300x250/css/widget.css?ver=5.7.4' type='text/css' media='all' />
+<link rel='stylesheet' id='standard-ad-125x125-widget-css'  href='https://www.brianlinkletter.com/wp-content/themes/Archive/lib/standard-ad-125x125/css/widget.css?ver=5.7.4' type='text/css' media='all' />
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-includes/js/jquery/jquery.min.js?ver=3.5.1' id='jquery-core-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.3.2' id='jquery-migrate-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/themes/Archive/js/lib/bootstrap/bootstrap.js?ver=5.7.4' id='bootstrap-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/themes/Archive/js/lib/jquery.fitvids.js?ver=5.7.4' id='fitvid-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/themes/Archive/js/lib/md5.js?ver=5.7.4' id='md5-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/themes/Archive/js/theme.comments.js?ver=5.7.4' id='theme-comments-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/themes/Archive/js/theme.js?ver=5.7.4' id='theme-js'></script>
+<link rel="https://api.w.org/" href="https://www.brianlinkletter.com/wp-json/" /><link rel="alternate" type="application/json" href="https://www.brianlinkletter.com/wp-json/wp/v2/posts/4552" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://www.brianlinkletter.com/xmlrpc.php?rsd" />
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="https://www.brianlinkletter.com/wp-includes/wlwmanifest.xml" /> 
+<link rel="canonical" href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/" />
+<link rel='shortlink' href='https://wp.me/p2G84K-1bq' />
+<link rel="alternate" type="application/json+oembed" href="https://www.brianlinkletter.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.brianlinkletter.com%2F2016%2F05%2Fhow-to-install-dcore-linux-in-a-virtual-machine%2F" />
+<link rel="alternate" type="text/xml+oembed" href="https://www.brianlinkletter.com/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fwww.brianlinkletter.com%2F2016%2F05%2Fhow-to-install-dcore-linux-in-a-virtual-machine%2F&#038;format=xml" />
+<meta name="description" content="How to install dCore Linux on a virtual hard drive on a VirtualBox virtual machine" />			<style type="text/css">
+									#site-title a,
+					#site-description {
+						color: #332d26;
+					}
+						
+			</style>
+		
+<!-- Jetpack Open Graph Tags -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="How To Install dCore Linux in a virtual machine" />
+<meta property="og:url" content="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/" />
+<meta property="og:description" content="dCore Linux is a minimal Linux system based on the Tiny Core Linux system. Like Tiny Core Linux, dCore loads its file system entirely into RAM, which should provide good performance in large networ…" />
+<meta property="article:published_time" content="2016-05-29T02:48:44+00:00" />
+<meta property="article:modified_time" content="2016-07-09T02:51:00+00:00" />
+<meta property="og:site_name" content="Open-Source Routing and Network Simulation" />
+<meta property="og:image" content="https://www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-030.png" />
+<meta property="og:image:width" content="1026" />
+<meta property="og:image:height" content="820" />
+<meta property="og:image:alt" content="" />
+<meta property="og:locale" content="en_US" />
+<meta name="twitter:creator" content="@BELinkletter" />
+<meta name="twitter:site" content="@BELinkletter" />
+<meta name="twitter:text:title" content="How To Install dCore Linux in a virtual machine" />
+<meta name="twitter:image" content="https://www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-030.png?w=640" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- End Jetpack Open Graph Tags -->
+<style type="text/css" id="wp-custom-css">/*
+Welcome to Custom CSS!
+
+CSS (Cascading Style Sheets) is a kind of code that tells the browser how
+to render a web page. You may delete these comments and get started with
+your customizations.
+
+By default, your stylesheet will be loaded after the theme stylesheets,
+which means that your rules can take precedence and override the theme CSS
+rules. Just write here what you want to change, you don't need to copy all
+your theme's stylesheet content.
+*/
+hr {
+	color: #000;
+}
+
+h3 {
+	font-size: 24px;
+	border-bottom: 1px solid #ccc;
+}
+
+h4 {
+	font-size: 18px;
+	padding-bottom: 4px;
+}
+
+h5 {
+	font-size: 16px;
+	padding-bottom: 4px;
+}
+
+h6 {
+	color: #333;
+	font-size: 14px;
+	padding-top: 4px;
+	padding-bottom: 8px;
+}
+
+code {
+	color: #000;
+	overflow: auto;
+}
+
+blockquote {
+	border-left: 4px solid #DDD;
+	margin-right: 3em;
+}
+
+blockquote>:first-child {
+	margin-top: 0;
+}
+
+blockquote>:last-child {
+	margin-bottom: 0;
+}
+
+blockquote p {
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+table th {
+	font-weight: bold;
+	background-color: #dedede;
+}
+
+table th, table td {
+	border: 1px solid #ccc;
+	padding: 6px 13px;
+}
+
+table tr {
+	border-top: 1px solid #ccc;
+	background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+	background-color: #f8f8f8;
+}
+
+p {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+pre {
+	overflow: auto;
+}</style>	</head>
+	<body class="post-template-default single single-post postid-4552 single-format-standard">
+
+				
+				
+					<div id="menu-above-header" class="menu-navigation navbar navbar-fixed-top">
+				<div class="navbar-inner ">
+					<div class="container">
+		
+						<a class="btn btn-navbar" data-toggle="collapse" data-target=".above-header-nav-collapse">
+						  <span class="icon-bar"></span>
+						  <span class="icon-bar"></span>
+						  <span class="icon-bar"></span>
+						</a>
+					
+						<div class="nav-collapse above-header-nav-collapse">													
+							<div class="menu-header-container"><ul id="menu-menu" class="nav nav-menu menu"><li class=" menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.brianlinkletter.com/about_brian_linkletter/">About</a></li><li class=" menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.brianlinkletter.com/open-source-network-simulators/">Open-Source Network Simulators</a></li><li class=" menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.brianlinkletter.com/about_brian_linkletter/citations/">Citations</a></li><li class=" menu-item menu-item-type-post_type menu-item-object-page"><a href="https://www.brianlinkletter.com/open-source-network-simulation-archive/">Archive</a></li></ul></div>
+						</div><!-- /.nav-collapse -->		
+						
+																			<div id="social-networking" class="clearfix">
+								<ul class="nav social-icons clearfix"><li><a href="http://www.twitter.com/BELinkletter" class="fademe" target="_blank"><img src="https://www.brianlinkletter.com/wp-content/themes/Archive/images/social/small/twitter.png" alt="" /></a></li><li><a href="http://www.linkedin.com/in/brianlinkletter" class="fademe" target="_blank"><img src="https://www.brianlinkletter.com/wp-content/uploads/2012/09/social_linkedin_box_blue.png" alt="" /></a></li><li><a href="https://feeds.feedburner.com/brian-linkletter-open-source-routing-blog" class="fademe" target="_blank"><img src="https://www.brianlinkletter.com/wp-content/themes/Archive/images/social/small/rss.png" alt="" /></a></li></ul>
+
+  
+							</div><!-- /#social-networking -->	
+						
+					</div> <!-- /container -->
+				</div><!-- /navbar-inner -->
+			</div> <!-- /#menu-above-header -->	
+					
+				
+			<div id="header" class="imageless">
+				<div id="head-wrapper" class="container clearfix">
+				
+									
+																<div id="hgroup" class="clearfix no-logo">
+
+																	<div id="logo">
+									
+																														
+											<p id="site-title">
+											
+																																				
+													<a href="https://www.brianlinkletter.com/" title="Open-Source Routing and Network Simulation" rel="home">Open-Source Routing and Network Simulation</a>
+																								
+											</p> <!-- /#site-title -->
+										
+																				
+																															<p><small id="site-description"></small></p>
+											
+									</div><!-- /#logo -->
+																
+																
+						</div><!-- /#hgroup -->
+										
+														</div><!-- /#head-wrapper -->
+			</div><!-- /#header -->
+
+			
+<div id="wrapper">
+	<div class="container">
+		<div class="row">
+
+			
+			<div id="main" class="span8 clearfix" role="main">
+				
+				<div itemscope itemtype="http://data-vocabulary.org/Breadcrumb"><ul class="breadcrumb"><li class="home-breadcrumb"><a href="https://www.brianlinkletter.com" itemprop="url"><span itemprop="title">Home</span></a><span class="divider">/</span></li><li><a href="https://www.brianlinkletter.com/category/network-simulation/" itemprop="url"><span itemprop="title">Network Simulation</span></a><span class="divider">/</span></li><li class="active">How To Install dCore Linux in a virtual machine</li></ul></div>				
+				
+<div id="post-4552" class="post format-standard clearfix post-4552 type-post status-publish hentry category-network-simulation tag-gns3 tag-linux tag-virtualbox">
+
+	<div class="post-header clearfix">
+
+				 
+		<div class="title-wrap clearfix">
+												<h1 class="post-title">How To Install dCore Linux in a virtual machine</h1>	
+										<div class="post-header-meta">
+													<span class="the-time">May 28, 2016</span>
+											</div><!-- /.post-header-meta -->
+		</div><!-- /.title-wrap -->
+
+	</div> <!-- /.post-header -->
+
+	<div id="content-4552" class="entry-content clearfix">
+					<p><a href="http://wiki.tinycorelinux.net/dcore:welcome">dCore Linux</a> is a minimal Linux system based on the <a href="http://www.tinycorelinux.net/">Tiny Core Linux</a> system. Like Tiny Core Linux, dCore loads its file system entirely into RAM, which should provide good performance in large network emulation scenarios running on a single host computer.</p>
+<p>dCore Linux allows users to install additional software from the Debian or Ubuntu repositories, instead of using the pre-built (and often out-of-date) TCE extensions provided for Tiny Core Linux. This should simplify the process of building network appliances for use in a network emulator, as you will not need to <a href="http://brezular.com/2011/09/03/openvswich-creating-and-submitting-openvswitch-extension-to-microcore-repository/">compile and build your own extensions</a>, or use out-of-date pre-built extensions.</p>
+<p>dCore Linux is designed to run as a &#8220;live&#8221; Linux system from removable media such as a CD or a USB drive but, for my use, I need to install it on a hard drive. Currently available instructions for installing dCore Linux onto a hard drive are incomplete and hard to follow. This post lists a detailed procedure to install dCore Linux on a virtual disk image connected to a virtual machine. I use VirtualBox in this example, but any other virtual machine manager would also be suitable.</p>
+<p><span id="more-4552"></span></p>
+<h3>Notes about dCore</h3>
+<p>Because dCore Linux is a small, lightweight Linux operating system, it is suitable for use in network emulators that use a full virtualization stack such as Qemu/KVM or VirtualBox. dCore Linux provides the functionality of Tiny Core Linux but also makes it easier to use the latest versions of networking software because it is designed to use the Debian software repositories.</p>
+<p>When using dCore, it is important to understand how the dCore filesystem works. Since dCore loads the entire Linux system into RAM, changes to the filesystem &#8212; such as installing new software or updating configuration files &#8212; will be lost if the system is restarted. You must understand how to save configuration changes in dCore. I discussed the topic of <a href="https://www.brianlinkletter.com/persistent-configuration-changes-in-tinycore-linux/">Tiny Core Linux persistent configuration changes</a> in a previous post. dCore works in a similar way, but the commands used are different.</p>
+<p>While dCore may import software from the Debian or Ubuntu repositories, it does not install software in the same way the Debian or Ubuntu installs software. dCore Linux is a version of Tiny Core Linux so it also uses the concept of extensions to install new software. dCore converts Debian or Ubuntu packages into usable <a href="http://wiki.tinycorelinux.net/dcore:extensions">SCEs (self-contained extensions)</a>. SCEs are similar to Tiny Core Linux TCZ extensions, with some additional features.</p>
+<h3>Why install dCore to a hard drive?</h3>
+<p>Why not just boot dCore from an attached virtual optical drive? Why go through the trouble of installing it on a hard drive when it was designed to run from a CDROM or USB thumb drive?</p>
+<p>We want to run dCore in a virtual machine in a way that supports persistent configuration changes and is self-contained. We want to support cloned disk images, which is the easiest way to replicate many systems in a network emulation tool like GNS3. Installing dCore on the VM&#8217;s virtual disk, instead of attaching the dCore CD ISO image to the machine, better supports our requirements.</p>
+<h3>Problems with packages</h3>
+<p>While I was working on this post, I found some packages did not work after importing them. The dCore system uses scripts to import the Debian packages and sometimes the scripts do not take into account all dependencies &#8212; especially for uncommon packages (like special networking software).</p>
+<p>Fortunately, the dCore developers are very responsive. If you believe you have a problem with an imported package, post a question to the <a href="http://forum.tinycorelinux.net/index.php?action=collapse;c=13;sa=expand;a9e2f1619814=c30a8d4e56e32e704a89bf21435d629a#c13">dCore forums</a> &#8212; specifically, the <a href="http://forum.tinycorelinux.net/index.php?board=71.0">dCore Imported Extensions forum</a>. All the problems I found were quickly fixed by the dCore developers.</p>
+<h3>How to install dCore</h3>
+<p>To install dCore, we perform the following steps, which are described in detail later in this post:</p>
+<ul>
+<li>Download the dCore ISO image from the dCore web site</li>
+<li>Create a virtual machine and attach the ISO image to it.</li>
+<li>Partition the VM&#8217;s virtual disk and build the filesystem</li>
+<li>Mount the ISO disk image and copy its contents to the VM&#8217;s virtual disk</li>
+<li>Install boot loader files on the VM&#8217;s virtual disk</li>
+<li>Create a boot loader configuration file with the required dCore boot codes</li>
+<li>Save all configuration changes</li>
+<li>Remove the ISO image from the VM</li>
+<li>Reboot the VM</li>
+</ul>
+<p>This above steps creates a dCore system that boots from the VM&#8217;s virtual disk. In the rest of this tutorial we will demonstrate loading Ubuntu packages to create a desktop environment with a web browser by doing the following:</p>
+<ul>
+<li>Use the <em>sce-import</em> and <em>sce-load</em> commands to install additional software</li>
+<li>Save the new software and configuration files in the persistent filesystem</li>
+<li>Reboot the VM</li>
+</ul>
+<h3>Detailed dCore install steps</h3>
+<p>Below is the detailed procedure to install dCore Linux on virtual disk attached to a VirtualBox virtual machine.</p>
+<h4>Download the dCore ISO image</h4>
+<p>dCore files are usually available at the <a href="http://tinycorelinux.net/dCore/x86/release/">dCore download repository</a>. Note that in this post, we are working with the release candidate for Ubuntu 16.04 (xenial) because it is not yet available in the standard repository so, instead of the standard releases repository, we use the <a href="http://tinycorelinux.net/dCore/x86/release_candidates/">release candidate repository</a>.</p>
+<p>Download the ISO file. For example, in this case, download <a href="http://tinycorelinux.net/dCore/x86/release_candidates/dCore-xenial/dCore-xenial.iso">dCore-xenial.iso</a>.</p>
+<h4>Create a virtual machine and attach the ISO image to it.</h4>
+<p>In VirtualBox, create a new virtual machine named <em>dCore</em> (or a name of your choice). Click on the &#8220;New VM&#8221; icon and then enter the VM name and type. dCore is a 32-bit operating system.</p>
+<div id="attachment_4554" style="width: 591px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4554" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-001.png?resize=581%2C429&#038;ssl=1" alt="Create new dCore VM in VirtualBox" width="581" height="429" class="size-full wp-image-4554" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-001.png?w=581&amp;ssl=1 581w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-001.png?resize=300%2C222&amp;ssl=1 300w" sizes="(max-width: 581px) 100vw, 581px" data-recalc-dims="1" /><p id="caption-attachment-4554" class="wp-caption-text">Create new dCore VM in VirtualBox</p></div>
+<p>Next, set the memory size. I chose 256 MB. You may modify this later if you need to.</p>
+<div id="attachment_4555" style="width: 591px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4555" loading="lazy" src="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-002.png?resize=581%2C429&#038;ssl=1" alt="Set memory size" width="581" height="429" class="size-full wp-image-4555" srcset="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-002.png?w=581&amp;ssl=1 581w, https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-002.png?resize=300%2C222&amp;ssl=1 300w" sizes="(max-width: 581px) 100vw, 581px" data-recalc-dims="1" /><p id="caption-attachment-4555" class="wp-caption-text">Set memory size</p></div>
+<p>Create a virtual hard disk onto which we will install dCore for the VM.</p>
+<div id="attachment_4556" style="width: 591px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4556" loading="lazy" src="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-003.png?resize=581%2C429&#038;ssl=1" alt="Create disk" width="581" height="429" class="size-full wp-image-4556" srcset="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-003.png?w=581&amp;ssl=1 581w, https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-003.png?resize=300%2C222&amp;ssl=1 300w" sizes="(max-width: 581px) 100vw, 581px" data-recalc-dims="1" /><p id="caption-attachment-4556" class="wp-caption-text">Create disk</p></div>
+<p>The disk file type can be any of the available options. I chose the VDI format because it is the default setting.</p>
+<div id="attachment_4557" style="width: 691px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4557" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-004.png?resize=681%2C482&#038;ssl=1" alt="Select disk type" width="681" height="482" class="size-full wp-image-4557" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-004.png?w=681&amp;ssl=1 681w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-004.png?resize=300%2C212&amp;ssl=1 300w" sizes="(max-width: 681px) 100vw, 681px" data-recalc-dims="1" /><p id="caption-attachment-4557" class="wp-caption-text">Select disk type</p></div>
+<p>Either dynamically allocated disk size of fixed disk size is OK to use. I chose to use a fixed disk size because it should offer slightly better performance, in terms of memory and processor resources used, when the VM is running.</p>
+<div id="attachment_4558" style="width: 691px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4558" loading="lazy" src="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-005.png?resize=681%2C482&#038;ssl=1" alt="Fixed disk size offers better performance" width="681" height="482" class="size-full wp-image-4558" srcset="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-005.png?w=681&amp;ssl=1 681w, https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-005.png?resize=300%2C212&amp;ssl=1 300w" sizes="(max-width: 681px) 100vw, 681px" data-recalc-dims="1" /><p id="caption-attachment-4558" class="wp-caption-text">Fixed disk size offers better performance</p></div>
+<p>Next, give the virtual hard disk a name and set its size. I chose 1 GB because I will split it into two partitions and also need space to install a desktop environment. If I was just installing network software, I would choose 512 MB.</p>
+<div id="attachment_4559" style="width: 691px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4559" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-006.png?resize=681%2C482&#038;ssl=1" alt="Set disk size" width="681" height="482" class="size-full wp-image-4559" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-006.png?w=681&amp;ssl=1 681w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-006.png?resize=300%2C212&amp;ssl=1 300w" sizes="(max-width: 681px) 100vw, 681px" data-recalc-dims="1" /><p id="caption-attachment-4559" class="wp-caption-text">Set disk size</p></div>
+<p>Now we have created a new virtual machine. We need to attach to the VM the dCore ISO file we previously downloaded as a virtual optical drive image. Click on the <em>Settings</em> icon.</p>
+<div id="attachment_4560" style="width: 782px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4560" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-007.png?resize=772%2C580&#038;ssl=1" alt="New virtual machine" width="772" height="580" class="size-full wp-image-4560" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-007.png?w=772&amp;ssl=1 772w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-007.png?resize=300%2C225&amp;ssl=1 300w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-007.png?resize=768%2C577&amp;ssl=1 768w" sizes="(max-width: 772px) 100vw, 772px" data-recalc-dims="1" /><p id="caption-attachment-4560" class="wp-caption-text">New virtual machine</p></div>
+<p>In <em>settings</em>, go to the <em>Storage</em> panel and select the empty virtual optical drive. Then click on the little optical disk icon on the far right side of the panel. Select <em>Choose Virtual Optical Disk File</em> from the drop-down menu that appears.</p>
+<div id="attachment_4562" style="width: 824px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4562" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore008.png?resize=814%2C500&#038;ssl=1" alt="Attach CDROM" width="814" height="500" class="size-full wp-image-4562" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore008.png?w=814&amp;ssl=1 814w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore008.png?resize=300%2C184&amp;ssl=1 300w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore008.png?resize=768%2C472&amp;ssl=1 768w" sizes="(max-width: 814px) 100vw, 814px" data-recalc-dims="1" /><p id="caption-attachment-4562" class="wp-caption-text">Attach CDROM</p></div>
+<p>Navigate to the folder that contains the dCore ISO file and select it. Click on <em>Open</em>.</p>
+<div id="attachment_4561" style="width: 852px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4561" loading="lazy" src="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-009.png?resize=842%2C485&#038;ssl=1" alt="Select dCore ISO file" width="842" height="485" class="size-full wp-image-4561" srcset="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-009.png?w=842&amp;ssl=1 842w, https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-009.png?resize=300%2C173&amp;ssl=1 300w, https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-009.png?resize=768%2C442&amp;ssl=1 768w" sizes="(max-width: 842px) 100vw, 842px" data-recalc-dims="1" /><p id="caption-attachment-4561" class="wp-caption-text">Select dCore ISO file</p></div>
+<p>Now we see the <em>dCore-xenial.iso</em> file is attached to the virtual optical disk drive. Click <em>OK</em>.</p>
+<div id="attachment_4563" style="width: 824px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4563" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-010.png?resize=814%2C500&#038;ssl=1" alt="See dCore CDROM ISO image attached" width="814" height="500" class="size-full wp-image-4563" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-010.png?w=814&amp;ssl=1 814w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-010.png?resize=300%2C184&amp;ssl=1 300w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-010.png?resize=768%2C472&amp;ssl=1 768w" sizes="(max-width: 814px) 100vw, 814px" data-recalc-dims="1" /><p id="caption-attachment-4563" class="wp-caption-text">See dCore CDROM ISO image attached</p></div>
+<p>Now we are ready to start the VM. Click on the <em>Start</em> icon.</p>
+<div id="attachment_4564" style="width: 782px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4564" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-012.png?resize=772%2C580&#038;ssl=1" alt="dCore VM ready to boot from CDROM" width="772" height="580" class="size-full wp-image-4564" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-012.png?w=772&amp;ssl=1 772w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-012.png?resize=300%2C225&amp;ssl=1 300w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-012.png?resize=768%2C577&amp;ssl=1 768w" sizes="(max-width: 772px) 100vw, 772px" data-recalc-dims="1" /><p id="caption-attachment-4564" class="wp-caption-text">dCore VM ready to boot from CDROM</p></div>
+<p>The VM will start booting. It will prompt you for boot options. At this point, we do not need any boot options so press the <em>Enter</em> key to proceed with booting the VM.</p>
+<div id="attachment_4565" style="width: 732px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4565" loading="lazy" src="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-013.png?resize=722%2C452&#038;ssl=1" alt="No boot codes needed yet. Press Enter." width="722" height="452" class="size-full wp-image-4565" srcset="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-013.png?w=722&amp;ssl=1 722w, https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-013.png?resize=300%2C188&amp;ssl=1 300w" sizes="(max-width: 722px) 100vw, 722px" data-recalc-dims="1" /><p id="caption-attachment-4565" class="wp-caption-text">No boot codes needed yet. Press Enter.</p></div>
+<p>Now the VM has started. The system loaded from the virtual optical disk drive and is full loaded into RAM.</p>
+<div id="attachment_4566" style="width: 732px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4566" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-014.png?resize=722%2C452&#038;ssl=1" alt="Booted" width="722" height="452" class="size-full wp-image-4566" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-014.png?w=722&amp;ssl=1 722w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-014.png?resize=300%2C188&amp;ssl=1 300w" sizes="(max-width: 722px) 100vw, 722px" data-recalc-dims="1" /><p id="caption-attachment-4566" class="wp-caption-text">Booted</p></div>
+<p>Remember that the entire file system is in RAM so any changes you make to files will be lost when you shut down or restart the VM, unless you save your changes to a persistent disk, which we will set up in the next sections.</p>
+<h4>Partition the VM&#8217;s virtual disk and build the filesystem</h4>
+<p><a href="http://tldp.org/HOWTO/Partition/fdisk_partitioning.html">Partition</a> the virtual disk image. Create a partition <em>sda1</em> and a swap partition <em>sda2</em>. USe the <em>fdisk</em> command, which comes already installed in dCore.</p>
+<pre><code>$ sudo fdisk /dev/sda
+</code></pre>
+<p>In the <em>fdisk</em> command-line interface, type &#8220;m&#8221; to see the list of available commands.</p>
+<p>Enter &#8220;n&#8221; to create a new partition on the virtual disk. Choose Partition 1 and set it&#8217;s size so it uses up 90 of 130 available cylinders on the disk.</p>
+<pre><code>n
+</code></pre>
+<p>Type &#8220;p&#8221; for primary partition</p>
+<pre><code>p
+</code></pre>
+<p>The partition number is &#8220;1&#8221;</p>
+<pre><code>1
+</code></pre>
+<p>Select the first cylinder on the disk for the new partition (1 to 130). I chose &#8220;1&#8221;.</p>
+<pre><code>1
+</code></pre>
+<p>Select the last cylinder for this partition. This will determine the partition size of the main filesystem partition. I chose &#8220;90&#8221;.</p>
+<pre><code>90
+</code></pre>
+<p>Repeat the process for the second partition. Start with the &#8220;n&#8221; command and create Partition 2. In this case, I chose the default values for cylinders to use up the rest of the virtual disk.</p>
+<pre><code>n
+p
+2
+91
+130
+</code></pre>
+<p>Make the first partition bootable. Use the &#8220;a&#8221; command and select Partition 1.</p>
+<pre><code>a
+1
+</code></pre>
+<p>Make the second partition a swap partition. Use the &#8220;t&#8221; command, choose partition 2 and set the partition type to &#8220;82&#8221;.</p>
+<pre><code>t
+2
+82
+</code></pre>
+<p>Check the setup with the &#8220;p&#8221; command, which will list all partitions and show which ones are bootable:</p>
+<pre><code>p
+</code></pre>
+<div id="attachment_4567" style="width: 732px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4567" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-015.png?resize=722%2C452&#038;ssl=1" alt="Partition disks" width="722" height="452" class="size-full wp-image-4567" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-015.png?w=722&amp;ssl=1 722w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-015.png?resize=300%2C188&amp;ssl=1 300w" sizes="(max-width: 722px) 100vw, 722px" data-recalc-dims="1" /><p id="caption-attachment-4567" class="wp-caption-text">Disk partitions</p></div>
+<p>Write the changes with the &#8220;w&#8221; command:</p>
+<pre><code>w
+</code></pre>
+<p>Quit <em>fdisk</em> with the &#8220;q&#8221; command:</p>
+<pre><code>q
+</code></pre>
+<p>Format Partition 1, which is now device <em>sda1</em>, with an <em>ext4</em> filesystem. The swap partition, device <em>sda2</em>, does not need a filesystem so we do nothing for <em>sda2</em></p>
+<pre><code>$ sudo mkfs.ext4 /dev/sda1
+</code></pre>
+<p>Rebuild the filesystem table file, <em><a href="https://help.ubuntu.com/community/Fstab">fstab</a></em>. The <em>rebuildfstab</em> command adds the new partition <em>/dev/sda1</em> to the <em>/etc/fstab</em> file.</p>
+<pre><code>$ sudo rebuildfstab 
+</code></pre>
+<p>See that the new disk has mount point <em>/mnt/sda1</em> defined in the <em>fstab</em> file.</p>
+<pre><code>$ cat /etc/fstabsudo
+</code></pre>
+<p>To list your devices another way, use the <em>blkid</em> command. This shows the device UUID and label.</p>
+<pre><code>$ blkid
+</code></pre>
+<h4>Mount the ISO disk image and copy its contents to the VM&#8217;s virtual disk</h4>
+<p>Mount the first partition we created, device <em>sda1</em>:</p>
+<pre><code>$ mount /mnt/sda1
+</code></pre>
+<p>Create a <em>/boot</em> directory for the dCore files:</p>
+<pre><code>$ sudo mkdir /mnt/sda1/boot
+</code></pre>
+<p>Copy the kernel and initrd files into the <em>/boot</em> folder. Get these files from the ISO disk image, which we previously attached to this VM as a CDROM in the VirtualBox Manager.</p>
+<p>First check the device name of the CDROM:</p>
+<pre><code>$ blkid
+</code></pre>
+<p>This shows that the CDROM device is <em>sr0</em>. Mount the CDROM:</p>
+<pre><code>$ mount /mnt/sr0
+</code></pre>
+<p>Now look at the contents of the boot directory on the CDROM:</p>
+<pre><code>$ ls /mnt/sr0/boot/
+</code></pre>
+<p>We see the <em>dCorexenial.gz</em> initRD file and the <em>vmlinuzxenial</em> kernel file. Copy these files from the CDROM to the <em>boot</em> directory on the new hard disk:</p>
+<pre><code>$ sudo cp -p /mnt/sr0/boot/* /mnt/sda1/boot
+</code></pre>
+<p>Ignore any warnings about omitting directories. List the <em>/boot</em> directory to verify the correct files are there:</p>
+<pre><code>$ ls /mnt/sda1/boot/
+</code></pre>
+<h4>Install a bootloader on the VM&#8217;s virtual disk</h4>
+<p>In this case, we will install the <em><a href="http://www.syslinux.org/wiki/index.php?title=EXTLINUX">extlinux</a></em> bootloader because it is commonly used for small distributions like TinyCore Linux and because it is simple to configure. For more details, see <a href="http://shallowsky.com/linux/extlinux.html">How to Install Extlinux</a> and <a href="https://agentoss.wordpress.com/2011/02/28/how-to-create-a-bootable-linux-usb-drive-using-extlinux/">How to Install Extlinux on a USB Drive</a>.</p>
+<p>First, configure the hard disk partition with a label. This makes it easier to refer to the partition in configuration files.</p>
+<p>We need the <em>e2label</em> program to label the disk partition. The <em>e2label</em> program is in the <em>e2fsprogs</em> package.</p>
+<pre><code>$ sce-import e2fsprogs
+$ sce-load e2fsprogs
+</code></pre>
+<p>We choose to use the label <em>dCore</em>. Any name may be used for the label.</p>
+<pre><code>$ sudo e2label /dev/sda1 "dCore"
+</code></pre>
+<p>Rebuild the filesystem table so the system learns about the new label.</p>
+<pre><code>$ sudo rebuildfstab
+</code></pre>
+<p>Check for a label again. Run the <em>blkid</em> command again. See that <em>/dev/sda1</em> has the label <em>dCore</em>.</p>
+<p>Next, make a directory for <em>extlinux</em>.</p>
+<pre><code>$ sudo mkdir /mnt/sda1/boot/extlinux
+</code></pre>
+<p>Use the <em>sce-import</em> command to install <em>extlinux</em> from the Ubuntu repositories:</p>
+<pre><code>$ sce-import extlinux
+</code></pre>
+<p>Load the new <em>extlinux</em> extension.</p>
+<pre><code>$ sce-load extlinux
+</code></pre>
+<p>Now, use <em>extlinux</em> to install the files that will create a bootloader on the partition <em>sda1</em>.</p>
+<pre><code>$ sudo extlinux --install /mnt/sda1/boot/extlinux
+</code></pre>
+<p>This installs extlinux bootloader files onto the virtual disk drive.</p>
+<p>Install the master boot record (MBR) file</p>
+<pre><code>$ sudo dd if=/usr/lib/EXTLINUX/mbr.bin of=/dev/sda
+</code></pre>
+<h4>Create a bootloader configuration file</h4>
+<p>Create a bootloader configuration file with the required dCore boot codes. In the <em>extlinux</em> directory we previously created, create and edit the file <em>extlinux.conf</em>:</p>
+<pre><code>$ cd /mnt/sda1/boot/extlinux
+$ sudo vi extlinux.conf
+</code></pre>
+<p>Then enter the following text in the file:</p>
+<pre><code>default dCore
+label dCore
+kernel /boot/vmlinuzxenial
+append initrd=/boot/dCorexenial.gz tce=sda1
+</code></pre>
+<p>Save the file and quit the editor.</p>
+<h4>Save all configuration changes</h4>
+<p>Set the TCE drive. dCore needs to know which to partition it should save persistent configuration changes. In this scenario, the <em>tce-setdrive</em> command will select the <em>sda1</em> partition.</p>
+<pre><code>$ tce-setdrive
+</code></pre>
+<p>This creates a <em>tce</em> directory on <em>/mnt/sda1</em> and populates it with the TCE and SCE files.</p>
+<p>Save the configuration changes on persistent storage on <em>sda1</em>. Use the <em>backup</em> command:</p>
+<pre><code>$ backup
+</code></pre>
+<h4>Remove the ISO image from the VM</h4>
+<p>We no longer need the original ISO image connected to the virtual machine. To remove the ISO image in VirtualBox, first power off the VM:</p>
+<pre><code>$ sudo poweroff
+</code></pre>
+<p>In VirtualBox manager, select the dCore VM and click on <em>Settings</em>. Go to the <em>Storage</em> panel. Remove the dCore ISO file from the virtual optical drive. This way, the VM will always boot from the virtual hard drive we have set up.</p>
+<div id="attachment_4570" style="width: 1149px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4570" loading="lazy" src="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0029.png?resize=1139%2C514&#038;ssl=1" alt="Remove CDROM 1" width="1139" height="514" class="size-full wp-image-4570" srcset="https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0029.png?w=1139&amp;ssl=1 1139w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0029.png?resize=300%2C135&amp;ssl=1 300w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0029.png?resize=768%2C347&amp;ssl=1 768w, https://i0.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0029.png?resize=1024%2C462&amp;ssl=1 1024w" sizes="(max-width: 1000px) 100vw, 1000px" data-recalc-dims="1" /><p id="caption-attachment-4570" class="wp-caption-text">Remove ISO file from the virtual optical disk drive</p></div>
+<p>Verify the virtual optical disk drive is now empty.</p>
+<div id="attachment_4568" style="width: 824px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4568" loading="lazy" src="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0021.png?resize=814%2C500&#038;ssl=1" alt="Remove CDROM" width="814" height="500" class="size-full wp-image-4568" srcset="https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0021.png?w=814&amp;ssl=1 814w, https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0021.png?resize=300%2C184&amp;ssl=1 300w, https://i2.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-0021.png?resize=768%2C472&amp;ssl=1 768w" sizes="(max-width: 814px) 100vw, 814px" data-recalc-dims="1" /><p id="caption-attachment-4568" class="wp-caption-text">Verify the virtual optical disk drive is empty</p></div>
+<h4>Boot the VM</h4>
+<p>Start the VM again by clicking on the <em>Start</em> icon in VirtualBox.</p>
+<p>The new dCore system will boot up from the virtual disk. Ignore warning about floppy disk drivers. This is not a serious issue and I have not yet found out how to stop the system from looking for a floppy drive.</p>
+<div id="attachment_4569" style="width: 732px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4569" loading="lazy" src="https://i1.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-022.png?resize=722%2C452&#038;ssl=1" alt="Booting again" width="722" height="452" class="size-full wp-image-4569" srcset="https://i1.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-022.png?w=722&amp;ssl=1 722w, https://i1.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-022.png?resize=300%2C188&amp;ssl=1 300w" sizes="(max-width: 722px) 100vw, 722px" data-recalc-dims="1" /><p id="caption-attachment-4569" class="wp-caption-text">Booting again</p></div>
+<p>The system is ready to use. Now we may install any extra software we require.</p>
+<h4>Install additional software</h4>
+<p>Let us install new software in this dCore image. For example, we will install a desktop environment and a GUI application, such as a web browser. Use the <em>sce-import</em> and <em>sce-load</em> commands to install additional software</p>
+<p>When installing software that shares a lot of dependencies, you can use up less disk space if you create one extension from multiple packages. Create a file listing the packages you wish to install and then use the <em>-l</em> option to install the packages listed in that file.</p>
+<p>First create the file in a temporary directory. We do not need the file after the install is completed.</p>
+<pre><code>$ vi /tmp/xdesk
+</code></pre>
+<p>We will install packages required for the FLWM desktop environment and the Midori web browser. Enter the following text into the file:</p>
+<pre><code>Xprogs
+xorg-all
+wbar
+flwm
+midori
+</code></pre>
+<p>Save the file and exit the editor.</p>
+<p>Then, run the <em>sce-import</em> command to load all the packages described into the files as one combined extension. The <em>-l</em> option specifies we will look for the package names in a file. The <em>-b</em> option tell the program to add the new extension to the boot list file. The name of the extension will be the same name as the file.</p>
+<pre><code>$ sce-import -lb /tmp/xdesk
+</code></pre>
+<p>Press <em>Enter</em> key at prompt to begin (or <em>Ctrl-C</em> to abort).</p>
+<p>When the install is completed, view the boot list file, <em>sceboot.lst</em>.</p>
+<pre><code>$ cat /etc/sysconfig/tcedir/sceboot.lst
+</code></pre>
+<p>Check that the new extension name is in the file. The file contents should be:</p>
+<pre><code>xdesk
+</code></pre>
+<p>Next, edit the boot codes in the <em>extlinux.conf</em> file. Add the boot code <em>desktop=flwm</em>.</p>
+<pre><code>$ cd /mnt/sda1/boot/extlinux
+$ sudo vi extlinux.conf
+</code></pre>
+<p>The file should now look like:</p>
+<pre><code>default dCore
+label dCore
+kernel /boot/vmlinuzxenial
+append initrd=/boot/dCore xenial.gz tce=sda1 desktop=flwm
+</code></pre>
+<h4>Save the new software and configuration files</h4>
+<p>Save the new software and configuration files in the persistent filesystem. The <em>backup</em> command will save system changes to the hard drive.</p>
+<pre><code>$ backup
+</code></pre>
+<h4>Reboot the VM</h4>
+<p>Reboot the VM with the <em>reboot</em> command:</p>
+<pre><code>$ sudo reboot
+</code></pre>
+<p>When this system reboots, it will start with the FLWM desktop environment.</p>
+<div id="attachment_4571" style="width: 1036px" class="wp-caption aligncenter"><img aria-describedby="caption-attachment-4571" loading="lazy" src="https://i1.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-030.png?resize=1026%2C820&#038;ssl=1" alt="dCore FLWM desktop environment" width="1026" height="820" class="size-full wp-image-4571" srcset="https://i1.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-030.png?w=1026&amp;ssl=1 1026w, https://i1.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-030.png?resize=300%2C240&amp;ssl=1 300w, https://i1.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-030.png?resize=768%2C614&amp;ssl=1 768w, https://i1.wp.com/www.brianlinkletter.com/wp-content/uploads/2016/05/dCore-030.png?resize=1024%2C818&amp;ssl=1 1024w" sizes="(max-width: 1000px) 100vw, 1000px" data-recalc-dims="1" /><p id="caption-attachment-4571" class="wp-caption-text">dCore FLWM desktop environment</p></div>
+<p>Now you should see a desktop. We previously installed the Midori web browser so you may launch it to demonstrate that the software will run correctly.</p>
+<h3>Conclusion</h3>
+<p>We installed dCore Linux on a VirtualBox virtual machine so that is will boot from the virtual machine&#8217;s virtual disk image (VDI). This system should be useful as a lightweight virtual network appliance in network emulation tools such as GNS3.</p>
+<p>Remember to post your questions to the <a href="http://forum.tinycorelinux.net/index.php?action=collapse;c=13;sa=expand;a9e2f1619814=c30a8d4e56e32e704a89bf21435d629a#c13">dCore forums</a> if you have issues importing specific Debian or Ubuntu packages.</p>
+<h3>Summary of steps</h3>
+<p>Below, I list all the commands I used above in one place for those who want to follow the process more quickly.</p>
+<p>After setting up dCore ISO disk on new VM image and starting the VM, enter the following commands:</p>
+<pre><code>sudo fdisk /dev/sda
+sudo mkfs.ext4 /dev/sda1
+sudo rebuildfstab 
+mount /mnt/sda1
+sudo mkdir /mnt/sda1/boot
+mount /mnt/sr0
+sudo cp -p /mnt/sr0/boot/* /mnt/sda1/boot
+sce-import e2fsprogs
+sce-load e2fsprogs
+sudo e2label /dev/sda1 "dCore"
+sudo rebuildfstab
+sudo mkdir /mnt/sda1/boot/extlinux
+sce-import extlinux
+sce-load extlinux
+sudo extlinux --install /mnt/sda1/boot/extlinux
+sudo dd if=/usr/lib/EXTLINUX/mbr.bin of=/dev/sda
+cd /mnt/sda1/boot/extlinux
+sudo vi extlinux.conf
+</code></pre>
+<p>Then enter the following text in the <em>extlinux.conf</em> file:</p>
+<pre><code>default dCore
+label dCore
+kernel /boot/vmlinuzxenial
+append initrd=/boot/dCorexenial.gz tce=sda1 
+</code></pre>
+<p>Then enter the remaining commands:</p>
+<pre><code>tce-setdrive
+backup
+sudo poweroff
+</code></pre>
+<p>Remove the ISO disk image from the VM and start it again.</p><div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-linkedin"><a rel="nofollow noopener noreferrer" data-shared="sharing-linkedin-4552" class="share-linkedin sd-button share-icon no-text" href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/?share=linkedin" target="_blank" title="Click to share on LinkedIn"><span></span><span class="sharing-screen-reader-text">Click to share on LinkedIn (Opens in new window)</span></a></li><li class="share-reddit"><a rel="nofollow noopener noreferrer" data-shared="" class="share-reddit sd-button share-icon no-text" href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/?share=reddit" target="_blank" title="Click to share on Reddit"><span></span><span class="sharing-screen-reader-text">Click to share on Reddit (Opens in new window)</span></a></li><li class="share-twitter"><a rel="nofollow noopener noreferrer" data-shared="sharing-twitter-4552" class="share-twitter sd-button share-icon no-text" href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/?share=twitter" target="_blank" title="Click to share on Twitter"><span></span><span class="sharing-screen-reader-text">Click to share on Twitter (Opens in new window)</span></a></li><li class="share-facebook"><a rel="nofollow noopener noreferrer" data-shared="sharing-facebook-4552" class="share-facebook sd-button share-icon no-text" href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/?share=facebook" target="_blank" title="Click to share on Facebook"><span></span><span class="sharing-screen-reader-text">Click to share on Facebook (Opens in new window)</span></a></li><li class="share-end"></li></ul></div></div></div><div class='yarpp yarpp-related yarpp-related-website yarpp-template-list'>
+<!-- YARPP List -->
+<hr><h3>Related posts:</h3><ol>
+<li><a href="https://www.brianlinkletter.com/2012/10/installing-debian-linux-in-a-virtualbox-virtual-machine/" rel="bookmark" title="Installing Debian Linux in a VirtualBox Virtual Machine">Installing Debian Linux in a VirtualBox Virtual Machine </a></li>
+<li><a href="https://www.brianlinkletter.com/2013/04/install-parallels-tools-on-a-debian-virtual-machine/" rel="bookmark" title="Install Parallels Tools on a Debian Virtual Machine">Install Parallels Tools on a Debian Virtual Machine </a></li>
+<li><a href="https://www.brianlinkletter.com/2018/06/create-a-nested-virtual-machine-in-a-microsoft-azure-linux-vm/" rel="bookmark" title="Create a nested virtual machine in a Microsoft Azure Linux VM">Create a nested virtual machine in a Microsoft Azure Linux VM </a></li>
+<li><a href="https://www.brianlinkletter.com/2012/09/why-use-a-virtual-machine/" rel="bookmark" title="Why use a Virtual Machine?">Why use a Virtual Machine? </a></li>
+<li><a href="https://www.brianlinkletter.com/2014/02/persistent-configuration-changes-in-tinycore-linux/" rel="bookmark" title="Persistent configuration changes in TinyCore Linux">Persistent configuration changes in TinyCore Linux </a></li>
+</ol>
+</div>
+					</div><!-- /.entry-content -->
+	
+	<div class="post-meta clearfix">
+
+			<div class="meta-date-cat-tags pull-left">
+			
+													<span class="the-category">In <a href="https://www.brianlinkletter.com/category/network-simulation/" >Network Simulation</a></span>								
+													<span class="the-tags"><a href="https://www.brianlinkletter.com/tag/gns3/" rel="tag">GNS3</a>, <a href="https://www.brianlinkletter.com/tag/linux/" rel="tag">Linux</a>, <a href="https://www.brianlinkletter.com/tag/virtualbox/" rel="tag">VirtualBox</a></span>								
+			</div><!-- /meta-date-cat-tags -->
+			
+			<div class="meta-comment-link pull-right">
+				<a class="pull-right post-link" href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/" title="permalink "><img src="https://www.brianlinkletter.com/wp-content/themes/Archive/images/icn-permalink.png" alt="permalink " /></a>
+							</div><!-- /meta-comment-link -->
+
+	</div><!-- /.post-meta -->
+
+</div> <!-- /#post- -->	
+																		
+							
+																					
+														
+							
+
+	<div id="single-post-nav">
+		<ul class="pager">
+		
+						
+							<li class="previous">
+					<span class="previous-page"><a href="https://www.brianlinkletter.com/2016/04/mininet-wifi-software-defined-network-emulator-supports-wifi-networks/" rel="prev" title="Mininet-WiFi: SDN emulator supports WiFi networks"><i class="icon-chevron-left"></i>&nbsp;Mininet-WiFi: SDN emulator...</a></span>				</li>
+						
+							<li class="next">
+				<span class="no-previous-page-link next-page"><a href="https://www.brianlinkletter.com/2016/06/how-to-build-a-network-of-linux-routers-using-quagga/" rel="next" title="How to build a network of Linux routers using quagga">&nbsp;How to build a network of...<i class="icon-chevron-right"></i></a></span>				</li>
+					</ul>	
+	</div><!-- /#single-post-nav -->
+
+							
+							
+
+
+			<div id="comments" class="clearfix">
+			<h3>6 responses to <em>How To Install dCore Linux in a virtual machine</em></h3>
+			<ol class="commentlist">
+					<li class="comment even thread-even depth-1 clearfix" id="li-comment-76311">
+		<div class="comment-container">
+							<div class="avatar-holder">
+					<img alt='' src='https://secure.gravatar.com/avatar/d05d933e28b6402a2bf0a0d2adc101ae?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/d05d933e28b6402a2bf0a0d2adc101ae?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy'/>				</div><!-- /.avatar-holder -->
+				
+			
+			<div class="comment-entry"	id="comment-76311">
+			
+				<div class="comment-head">
+					<span class="name">
+													vadim											</span>
+											<span class="date"><a href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/#comment-76311" title="Permalink">June 15, 2016 at 4:42 am</a></span>
+						<span class="edit"></span>
+									</div><!-- /.comment-head -->
+				
+								
+				<div class="comment-text">
+					<p>Thank you, it&#8217;s very helpful.<br />
+What can you say about dcore as a real host-based system?<br />
+Can it manage all features that lubuntu, for example, can? I mean, can I build some program by gcc?</p>
+				</div><!-- /.comment-text -->
+				
+				<div class="reply">
+									</div><!-- /.reply -->
+				
+			</div><!-- /.comment-entry -->
+		</div><!-- /comment-container -->
+<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2 clearfix" id="li-comment-76344">
+		<div class="comment-container">
+							<div class="avatar-holder">
+					<img alt='' src='https://secure.gravatar.com/avatar/5f6f3e1e43fa2d96d8b4351183cad847?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/5f6f3e1e43fa2d96d8b4351183cad847?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy'/>				</div><!-- /.avatar-holder -->
+				
+			
+			<div class="comment-entry"	id="comment-76344">
+			
+				<div class="comment-head">
+					<span class="name">
+													<a href="https://www.brianlinkletter.com" target="_blank">Brian Linkletter</a>
+											</span>
+											<span class="date"><a href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/#comment-76344" title="Permalink">June 15, 2016 at 2:00 pm</a></span>
+						<span class="edit"></span>
+									</div><!-- /.comment-head -->
+				
+								
+				<div class="comment-text">
+					<p>Hi Vadim,<br />
+I have not tried it as a host OS, but dCore is based on Tinycore so you should be able to compile software. Just be sure you know which directories you need to save.<br />
+DCore and TinyCore would be suitable for a host system, if you are an advanced Linux user.<br />
+Brian</p>
+				</div><!-- /.comment-text -->
+				
+				<div class="reply">
+									</div><!-- /.reply -->
+				
+			</div><!-- /.comment-entry -->
+		</div><!-- /comment-container -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-odd thread-alt depth-1 clearfix" id="li-comment-78892">
+		<div class="comment-container">
+							<div class="avatar-holder">
+					<img alt='' src='https://secure.gravatar.com/avatar/e8e5d0b913e16124ce2e39de170b8379?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/e8e5d0b913e16124ce2e39de170b8379?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy'/>				</div><!-- /.avatar-holder -->
+				
+			
+			<div class="comment-entry"	id="comment-78892">
+			
+				<div class="comment-head">
+					<span class="name">
+													<a href="http://www.snatch1.com" target="_blank">Snatch1</a>
+											</span>
+											<span class="date"><a href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/#comment-78892" title="Permalink">August 6, 2016 at 3:48 am</a></span>
+						<span class="edit"></span>
+									</div><!-- /.comment-head -->
+				
+								
+				<div class="comment-text">
+					<p>Wow what a great tutorial. Just wanted to say thanks for such a great detailed explanation. Gives a really great insight and answers many questions I had about persistency in general and bootloaders. I will bookmark your page and read the other article about TinyCore. Just wanted to say thanks for everybody who read it to the end and was to lazy to left a few words. That&#8217;s how every tutorial in the world should be made. Do you have a special workflow when writing these brian?</p>
+				</div><!-- /.comment-text -->
+				
+				<div class="reply">
+									</div><!-- /.reply -->
+				
+			</div><!-- /.comment-entry -->
+		</div><!-- /comment-container -->
+<ul class="children">
+	<li class="comment byuser comment-author-admin bypostauthor odd alt depth-2 clearfix" id="li-comment-79307">
+		<div class="comment-container">
+							<div class="avatar-holder">
+					<img alt='' src='https://secure.gravatar.com/avatar/5f6f3e1e43fa2d96d8b4351183cad847?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/5f6f3e1e43fa2d96d8b4351183cad847?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy'/>				</div><!-- /.avatar-holder -->
+				
+			
+			<div class="comment-entry"	id="comment-79307">
+			
+				<div class="comment-head">
+					<span class="name">
+													<a href="https://www.brianlinkletter.com" target="_blank">Brian Linkletter</a>
+											</span>
+											<span class="date"><a href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/#comment-79307" title="Permalink">August 18, 2016 at 11:34 am</a></span>
+						<span class="edit"></span>
+									</div><!-- /.comment-head -->
+				
+								
+				<div class="comment-text">
+					<p>Hi, Thanks for your encouragement. I don&#8217;t have a special workflow. I usually write about a problem I need to solve, after I have figured it out. I usually write about topics for which it was difficult to find good resources online.<br />
+Thanks again,<br />
+Brian</p>
+				</div><!-- /.comment-text -->
+				
+				<div class="reply">
+									</div><!-- /.reply -->
+				
+			</div><!-- /.comment-entry -->
+		</div><!-- /comment-container -->
+</li><!-- #comment-## -->
+</ul><!-- .children -->
+</li><!-- #comment-## -->
+	<li class="comment even thread-even depth-1 clearfix" id="li-comment-80548">
+		<div class="comment-container">
+							<div class="avatar-holder">
+					<img alt='' src='https://secure.gravatar.com/avatar/703fa54b39254dafeed696cea6e8b2d3?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/703fa54b39254dafeed696cea6e8b2d3?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy'/>				</div><!-- /.avatar-holder -->
+				
+			
+			<div class="comment-entry"	id="comment-80548">
+			
+				<div class="comment-head">
+					<span class="name">
+													<a href="http://visualpath.in/amazon-web-services-aws-training.html" target="_blank">aws training</a>
+											</span>
+											<span class="date"><a href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/#comment-80548" title="Permalink">September 17, 2016 at 2:05 am</a></span>
+						<span class="edit"></span>
+									</div><!-- /.comment-head -->
+				
+								
+				<div class="comment-text">
+					<p>Excellent post. thanks!</p>
+				</div><!-- /.comment-text -->
+				
+				<div class="reply">
+									</div><!-- /.reply -->
+				
+			</div><!-- /.comment-entry -->
+		</div><!-- /comment-container -->
+</li><!-- #comment-## -->
+	<li class="comment odd alt thread-odd thread-alt depth-1 clearfix" id="li-comment-80811">
+		<div class="comment-container">
+							<div class="avatar-holder">
+					<img alt='' src='https://secure.gravatar.com/avatar/cf6aba1417aae8b344b36231c4e717ff?s=50&#038;d=identicon&#038;r=g' srcset='https://secure.gravatar.com/avatar/cf6aba1417aae8b344b36231c4e717ff?s=100&#038;d=identicon&#038;r=g 2x' class='avatar avatar-50 photo' height='50' width='50' loading='lazy'/>				</div><!-- /.avatar-holder -->
+				
+			
+			<div class="comment-entry"	id="comment-80811">
+			
+				<div class="comment-head">
+					<span class="name">
+													cs hobbyist											</span>
+											<span class="date"><a href="https://www.brianlinkletter.com/2016/05/how-to-install-dcore-linux-in-a-virtual-machine/#comment-80811" title="Permalink">September 22, 2016 at 8:16 am</a></span>
+						<span class="edit"></span>
+									</div><!-- /.comment-head -->
+				
+								
+				<div class="comment-text">
+					<p>Really concise post. Very insightful. Thanks for taking the time to write this!<br />
+Bookmarked your site.</p>
+				</div><!-- /.comment-text -->
+				
+				<div class="reply">
+									</div><!-- /.reply -->
+				
+			</div><!-- /.comment-entry -->
+		</div><!-- /comment-container -->
+</li><!-- #comment-## -->
+			</ol>    
+			<div class="comment-navigation clearfix">
+				<div class="comment-prev-nav">
+									</div>
+				<div class="comment-next-nav">
+									</div>
+			</div>
+		</div><!-- /#comments -->
+	
+		
+	
+
+	
+							
+					 	
+							</div><!-- /#main -->
+			
+							<div id="sidebar" class="span4">
+	<div id="text-4" class="widget widget_text">			<div class="textwidget"><h4><a href="http://twitter.com/belinkletter" target="_blank" rel="noopener">Follow me on Twitter</a></h4></div>
+		</div><div id="text-2" class="widget widget_text"><h4 class="Text widget-title">Network Simulators</h4>			<div class="textwidget"><ul><li>
+<a href="https://www.brianlinkletter.com/open-source-network-simulators/">Open-Source Network Simulators</a>
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/nrelabs/">Antidote</a> (NRE Labs) network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/cloonix/">Cloonix</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/Containerlab/">Containerlab</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/core/">CORE</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/open-source-network-simulators/#unetlab">EVE-NG</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/gns3/">GNS3</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/imunes/">IMUNES</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/open-source-network-simulators/#netkit">Kathara</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/mininet/">Mininet</a> SDN network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/open-source-network-simulators/#ns3">NS-3</a> network simulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/open-source-network-simulators/#shadow">Shadow</a> network simulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/vrnetlab/">vrnetlab</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/Wistar/">Wistar</a> network emulator
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/vnx/">VNX and VNUML</a> network emulators
+</li>
+<li>
+<a href="https://www.brianlinkletter.com/tag/DevOps/">Do it yourself</a> using Linux tools and applications
+</li>
+</ul></div>
+		</div><div id="search-2" class="widget widget_search"><h4 class="Search widget-title">Search this site</h4><form role="search" method="get" id="searchform" action="https://www.brianlinkletter.com/"><input placeholder="Search..." type="text" value="" name="s" id="s" /></form></div><div id="google_translate_widget-2" class="widget widget_google_translate_widget"><h4 class="Google Translate (Jetpack) widget-title">Translate this page</h4><div id="google_translate_element"></div></div><div id="top-posts-3" class="widget widget_top-posts"><h4 class="Top Posts &amp; Pages (Jetpack) widget-title">Top Posts</h4><ul>				<li>
+					<a href="https://www.brianlinkletter.com/2016/07/how-to-use-virtualbox-to-emulate-a-network/" class="bump-view" data-bump-view="tp">How to emulate a network using VirtualBox</a>					</li>
+								<li>
+					<a href="https://www.brianlinkletter.com/open-source-network-simulators/" class="bump-view" data-bump-view="tp">Open-Source Network Simulators</a>					</li>
+								<li>
+					<a href="https://www.brianlinkletter.com/2012/10/installing-debian-linux-in-a-virtualbox-virtual-machine/" class="bump-view" data-bump-view="tp">Installing Debian Linux in a VirtualBox Virtual Machine</a>					</li>
+								<li>
+					<a href="https://www.brianlinkletter.com/2017/02/how-to-set-up-the-eve-ng-network-emulator-on-a-linux-system/" class="bump-view" data-bump-view="tp">How to set up the UNetLab or EVE-NG network emulator on a Linux system</a>					</li>
+								<li>
+					<a href="https://www.brianlinkletter.com/2016/02/using-the-opendaylight-sdn-controller-with-the-mininet-network-emulator/" class="bump-view" data-bump-view="tp">Using the OpenDaylight SDN Controller with the Mininet Network Emulator</a>					</li>
+				</ul></div>
+		<div id="recent-posts-2" class="widget widget_recent_entries">
+		<h4 class="Recent Posts widget-title">Recent Posts</h4>
+		<ul>
+											<li>
+					<a href="https://www.brianlinkletter.com/2021/05/use-containerlab-to-emulate-open-source-routers/">Use Containerlab to emulate open-source routers</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2021/03/using-python-rich-library-status-module/">Using the Python <em>Rich</em> library to display status indicators</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2021/02/install-azruntime-as-a-cli-program-using-pipx/">Install <em>azruntime</em> as a CLI program using <em>pipx</em></a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2021/02/azruntime-manage-azure-infrastructure-with-python/"><em>azruntime</em>: Manage Azure Infrastructure with Python</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2020/12/flask-web-app-tutorial-for-network-engineers/">Flask web app tutorial for network engineers</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2020/11/a-python-learning-path-for-network-engineers/">A Python learning path for network engineers</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2020/09/python-the-minimum-you-need-to-know/">Python: The Minimum You Need to Know</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2020/03/fixing-thinkpad-t420-battery-problem-linux/">Fixing a Thinkpad T420 battery problem on Linux</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/11/run-the-antidote-network-emulator-on-kvm-for-better-performance/">Run the Antidote network emulator on KVM for better performance</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/10/install-azure-cli-on-your-android-phone/">Install Azure CLI on your Android Phone</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/09/run-a-script-on-virtual-machines-when-the-host-is-shut-down/">Run a script on virtual machines when the host is shut down</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/06/video-chat-about-nre-labs/">Video chat about NRE Labs</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/05/create-lab-lessons-for-the-nre-labs-antidote-network-emulator/">Create lab lessons for the NRE Labs Antidote network emulator</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/05/install-antidote-nre-labs-network-emulator-linux/">Install the Antidote (NRE Labs) network emulator on a Linux system</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/04/the-wistar-network-emulator-open-source-routers/">The Wistar network emulator</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/03/vrnetlab-emulate-networks-using-kvm-and-docker/">Vrnetlab: Emulate networks using KVM and Docker</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2019/02/build-a-network-emulator-using-libvirt/">Build a network emulator using Libvirt and KVM</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2018/08/python-seven-simple-things-network-engineers-need-to-know/">Python for network engineers: a fast track guide</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2018/06/create-a-nested-virtual-machine-in-a-microsoft-azure-linux-vm/">Create a nested virtual machine in a Microsoft Azure Linux VM</a>
+									</li>
+											<li>
+					<a href="https://www.brianlinkletter.com/2018/06/network-labs-using-nested-virtualization-in-the-cloud/">Network Labs Using Nested Virtualization in the Cloud</a>
+									</li>
+					</ul>
+
+		</div><div id="archives-2" class="widget widget_archive"><h4 class="Archives widget-title">Archive</h4>		<label class="screen-reader-text" for="archives-dropdown-2">Archive</label>
+		<select id="archives-dropdown-2" name="archive-dropdown">
+			
+			<option value="">Select Month</option>
+				<option value='https://www.brianlinkletter.com/2021/05/'> May 2021 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2021/03/'> March 2021 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2021/02/'> February 2021 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2020/12/'> December 2020 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2020/11/'> November 2020 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2020/09/'> September 2020 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2020/03/'> March 2020 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2019/11/'> November 2019 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2019/10/'> October 2019 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2019/09/'> September 2019 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2019/06/'> June 2019 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2019/05/'> May 2019 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2019/04/'> April 2019 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2019/03/'> March 2019 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2019/02/'> February 2019 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2018/08/'> August 2018 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2018/06/'> June 2018 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2017/12/'> December 2017 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2017/10/'> October 2017 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2017/05/'> May 2017 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2017/03/'> March 2017 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2017/02/'> February 2017 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2016/12/'> December 2016 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2016/11/'> November 2016 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2016/07/'> July 2016 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2016/06/'> June 2016 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2016/05/'> May 2016 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2016/04/'> April 2016 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2016/03/'> March 2016 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2016/02/'> February 2016 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2016/01/'> January 2016 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2015/12/'> December 2015 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2015/11/'> November 2015 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2015/10/'> October 2015 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2015/09/'> September 2015 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2015/08/'> August 2015 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2015/07/'> July 2015 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2015/06/'> June 2015 &nbsp;(4)</option>
+	<option value='https://www.brianlinkletter.com/2015/05/'> May 2015 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2015/04/'> April 2015 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2015/03/'> March 2015 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2015/02/'> February 2015 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2015/01/'> January 2015 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2014/12/'> December 2014 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2014/11/'> November 2014 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2014/08/'> August 2014 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2014/07/'> July 2014 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2014/06/'> June 2014 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2014/05/'> May 2014 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2014/04/'> April 2014 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2014/03/'> March 2014 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2014/02/'> February 2014 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2014/01/'> January 2014 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2013/12/'> December 2013 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2013/11/'> November 2013 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2013/09/'> September 2013 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2013/05/'> May 2013 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2013/04/'> April 2013 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2013/03/'> March 2013 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2013/02/'> February 2013 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2013/01/'> January 2013 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2012/12/'> December 2012 &nbsp;(3)</option>
+	<option value='https://www.brianlinkletter.com/2012/11/'> November 2012 &nbsp;(1)</option>
+	<option value='https://www.brianlinkletter.com/2012/10/'> October 2012 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2012/09/'> September 2012 &nbsp;(2)</option>
+	<option value='https://www.brianlinkletter.com/2012/08/'> August 2012 &nbsp;(4)</option>
+	<option value='https://www.brianlinkletter.com/2012/07/'> July 2012 &nbsp;(3)</option>
+
+		</select>
+
+<script type="text/javascript">
+/* <![CDATA[ */
+(function() {
+	var dropdown = document.getElementById( "archives-dropdown-2" );
+	function onSelectChange() {
+		if ( dropdown.options[ dropdown.selectedIndex ].value !== '' ) {
+			document.location.href = this.options[ this.selectedIndex ].value;
+		}
+	}
+	dropdown.onchange = onSelectChange;
+})();
+/* ]]> */
+</script>
+			</div></div><!-- /#sidebar -->
+							
+		</div> <!-- /row -->
+	</div><!-- /container -->
+</div> <!-- /#wrapper -->
+<div id="footer" class="clearfix">
+	
+									<div id="footer-widgets" class="clearfix">
+					<div class="container">
+						<div class="row">
+						
+							<div id="left-footer-widgets" class="span4 clearfix">
+								<div id="text-3" class="widget widget_text">			<div class="textwidget"><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i1.wp.com/i.creativecommons.org/l/by-nc/4.0/88x31.png" data-recalc-dims="1" /></a><br /><span xmlns:dct="http://purl.org/dc/terms/" property="dct:title">Open Source Routing and Network Simulation blog</span> by <a xmlns:cc="http://creativecommons.org/ns#" href="www.brianlinkletter.com" property="cc:attributionName" rel="cc:attributionURL">Brian Linkletter</a> is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International License</a>.</div>
+		</div>							</div><!-- /#left-footer-widget -->
+							
+							<div id="center-footer-widgets" class="span4 clearfix">
+															</div><!-- /#center-footer-widget -->
+							
+							<div id="right-footer-widgets" class="span4 clearfix">
+															</div><!-- /#right-footer-widget -->
+							
+						</div><!-- /row -->
+					</div><!-- /container -->
+				</div><!-- /#footer-widgets -->
+										
+				<div id="sub-floor" class="clearfix">
+			<div class="container">
+				<div class="row">
+					<div id="footer-links" class="span7">
+											</div><!-- /#footer-links -->			
+							
+					<div id="credit" class="span12">
+												
+													&copy; 2021 <a href="https://www.brianlinkletter.com">Open-Source Routing and Network Simulation</a> &mdash; <a href="http://standardtheme.com/?utm_source=standard-theme&amp;utm_medium=footer&amp;utm_content=wp-org&amp;utm_campaign=Standard%2BFooter" target="_blank">Standard</a> by <a href="http://8bit.io/?utm_source=standard-theme&amp;utm_medium=footer&amp;utm_content=wp-org&amp;utm_campaign=Standard%2BFooter" target="_blank">8BIT</a>												
+					</div><!-- /#credits -->
+
+				</div><!-- /row -->
+			</div><!-- /.container -->
+		</div><!-- /#sub-floor -->
+	</div><!-- /#footer -->
+		<div style="display:none">
+	<div class="grofile-hash-map-d05d933e28b6402a2bf0a0d2adc101ae">
+	</div>
+	<div class="grofile-hash-map-5f6f3e1e43fa2d96d8b4351183cad847">
+	</div>
+	<div class="grofile-hash-map-a09850845ffe15def63760b391ad2475">
+	</div>
+	<div class="grofile-hash-map-703fa54b39254dafeed696cea6e8b2d3">
+	</div>
+	<div class="grofile-hash-map-cf6aba1417aae8b344b36231c4e717ff">
+	</div>
+	</div>
+
+	<script type="text/javascript">
+		window.WPCOM_sharing_counts = {"https:\/\/www.brianlinkletter.com\/2016\/05\/how-to-install-dcore-linux-in-a-virtual-machine\/":4552};
+	</script>
+				<link rel='stylesheet' id='yarppRelatedCss-css'  href='https://www.brianlinkletter.com/wp-content/plugins/yet-another-related-posts-plugin/style/related.css?ver=5.27.8' type='text/css' media='all' />
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/plugins/jetpack/_inc/build/photon/photon.min.js?ver=20191001' id='jetpack-photon-js'></script>
+<script type='text/javascript' src='https://secure.gravatar.com/js/gprofiles.js?ver=202149' id='grofiles-cards-js'></script>
+<script type='text/javascript' id='wpgroho-js-extra'>
+/* <![CDATA[ */
+var WPGroHo = {"my_hash":""};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/plugins/jetpack/modules/wpgroho.js?ver=10.4' id='wpgroho-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-includes/js/comment-reply.min.js?ver=5.7.4' id='comment-reply-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/plugins/jetpack/_inc/build/twitter-timeline.min.js?ver=4.0.0' id='jetpack-twitter-timeline-js'></script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-includes/js/wp-embed.min.js?ver=5.7.4' id='wp-embed-js'></script>
+<script type='text/javascript' id='google-translate-init-js-extra'>
+/* <![CDATA[ */
+var _wp_google_translate_widget = {"lang":"en_US","layout":"0"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/plugins/jetpack/_inc/build/widgets/google-translate/google-translate.min.js?ver=5.7.4' id='google-translate-init-js'></script>
+<script type='text/javascript' src='//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit&#038;ver=5.7.4' id='google-translate-js'></script>
+<script type='text/javascript' id='sharing-js-js-extra'>
+/* <![CDATA[ */
+var sharing_js_options = {"lang":"en","counts":"1","is_stats_active":"1"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://www.brianlinkletter.com/wp-content/plugins/jetpack/_inc/build/sharedaddy/sharing.min.js?ver=10.4' id='sharing-js-js'></script>
+<script type='text/javascript' id='sharing-js-js-after'>
+var windowOpen;
+			( function () {
+				function matches( el, sel ) {
+					return !! (
+						el.matches && el.matches( sel ) ||
+						el.msMatchesSelector && el.msMatchesSelector( sel )
+					);
+				}
+
+				document.body.addEventListener( 'click', function ( event ) {
+					if ( ! event.target ) {
+						return;
+					}
+
+					var el;
+					if ( matches( event.target, 'a.share-linkedin' ) ) {
+						el = event.target;
+					} else if ( event.target.parentNode && matches( event.target.parentNode, 'a.share-linkedin' ) ) {
+						el = event.target.parentNode;
+					}
+
+					if ( el ) {
+						event.preventDefault();
+
+						// If there's another sharing window open, close it.
+						if ( typeof windowOpen !== 'undefined' ) {
+							windowOpen.close();
+						}
+						windowOpen = window.open( el.getAttribute( 'href' ), 'wpcomlinkedin', 'menubar=1,resizable=1,width=580,height=450' );
+						return false;
+					}
+				} );
+			} )();
+var windowOpen;
+			( function () {
+				function matches( el, sel ) {
+					return !! (
+						el.matches && el.matches( sel ) ||
+						el.msMatchesSelector && el.msMatchesSelector( sel )
+					);
+				}
+
+				document.body.addEventListener( 'click', function ( event ) {
+					if ( ! event.target ) {
+						return;
+					}
+
+					var el;
+					if ( matches( event.target, 'a.share-twitter' ) ) {
+						el = event.target;
+					} else if ( event.target.parentNode && matches( event.target.parentNode, 'a.share-twitter' ) ) {
+						el = event.target.parentNode;
+					}
+
+					if ( el ) {
+						event.preventDefault();
+
+						// If there's another sharing window open, close it.
+						if ( typeof windowOpen !== 'undefined' ) {
+							windowOpen.close();
+						}
+						windowOpen = window.open( el.getAttribute( 'href' ), 'wpcomtwitter', 'menubar=1,resizable=1,width=600,height=350' );
+						return false;
+					}
+				} );
+			} )();
+var windowOpen;
+			( function () {
+				function matches( el, sel ) {
+					return !! (
+						el.matches && el.matches( sel ) ||
+						el.msMatchesSelector && el.msMatchesSelector( sel )
+					);
+				}
+
+				document.body.addEventListener( 'click', function ( event ) {
+					if ( ! event.target ) {
+						return;
+					}
+
+					var el;
+					if ( matches( event.target, 'a.share-facebook' ) ) {
+						el = event.target;
+					} else if ( event.target.parentNode && matches( event.target.parentNode, 'a.share-facebook' ) ) {
+						el = event.target.parentNode;
+					}
+
+					if ( el ) {
+						event.preventDefault();
+
+						// If there's another sharing window open, close it.
+						if ( typeof windowOpen !== 'undefined' ) {
+							windowOpen.close();
+						}
+						windowOpen = window.open( el.getAttribute( 'href' ), 'wpcomfacebook', 'menubar=1,resizable=1,width=600,height=400' );
+						return false;
+					}
+				} );
+			} )();
+</script>
+<script src='https://stats.wp.com/e-202149.js' defer></script>
+<script>
+	_stq = window._stq || [];
+	_stq.push([ 'view', {v:'ext',j:'1:10.4',blog:'39593494',post:'4552',tz:'-5',srv:'www.brianlinkletter.com'} ]);
+	_stq.push([ 'clickTrackerInit', '39593494', '4552' ]);
+</script>
+	</body>
+</html>
+<!--Generated by Endurance Page Cache-->

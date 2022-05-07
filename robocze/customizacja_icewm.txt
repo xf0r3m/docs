@@ -1,0 +1,25 @@
+Zmiana grafiki klawisza menu:
+W katalogu tematu należy utworzyć katalog o nazwie "taskbar"
+(.icmwm/themes/win95/taskbar), następnie należy przekopiować do niego plik
+z grafiką o formacie 50x17, plik musi nazywać się "icewm.xpm".
+
+Dostoswanie menu:
+Edytujemy plik .icewm/menu, poniżej znajduje się zawartość pliki dla
+desktopej wersji greenOS:
+#
+prog "xterm" xterm xterm -fg orange -bg black
+prog "ranger" xterm xterm -fg orange -bg black -T ranger -e ranger
+prog "irssi" xterm xterm -fg orange -bg black -T irssi -e irssi 
+prog "Firefox" ! x-www-browser
+prog "qmmp" qmmp qmmp
+prog "VLC" vlc vlc
+
+Zmniejszenie ilość przestrzeni roboczych na pasku:
+W pliku .icewm/preferences odnajdujemy opcję: 'TaskBarWorkspacesLimit="1"',
+w opcji podajemy liczbę przestrzeni roboczych.
+
+Ranger - trzy kolumny + wyświetlanie ukrytych plików
+Tworzymy plik .config/ranger/rc.conf zapisując poniższe linie.
+
+set column_ratios 1,2,3
+set show_hidden true

@@ -1,0 +1,9 @@
+1. su root
+2. pkg_add -iv xfce
+3. pkg_add -iv slim
+4. exit
+5. echo "exec startxfce4" > .xinitrc
+6. su root
+7. echo "/usr/local/bin/slim -d" > /etc/rc.local
+8. echo 'pkg_scripts="dbus_daemon avahi_daemon"' >> /etc/rc.conf.local
+9. echo 'dbus_enabled=YES' >> /etc/rc.conf.local

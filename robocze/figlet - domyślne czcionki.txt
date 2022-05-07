@@ -1,0 +1,123 @@
+/usr/share/figlet/smscript.flf
+/usr/share/figlet/slant.flf
+/usr/share/figlet/ivrit.flf
+/usr/share/figlet/block.flf
+/usr/share/figlet/small.flf
+/usr/share/figlet/mini.flf
+/usr/share/figlet/term.flf
+/usr/share/figlet/smshadow.flf
+/usr/share/figlet/lean.flf
+/usr/share/figlet/banner.flf
+/usr/share/figlet/mnemonic.flf
+/usr/share/figlet/shadow.flf
+/usr/share/figlet/bubble.flf
+/usr/share/figlet/digital.flf
+/usr/share/figlet/standard.flf
+/usr/share/figlet/script.flf
+/usr/share/figlet/big.flf
+/usr/share/figlet/smslant.flf
+
+pi@uniterbr:~ $ figlet -c landisk -f smscript
+                                                      
+                         |\  _,         _|  o  ,  |)  
+                         |/ / |  /|/|  / |  | / \_|/) 
+                         |_/\/|_/ | |_/\/|_/|/ \/ | \/
+                                                      
+pi@uniterbr:~ $ figlet -c landisk -f slant
+                          __                ___      __  
+                         / /___ _____  ____/ (_)____/ /__
+                        / / __ `/ __ \/ __  / / ___/ //_/
+                       / / /_/ / / / / /_/ / (__  ) ,<   
+                      /_/\__,_/_/ /_/\__,_/_/____/_/|_|  
+                                                         
+pi@uniterbr:~ $ figlet -c landisk -f ivrit
+                         _        _     _             _ 
+                        | | _____(_) __| |_ __   __ _| |
+                        | |/ / __| |/ _` | '_ \ / _` | |
+                        |   <\__ \ | (_| | | | | (_| | |
+                        |_|\_\___/_|\__,_|_| |_|\__,_|_|
+                                                        
+pi@uniterbr:~ $ figlet -c landisk -f small
+                           _              _ _    _   
+                          | |__ _ _ _  __| (_)__| |__
+                          | / _` | ' \/ _` | (_-< / /
+                          |_\__,_|_||_\__,_|_/__/_\_\
+                                                     
+pi@uniterbr:~ $ figlet -c landisk -f mini
+                                                
+                                | _.._  _|o _|  
+                                |(_|| |(_||_>|< 
+                                                
+pi@uniterbr:~ $ figlet -c landisk -f term
+                                    landisk
+pi@uniterbr:~ $ figlet -c landisk -f smshadow
+                          |                |_)     |   
+                          |  _` |   \   _` | |(_-< | / 
+                         _|\__,_|_| _|\__,_|_|___/_\_\ 
+                                                       
+pi@uniterbr:~ $ figlet -c landisk -f lean
+                                                                      
+              _/                            _/  _/            _/      
+             _/    _/_/_/  _/_/_/      _/_/_/        _/_/_/  _/  _/   
+            _/  _/    _/  _/    _/  _/    _/  _/  _/_/      _/_/      
+           _/  _/    _/  _/    _/  _/    _/  _/      _/_/  _/  _/     
+          _/    _/_/_/  _/    _/    _/_/_/  _/  _/_/_/    _/    _/    
+                                                                      
+                                                                      
+pi@uniterbr:~ $ figlet -c landisk -f banner
+                                                              
+                  #        ##   #    # #####  #  ####  #    # 
+                  #       #  #  ##   # #    # # #      #   #  
+                  #      #    # # #  # #    # #  ####  ####   
+                  #      ###### #  # # #    # #      # #  #   
+                  #      #    # #   ## #    # # #    # #   #  
+                  ###### #    # #    # #####  #  ####  #    # 
+                                                              
+pi@uniterbr:~ $ figlet -c landisk -f mnemonic
+                                    landisk
+pi@uniterbr:~ $ figlet -c landisk -f shadow
+                        |                 |_)      |    
+                        |  _` | __ \   _` | |  __| |  / 
+                        | (   | |   | (   | |\__ \   <  
+                       _|\__,_|_|  _|\__,_|_|____/_|\_\ 
+                                                        
+pi@uniterbr:~ $ figlet -c landisk -f buble
+figlet: buble: Unable to open font file
+pi@uniterbr:~ $ figlet -c landisk -f bubble
+                           _   _   _   _   _   _   _  
+                          / \ / \ / \ / \ / \ / \ / \ 
+                         ( l | a | n | d | i | s | k )
+                          \_/ \_/ \_/ \_/ \_/ \_/ \_/ 
+pi@uniterbr:~ $ figlet -c landisk -f digital
+                                +-+-+-+-+-+-+-+
+                                |l|a|n|d|i|s|k|
+                                +-+-+-+-+-+-+-+
+pi@uniterbr:~ $ figlet -c landisk -f standard
+                         _                 _ _     _    
+                        | | __ _ _ __   __| (_)___| | __
+                        | |/ _` | '_ \ / _` | / __| |/ /
+                        | | (_| | | | | (_| | \__ \   < 
+                        |_|\__,_|_| |_|\__,_|_|___/_|\_\
+                                                        
+pi@uniterbr:~ $ figlet -c landisk -f script
+                       _                              _   
+                      | |                  |  o      | |  
+                      | |  __,   _  _    __|      ,  | |  
+                      |/  /  |  / |/ |  /  |  |  / \_|/_) 
+                      |__/\_/|_/  |  |_/\_/|_/|_/ \/ | \_/
+                                                          
+                                                          
+pi@uniterbr:~ $ figlet -c landisk -f big
+                         _                 _ _     _    
+                        | |               | (_)   | |   
+                        | | __ _ _ __   __| |_ ___| | __
+                        | |/ _` | '_ \ / _` | / __| |/ /
+                        | | (_| | | | | (_| | \__ \   < 
+                        |_|\__,_|_| |_|\__,_|_|___/_|\_\
+                                                        
+                                                        
+pi@uniterbr:~ $ figlet -c landisk -f smslant
+                            __             ___     __  
+                           / /__ ____  ___/ (_)__ / /__
+                          / / _ `/ _ \/ _  / (_-</  '_/
+                         /_/\_,_/_//_/\_,_/_/___/_/\_\ 

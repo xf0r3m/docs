@@ -1,0 +1,6 @@
+-- Wersja: 1.0.5
+  * Niezbędny powrót do katalogu cde na obrazie płyty, ponieważ uruchomienie
+    obrazu zgranego na pendrive nie ładowało rozszerzeń.
+  * Skopiowanie prekonfigurowanego archwium mydata.tgz z katalogu cde do
+    initramfs, aby zmiany w nim zawarte tyczyły się również środowiska LiveCD.
+  * Dopisanie wersji do pliku isolinux/boot.msg

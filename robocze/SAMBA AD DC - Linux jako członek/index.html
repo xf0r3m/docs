@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pl" dir="ltr">
+	<head>
+		<meta charset="utf-8">
+		<title>SAMBA AD DC - Linux jako członek | morketsmerke.net</title>
+	</head>
+	<body>
+		<code>
+			1. Ustawienie adresu DNS.<br />
+				Dla wersji desktopowej korzystamy z narzędzia <code class="code">nm-connection-editor</code>
+				(Ubuntu Desktop 18.04 Gnome).<br />
+				Dla serwera korzystamy z netplan.<br />
+				W razie problemów należy wyłączyć jednostkę systemd-resolved oraz ręcznie
+				ustawić ręcznie plik /etc/resolv.conf.<br />
+				<br />
+			2. Sprawdzenie widoczności domeny.<br />
+				<code class="code">
+					ping -c1 &lt;nazwa_domeny&gt;<br />
+				</code>
+				<br />
+			3. Instalacja oraz instalacja pakietu ntpdate<br />
+				<code class="code">
+					sudo apt install ntpdate<br />
+					sudo ntpdate -q &lt;nazwa_domeny&gt;<br />
+					sudo ntpdate &lt;nazwa_domeny&gt;<br />
+				</code>
+				<br />
+			4. Instalacja pakietów<br />
+				<code class="code">
+					sudo apt install samba krb5-user krb5-config winbind libpam-winbind libnss-winbind<br />
+				</code>
+				W pewnym momecie zostanie poproszenie o podanie<br />
+				<code class="code">realmu kerberos</code>.
+				<br />
+			5. Inicjalizacja kerberos<br />
+				<code class="code">
+					sudo kinit &lt;konto_administratora_AD&gt;<br />
+					sudo klist<br />
+				</code>
+				<br />
+			6. Konfiguracja samby.<br />
+				<code class="code">
+					mv /etc/samba/smb.conf /etc/samba/smb.conf.init<br />
+				</code>
+				W nowym pliku <code class="code">/etc/samba/smb.conf</code>
+				umieszczamy poniższą konfiguracje:<br />
+				<code>
+				<br />
+				<code class="code">
+					[global]
+        workgroup = EXAMPLE
+        realm = EXAMPLE.COM
+        netbios name = linux
+        security = ADS
+        dns forwarder = 192.168.1.1
+
+idmap config * : backend = tdb
+idmap config *:range = 50000-1000000
+idmap uid = 10000-20000
+idmap gid = 10000-20000
+
+   template homedir = /home/%D/%U
+   template shell = /bin/bash
+   winbind use default domain = true
+   winbind offline logon = false
+   winbind nss info = rfc2307
+   winbind enum users = yes
+   winbind enum groups = yes
+
+  vfs objects = acl_xattr
+  map acl inherit = Yes
+  store dos attributes = Yes
+	 		</code>
+			Żeby wystartowały wszystkie usługi jak należy, trzeba wykonać jeszcze
+			dwie czynności:<br />
+			Pobrać SID domeny:<br />
+			<code class="code">sudo net rpc getsid</code><br />
+			<br />
+			Dodać WINS do przeszukiwania hostów w pliku /etc/nsswitch.conf:<br />
+			<code class="code">hosts:			file dns wins</code>
+			<br />
+			7. Restart usług.<br />
+				<code class="code">
+					sudo systemctl restart smbd nmdb winbind<br />
+					sudo systemctl stop samba-ad-dc<br />
+					sudo systemctl enable smbd nmbd winbind<br />
+				</code>
+				<br />
+			8. Podłącznienie do domeny.<br />
+				<code class="code">
+					sudo net ads join -U &lt;konto_administratora_AD&gt;<br />
+				<code>
+				Błędy odnośnie DNS możemy zignorować.<br />
+				<br />
+			9. Logowanie kontami domenowymi do maszyny.<br />
+				9.1. Otwieramy plik /etc/nsswitch.conf<br />
+					Do sekcji <code class="code">passwd,group,shadow</code><br />
+					dopisujemy opcje <code class="code">winbind</code><br />
+					<br />
+				9.2. Testujemy podłączenie listując użytkowników domeny oraz
+				 		grupy domenowe.<br />
+						<code class="code">
+							Dla użytkowników: wbinfo -u<br />
+							Dla grup: wbinfo -g<br />
+						</code>
+						<br />
+				9.3. Testujemu ustawienia pliku /etc/nsswitch.conf<br />
+						<code class="code">
+							getent group | grep 'domain admins'<br />
+							getent passwd | grep administrator<br />
+						</code>
+						<br />
+				9.4. Aktualizacja ustawień pam-auth<br />
+						<code code="code">
+							sudo pam-auth-update<br />
+							Zaznaczamy opcje "Create home directory on login"<br />
+						</code>
+						<br />
+				9.5. Dystrybucje oparte Debianie wymagają dodania jeszcze jednej<br />
+						opcji w pliku /etc/pam.d/common-account, aby tworzyć katalogi<br />
+						domowe użytkowników domenowych przy logowaniu.<br />
+						<code code="code">
+							session    required    pam_mkhomedir.so    skel=/etc/skel/    umask=0022<br />
+						</code>
+						<br />
+			 9.6. Ustawienie możliwości zmiany hasła z poziomu wiersza polecnia<br />
+			 			na zalogowanych komputerach:<br />
+						<code code="code">
+							Usuwamy opcje use_authtok z poniższej lini:<br />
+							password       [success=1 default=ignore]      pam_winbind.so use_authtok try_first_pass<br />
+						</code>
+						<br />
+			 9.7. Istnieje możliwość kont administracyjnych AD dodania do grupy sudo<br />
+			 			lub nadania uprawnień dla całej grupy 'domain admins'<br />
+						<code class="code">
+							sudo usermod -aG sudo &lt;użytkownik&gt;<br />
+						</code>
+						<code class="code">
+							W pliku: /etc/sudoers w sekcji <br />
+							"#User privilege specification"<br />
+							%&lt;workgroup&gt;\\domain\ admins ALL=(ALL:ALL) ALL<br />
+						</code>
+		</code>
+	</body>
+</html>

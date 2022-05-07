@@ -1,0 +1,494 @@
+<strong>OpenVPN</strong> - to działający w oparciu o protokół SSL/TLS program do zestawiania wirtualnych sieci prywatnych.
+
+Do najważniejszych cech można zaliczyć m.in.: 
+* prosta instalacja i konfiguracja,
+* działa w warstwie użytkownika,
+* wykorzystuje dobrze znany i sprawdzony protokół SSL,
+* dostępny jest na licencji GPL w wersji 2,
+* działa z większością systemów operacyjnych nawet z Windows Mobile.
+* działa bezproblemowo w sieciach za NAT-em,
+
+== Instalacja == 
+
+Instalacja programu OpenVPN różni się w zależności od zainstalowanego systemu operacyjnego. W systemach Linux możemy zainstalować program, używając właściwego dla swojej dystrybucji narzędzia do zarządzania pakietami, lub też pobrać źródła programu OpenVPN i skompilować je samodzielnie. W przypadku systemu FreeBSD zaleca się użycie systemu portów. Dla systemów MS Windows (2000,XP,Vista) dostępny jest pakiet instalacyjny, który oprócz właściwego programu zainstaluje też sterownik wirtualnego interfejsu TAP.
+
+Poniżej przedstawione zostanie instalacja w systemie GNU/Linux Debian z wykorzystaniem <code>apt-get</code> a także kompilacje ze źródeł oraz instalację w systemach Windows.
+
+<strong>Instalacja w systemie GNU/Linux Debian</strong>
+
+Będąc zalogowanym jako root wpisz polecenie:<br />
+
+<pre>
+root@srv01:~# apt-get install openvpn
+</pre>. 
+
+Program <code>apt-get</code> ściągnie z sieci paczkę z programem OpenVPN i zainstaluje plik w odpowiednich katalogach. Skrypt instalacyjny zapyta także, czy utworzyć plik urządzenia <em>/dev/net/tun</em>. Na te pytania należy odpowiedzieć twierdząco, urządzenie jest potrzebne do działania VPN. Skrypt instalacyjny Debiana zapyta także o to czy w przypadku aktualizacji programu OpenVPN powinien wyłączyć usługę przez aktualizacją, czy też robić to po aktualizacji. Odpowiedź na to pytanie jest istotna w przypadku gdy dostęp do konsoli serwera mamy tylko przez nasz tunel VPN - wówczas należy odpowiedzieć <strong>NIE</strong> (nie zatrzymuj usługi przed aktualizacją). W przeciwnym razie stracilibyśmy łączność z serwerem przez aktualizacją. W przypadku "paczek" Debianowych program zostanie zainstalowany w katalogu <em>/usr/sbin</em>, a pliki konfiguracyjny powinien znajdować się w <em>/etc/openvpn</em>.
+
+<strong>Instalacja przez kompilację źródeł programu (Linux)</strong>
+
+Opis instalacji ze źródeł jest uniwersalny dla większości systemów *uniksowych. Przed kompilacją upewnij się, czy masz zainstalowane w systemie tzw. narzędzie deweloperskie (build-essentials) tj. komilator języka C++ (pakiet g++) i program <code>make</code>. Jako że OpenVPN działa w oparciu o protokół SSL, potrzebna będzie jest także zainstalowana biblioteka <em>openssl</em> wraz z nagłówkami (pakiety libssl, libssl-dev). Dystrybucje, w których instalacja oprogramowania na ogół polega na kompilacji źródeł, powinny mieć wszystkie potrzebne biblioteki już zainstalowane.
+
+Przed kompilacją programu OpenVPN upewnij się że masz zainstalowaną w systemie bibliotekę LZO (wraz z nagłówkami) - odpowiedzialną za kompresje danych. Wprawdzie można skompilować OpenVPN bez tej biblioteki, jednakże pozbawimy się możliwości używania kompresji w połączeniach VPN. Aby sprawdzić czy mamy zainstalowane pliki nagłówkowe biblioteki LZO wykonujemy poniższe polecenie.
+<pre>
+srv:~# find /usr/ -type -f -name 'lzo1x.h'
+</pre>
+Jeśli nie znaleziono pliku <em>lzo1x.h</em>, to musimy jeszcze skompilować i zainstalować bibliotekę LZO. W tym celu wykonujemy poniższe czynności.
+
+<ol>
+<li>Pobieramy kod źródłowy biblioteki LZO ze strony http://www.oberhumer.com/opensource/lzo/#download . Musimy pobrać pełną wersję, nie wybierajmy wersji Mini-LZO, która nie zawiera potrzebnych plików nagłówkowych. Rozpakowujemy kod w jakiś katalog tymczasowy np. <em>/usr/src/lzo-2.10</em>.</li>
+<li>Wpisujemy polecenie: <code>./configure && make && make install</code></li>
+</ol>
+
+Jeśli mamy zainstalowane w systemie podstawowe narzędzia deweloperskie, biblioteka powinna skompilować się bez problemów. W wyniku instalacji (polecenie make install) powinny powstać pliki nagłówkowe biblioteki <em>LZO</em> - w katalogu <em>/usr/local/include/lzo</em>. Teraz możemy przejść do kompilacji programu OpenVPN.
+
+<ol>
+<li>Pobieramy źródła stabilnej wersji programu OpenVPN ze strony głównej projektu https://openvpn.net/community-downloads/ .</li>
+<li>Rozpakowujemy plik w katalogu <em>/usr/src/</em>. W tym celu wpisujemy polecenie: <code>unzip openvpn-&lt;numer_wersji&gt;.zip</code></li>
+<li>Przechodzimy do katalogu <em>openvpn-&lt;numer_wersji&gt;</em> i wpisujemy polecenie <code>./configure</code></li>
+<li>Możemy zapoznać się z listą dostępnych opcji wpisując polecenie <code>./configure --help | more</code>, jednakże w większości przypadków domyślne opcje konfiguracyjne są wystarczające.</li>
+<li>Jeśli podczas działania skryptu <code>./configure</code> nie zostaną zgłoszone błędy, możemy uruchomić właściwą kompilacje programu w tym celu wpisujemy polecenie <code>make</code> Kompilacja nie trwa długo, na szybkim komputerze po około minucie program <code>make</code> zakończy działanie.</li>
+<li>Ostatnim krokiem jest instalacja skompilowanych plików we właściwych katalogach. W tym celu wpisujemy polecenie <code>make install</code>. Program powinien zainstalować się w katalogu <em>/usr/local/bin</em></li>
+</ol>
+
+OpenVPN potrzebuje też do działania wirtualnego interfejsu sieciowego TUN/TAP, którego sterownik musi być wkompilowany w jądro systemu, bądź mieć postać modułów (Linux). Jeśli nie kompilowaliśmy jądra swojego systemu samodzielnie, to najprawdopodobniej odpowiedni sterownik mamy już w systemie (popularne dystrybucje dodają go w postaci modułów). Aby się o tym przekonać wpisujemy polecenie <code>modprobe tun</code>. Jeśli program <code>modprobe</code> nie zgłosi błędu, możemy wpisać komendę <code>dmesg</code>, aby sprawdzić, czy moduł jądra został załadowany do pamięci. Szukajmy napisu zawierające "TUN/TAP". Gdy program <code>modprobe</code> zgłosi następujący błąd: <code>Can't locate module tap</code>, oznacza to że albo sterownik interfejsu TUN/TAP został wkompilowany w jądro, albo też sterownika nie ma ani w jądrze, ani w postaci modułu. Aby sprawdzić to, wpisujemy polecenie: <code>dmesg | grep -i tun</code>. Powinniśmy zobaczyć komunikat świadczący o obecności sterownika TUN/TAP, w przeciwnym razie jądro nie obsługuje tego sterownika i będzie trzeba je przekompilować.
+
+<strong><em>(od Redaktora strony: Tutaj ze względu na to że książka została wydana 10 lat temu. Ta część zostanie zakończona. Rekompilacja jądra przedstawiona w tym miejscu w książce była kompatybilna z jądrem 2.6, w momencie pisania 5.5.10, wiele rzeczy z tym związane mogło zostać zmienione, natomiast nie umiejętna rekompilacja jądrą może unieruchomić system, ta część zostanie pominięta)</em></strong>
+
+Ostatnim etapem instalacji programu OpenVPN jest stworzenie pliku urządzenia interfejsu TUN oraz modyfikacja skryptów startowych.
+Wpisujemy polecenie <code>srv:~# mknod /dev/net/tun c 10 200</code>. Jeśli instalowaliśmy OpenVPN z paczki, jest wielce prawdopodobne, że plik już istnieje, więc wywołanie tego polecenia zwróci błąd o tym że pliki istnieje. Nie należy się nim przejmować. W przypadku gdy sterownik TUN jest w postaci modułu, upewnij się czy jest on dopisany w pliku odpowiedzialnym za ładowanie modułów przy starcie systemu. Niestety nie ma tutaj spójności pomiędzy systemami. Poniżej znajdują się ścieżki dla najpopularniejszych dystrybucji:
+* <em>/etc/modules</em> - dystrybucja Debian i wszystkie bazujące na niej,
+* <em>/etc/rc.modules</em> - dystrybucja Slackware,
+* <em>/etc/modprobe.conf</em> - dystrybucja RedHat, Fedora, Aurox, o inne bazujące na RH.
+
+Jako że do działania sieci VPN na pewno będzie potrzebne przekazywanie pakietów (ang. <em>forwarding</em>) dopisujemy do pliku /etc/sysctl.conf linijkę: <code>net.ivp4.ip_forward = 1</code>.
+
+Ze względów bezpieczeństwa serwera na potrzeby działania programu OpenVPN powinieneś stworzyć osobne konto bez możliwości logowania się i bez możliwości uruchomienia powłoki. Program OpenVPN zaraz po uruchomieniu się zrzuci uprawnienia użytkownika <em>root</em> na to specjalne konto.
+
+Zakładamy konto OpenVPN oraz grupę o takiej samej nazwie. W tym celu wykonujemy poniższe polecenia.
+
+<ol>
+<li><code>groupadd openvpn</code></li>
+<li><code>usermod -g openvpn -d /usr/local/etc/openvpn -s /bin/false -f 1 openvpn</code></li>
+<li><code>mkdir /user/local/etc/openvpn</code></li>
+<li><code>chown openvpn:openvpn /usr/local/etc/openvpn</code></li>
+</ol>
+
+W powyższym przykładzie konfiguracje programu OpenVPN będziemy przechowywali w katalogu <em>/usr/local/etc/openvpn</em>. Możemy ją zmienić oczywiście dostosowując je do własnych potrzeb.
+
+<strong>Instalacja pod systemami MS Windows</strong>
+
+Ogromną zaletą programu OpenVPN jest fakt, że działa pod najpopularniejszymi systemami operacyjnymi, a jego instalacja jest bardzo prosta. Nie inaczej jest pod systemami z rodziny Windows, gdzie instalacja sprowadza się do uruchomienia jednego programu instalacyjnego. Instalacja przebiega typowo - po wskazaniu miejsca docelowego program instalacyjny rozpocznie instalacje. Pod czas instalowania sterownik interfejsu TAP system Windows zgłosi komunikat informujący o tym, że sterownik nie został podpisany cyfrowo przez firmę Microsoft. Aby dokończyć instalacje, musisz kliknąć przycisk <em>Mimo to kontynuuj</em>. 
+
+Sterownik wirtualnego interfejsu TAP, z którego korzysta program OpenVPN, wymaga w systemach Windows uprawnień administratora. W związku z powyższym, aby móc zestawić połączenie VPN, program musi zostać uruchomiony przez użytkownika z uprawnieniami administratora lub jako usługa systemowa.
+
+Jeżeli nie chcesz nadawać swoim użytkownikom tak dużych uprawnień, istnieje prosta metoda obejścia tego problemu. Załóż dodatkowe konto w systemie o nazwie np. <em>openvpn</em> i dodaj je do grupy administratorów. Następnie będąc zalogowany na koncie zwykłego użytkownika, dodaj na Pulpicie skrót wskazujący na program:
+<pre>
+runas.exe /savecred /user:openpvn "c:\Progra~1\OpenVPN\bin\openvpn-gui
+</pre>
+Następnie kliknij utworzony przed chwilą skrót. System zapyta o hasło do konta <em>openvpn</em>. Po podaniu poprawnego hasła zostanie uruchomiony program OpenVPN z uprawnieniami administratora.
+
+== Konfiguracja OpenVPN ==
+
+Konfiguracja programu OpenVPN polega na stworzeniu jednego pliku konfiguracyjnego oraz ewentualnym przygotowaniu klucz i certyfikatów SSL dla serwera i klientów. Liczba opcji konfiguracyjnych sukcesywnie rosła, osiągając już całkiem pokaźne rozmiary. Jednak w typowych używać będziemy używać tylko podstawowych opcji. Nim przejdziemy do praktycznych przykładów, zostaną opisane najważniejsze właściwości programu OpenVPN.
+
+OpenVPN może działać w jednym z dwóch podstawowych typów:
+*Tryb routera - używany w przypadku konfiguracji typu brama + wielu klientów lub brama-brama. Dobrym przykładem jest tutaj zdalny dostęp do zasobów firmy przez mobilnych pracowników.
+*Tryb bridge'a - używany najczęściej w przypadku łączenia dwóch lub większej liczby sieci. W tym przypadku między sieciami przekazywany jest cały ruch łącznie z broadcastami. Przykładem wykorzystania tego trybu jest stworzenie tuneli VPN pomiędzy oddziałem firmy a centralą, tak aby działał między nimi protokół IPX. 
+
+Trybu bridge'a powinniśmy używać tylko w gdy jest naprawdę konieczne. We wszystkich pozostałych lepszym rozwiązaniem jest tryb routera. Przede wszystkim dla tego że nie przesyła broadcastów. Po drugie w przypadku routera każdy z klientów ma osobną podsieć IP, dzięki czemu możesz prosto i skutecznie definiować, który użytkownik do czego ma dostęp na firewallu (np. iptables).
+
+Drugą istotną kwestią, którą musisz rozważyć, jest sposób uwierzytelniania klientów. Tutaj także mamy dwie możliwości:
+* Uwierzytelnianie przez współdzielony stały klucz znany obu stronom. Rozwiązanie proste w konfiguracji, nie nadaje się jednak w przypadku łączenia podsieci, np. oddziału firmy z centralą.
+* Uwierzytelnianie przez certyfikaty SSL X.509, znane z poprzedniego rozdziału. To rozwiązanie znakomicie nadaje się do tworzenia zdalnego dostępu dla pracowników. Dzięki własnościom protokołu SSL/PKI możemy wystawiać użytkownikom certyfikat na określony czas, w razie potrzeby unieważnić je, nadawać dostęp na podstawie właściciela certyfikat itp.
+
+Jeśli mamy wybrać metodę to uwierzytelnianie po przez certyfikaty X.509 wszędzie tam, gdzie mamy do czynienia z czynnikiem ludzkim (odchodzący pracownicy, nieznani użytkownicy). Rozwiązanie z kluczem współdzielonym wystarcza w przypadku łączenia ze sobą routerów.
+
+UDP czy TCP - który protokół transportowy wybrać dla potrzeb tunelu ? OpenVPN może działać z wykorzystaniem zarówno protokół UDP, jak i TCP. Autorzy OpenVPN zalecają używanie protokołu UDP, co może na pierwszy rzut oka wydawać się dziwne, ponieważ UDP nie zapewnia mechanizmów kontroli przesyłu ani mechanizmów potwierdzeń. Powodem jest wydajność transmisji. Chodzi tutaj o znany problem, jak pojawia się w przypadku przesyłania transmisji TCP zawartej (tunelowanej, enkapsulacje) w ramach innej sesji TCP - co miałoby miejsce w przypadku uruchomienia tunelu po TCP. Mechanizm retransmisji sprawdza się bardzo dobrze na zawodnych łączach internetowych, natomiast gdy ten sam zgubiony pakiet próbują retransmitować dwa protokoły TCP, prowadzi to do zapchania łącza. Wyobraźmy sobie sytuacje, w której pierwsza warstwa transportowa (ta, po której działa tunel) zaczyna gubić pakiety. W czasie, w którym warstwa niższa czeka na retransmisje, warstwa wyższa TCP (ta, która "przenosi" właściwie dane użytkownika wewnątrz tunelu) nie dostaje potwierdzeń od hosta docelowego i sama zaczyna retransmitować brakujące segmenty - zatykając tym samym i tak przytkaną już warstwę niższą. To zjawisko nazywa się efektem meltdown lub TCP meltdown.
+
+W praktyce duży zależy od tego, jakie dane będą przesyłane przez tunel VPN, oraz od jakości połączenia. W przypadku dobrego łącza i małego obciążenia różnica może być pomijalna. Jeśli zamierzamy uruchomić bramę dostępować dla pracowników mobilnych, musimy pod uwagę, że "nietypowe" porty UDP mogą być blokowane w takich jak hotel, hotspot itp. Ostatecznie nic nie stoi na przeszkodzie aby uruchomić dwa osobne tunele, jeden działający na TCP, drugi na UDP.
+
+== Praktyczny przykład - zdalny dostęp do zasobów dla pracowników firmy ==
+
+Możemy rozważyć następujący przypadek. Dostępu do zasobów sieci LAN, tj. dysków udostępnionych na serwerze Windows 2003, bazy danych MySQL oraz aplikacji intranetowej, potrzebuje grupa handlowców. Brama internetowa w firmie działa na Linuksie, użytkownicy mają na laptopach system MS Windows XP. Klasa adresowa wewnątrz sieci firmowej to <code>192.168.10.0/24</code>.
+
+Jako że mamy tu do czynienia z czynnikiem ludzkim na pewno zastosujemy uwierzytelnianie użytkowników przez certyfikaty SSL. Zanim jeszcze przejdziemy do konfiguracji programu OpenVPN, należy przygotować klucze i certyfikaty SSL dla serwera (bramy) i użytkowników.
+
+<strong>Generowanie certyfikatów SSL</strong>
+
+Aby móc skonfigurować niezbędne będzie utworzenie urzędu certyfikacji oraz certyfikatów zarówno dla serwera jak i dla poszczególnych użytkowników, zostało zobrazowane na stronie poświęconej SSL.
+
+<em>Osobny artykuł: </em>[[SSL|Generowanie certyfikatów SSL]]
+
+<strong>Konfiguracja po stronie serwera</strong>
+
+Konfiguracje serwera rozpoczynamy od przegrania na nasz serwer OpenVPN do katalogu z konfiguracją certyfikatu, klucza prywatnego serwera oraz certyfikatu wystawcy CA. Następnie po stronie serwera musimy wygenerować plik pomocniczy z parametrami algorytmu kryptograficznego Diffiego-Hellmana. Algorytm ten umożliwia uzgodnienie stronom wspólnego klucza do szyfrowania symetrycznego, który będzie znany tylko im. Do tego celu potrzebne są wylosowane dwie liczby pierwsze zawarte w pliku DH. Obecnie za bezpieczne uznaje się aby klucz użyty w protokole DH był długości 1024 bitów. Do celu użyjemy biblioteki openssl. Wpisujemy polecenie podane poniżej,
+
+<pre>
+openssl dhparam -out dh1024.pem 1024
+</pre>
+
+Operacja może potrwać nawet kilka minut - w zależności o szybkości procesora. Podczas generowania klucza (1024-bitowej liczby pierwszej) na ekranie zobaczymy kropki. Przygotowany plik dh1024.pem przegrywamy do katalogu konfiguracyjnego programu OpenVPN. Teraz możemy przejść do edycji po stronie serwera. Przykładowy plik został podany poniżej.
+
+<pre>
+dev tun                        ; rodzaj interfejsu — dla routera zawsze TUN
+local 85.198.209.251           ; adres, na którym będzie działał VPN
+proto udp                      ; tunel będzie działał na porcie UDP
+port 17003                     ; używany port
+user openvpn                   ; zrzuć uprawnienia na wskazanego użytkownika
+group openvpn                  ; jw. dla grupy
+ca cacert.pem                  ; plik certyfikatu CA
+cert servercert.pem            ; certyfikat serwera
+key serverkey.pem_bezhasla     ; plik z kluczem prywatnym serwera
+dh dh1024.pem                  ; plik z parametrami protokołu Diffiego-Hellmana
+server 10.8.0.0 255.255.255.0  ; klasa adresowa, z której przydzielane będą adresy IP klientom
+ifconfig-pool-persist ipp.txt  ; zawiera informacje o przydzielonych adresach IP
+client-config-dir ccd          ; katalog z plikami specyficznych ustawień użytkowników
+keepalive 10 120               ;
+comp-lzo                       ; algorytm kompresji
+</pre>
+
+Spośród tego pliku konfiguracyjnego szerszego omówienia wymagają dwie opcje. <code>ifconfig-pool-persist<em>&lt;nazwa pliku&gt;</em></code> w pliku wskazanym w dyrektywie <code>ifconfig-pool-persist</code> OpenVPN zapisuje nazwy użytkowników oraz adresy IP, jakie zostały przydzielone klientom z puli adresów określonej dyrektywą <code>server</code>. Nazwa użytkownika to zawartość pola Common Name z certyfikatu klienta. Adres IP zapisane są w postaci podsieci o masce /30(<code>255.255.255.252</code>). Dzięki plikowi <code>ifconfig-pool-persist</code> klient może otrzymać to samo IP po ponownym podłączeniu. Z plikiem <em>ipp.txt</em> związana jest pewna nieścisłość która zostanie wyjaśniona przy okazji opisu bardziej złożonej konfiguracji. Kolejną dyrektywą wartą omówienia jest <code>client-config-dir &lt;nazwa katalogu&gt;</code>, opcja ta wskazuje katalog, w którym znajdują się konfiguracje poszczególnych użytkowników. Twórcy OpenVPN przewidzieli możliwość dostosowywania konfiguracji do konkretnych użytkowników. W momencie zestawiania połączenia VPN program sprawdza, czy istnieje plik konfiguracyjny użytkownika w katalogu ccd i jeśli tak, przetwarza zapisane w nim opcje. Pliki w katalogu ccd muszą mieć nazwy zgodne z polem <code>Common Name</code> certyfikat klienta. Między innymi dlatego pole <code>Common Name</code> certyfikatu SSL jest dla programu OpenVPN takie ważne. Najczęściej poprzez CCD przekazujemy użytkownikowi adres IP, adresy serwerów DNS, informacje o routingu.
+
+<strong>Uruchomienie usługi serwera</strong>
+
+Mając przygotowany plik konfiguracyjny, możemy uruchomić proces serwera. W tym celu wpisujemy polecenie:
+<pre>
+/usr/sbin/openvpn --config /usr/local/etc/openvpn/server.conf
+</pre>
+Dostosowując oczywiście ścieżki dostęp do według własnej konfiguracji. Jeśli mamy skonfigurowaną zaporę sieciową na domyślne blokowanie musimy odblokować ją na porcie jaki podaliśmy dla usługi OpenVPN.
+
+<strong>Konfiguracja klienta</strong>
+
+Aby przetestować nasze pierwsze połączenia VPN, musimy jeszcze skonfigurować ustawienia po stronie użytkownika. Zakładając że pliki z kluczem prywatnym oraz certyfikatem użytkownika mamy już przygotowane. Należy przegrać je na komputer użytkownika nazywając odpowiednio user.key i user.crt. Przegraj też certyfikat urzędu CA - plik cacert.pem, aby było wygodnie pisać plik konfiguracyjny i darować sobie pisanie ścieżek do certyfikatów umieść je w tym samym katalogu co plik konfiguracyjny. Poniżej znajduje się przykładowy plik konfiguracyjny dla klienta.
+
+<pre>
+dev tun                    ; interfejs typu TUN (router)
+client                     ; tryb klienta
+remote 85.198.209.251      ; adres zdalnego serwera
+proto udp                  ; użyty protokół transportowy
+port 17003                 ; port, z którym się połączy
+nobind                     ; nie otwieraj portu po stronie klienta
+ca cacert.pem              ; plik z certyfikatem CA
+cert user.crt              ; plik z certyfikatem użytkownika
+key user.key               ; plik z kluczem prywatnym użytkownika
+comp-lzo                   ; załączona kompresja
+verb 3                     ; poziom komunikatów
+</pre>
+
+Podczas zestawiania połączenia program kliencki czy na Windows czy to na Linux będzie wyświetlać komunikaty, z nich możemy wywnioskować czy połączenie zostało zestawione czy też nie. Jeśli wydaje nam się że tak to dla pewności możemy spingować adres interfejsu TUN na serwerze. W razie problemów przydatnym staje się program tcpdump lub wireshark. Jednak że adres przydzielony przez serwer w sieci VPN nie daje nam jeszcze możliwości komunikacji z hostami w sieci LAN w siedzibie firmy. Aby móc wykorzystać zasoby z siedziby firmy, należy ustawić trasę w systemie aby ruch skierowany na adresy w sieci firmowej przechodził przez interfejs TAP (wirtualny interfejs sieci VPN).
+
+Ustawienia trasy czy też statycznych adresów serwerów DNS, możemy ustawić tak aby były one przekazywane przy połączeniu. Polecenie <code>push</code> może zostać umieszczone w pliku konfiguracyjnym wtedy mamy odczynienia z konfiguracją globalną, lub w katalogu ccd w plikach konfiguracyjnych użytkowników. Składnia polecenia <code>push</code> dla <code>route</code>:
+
+<pre>
+push "route 192.168.10.20 255.255.255.255"
+</pre>
+
+Zwróćmy uwagę na to że nie ma adresu bramy. Otóż OpenVPN sam dobierze sobie adres bramy odpowiedni dla tunelu klienta.
+
+== Bardziej złożona konfiguracja z wieloma użytkownikami ==
+
+Załóżmy że do sieci firmowej zdalny dostęp przez VPN powinna mieć spora liczba pracowników - np. trzydziestu. Jako że osoby te należą do różnych działów, uprawnienia do zasobów wewnętrznych muszą różnić się. Pomijając dalsze uwierzytelnienia w warstwie aplikacji (hasło do bazy danych itd.), powinniśmy to tak skonfigurować zdalny dostęp, aby pracownik "widział" jedynie to, co powinien, a nie całą sieć wewnętrzną. Nie wątpliwie najprościej ten cel zrealizować przez blokadę na firewallu. Tutaj świetnie sprawdzi się <code>iptables</code>.
+
+W pierwszej kolejności wygeneruj klucze wraz certyfikatami dla wszystkich użytkowników, następnie powinniśmy gdzieś sobie rozpisać kto do czego powinien mieć dostęp. Należy pamiętać aby użytkownik zdalny miał dostęp <strong><u>TYLKO!</u></strong> koniecznych mu zasobów. Jeśli nie ma konieczności to nie powinien on również mieć dostępu do internetu przez sieć VPN. Są w sumie trzy takie zasady dzięki którym będziemy realizować naszą konfiguracje. Otóż:
+<ol>
+<li>Każdemu z użytkowników, OpenVPN powinien przydzielać zawsze to samo IP, na podstawie którego przyznawać dostęp tylko do określonych zasobów sieci LAN (serwerów, usług).</li>
+<li>Poprzez mechanizm CCD (<em>client-config dir</em>) będziemy przekazywać użytkownikom ich konfiguracje (modyfikacja tabeli routingu, zmiana serwerów DNS itp.).</li>
+<li>Informacje o adresach IP oraz dostępnie do serwerów wewnętrznych będzie zapisywali w plikach konfiguracyjnych OpenVPN oraz w postaci reguł iptables</li>
+</ol>
+
+<strong>Przypisywanie stałych adresów IP użytkownikom</strong>
+
+Za przydzielanie użytkownikom stałych adresów IP odpowiada dyrektywa <code>ifconfig-push</code>, którą umieścimy w plikach ustawień użytkowników - w katalogu <em>ccd</em>. Składnia instrukcji <code>ifconfig-push</code> jest następująca:
+<pre>
+ifconfig-push <adres_klienta> <adres_serwera>
+</pre>
+np.: <code>ifconfig-push 10.8.0.10 10.8.0.9</code>
+
+<strong>Pliki ustawień użytkowników w katalogu ccd</strong>
+
+Poprzez pliki konfiguracyjne w katalogu <em>ccd</em> możesz przekazać różne parametry, poniżej znajduje się klika przykładów.
+* <code>push "route &lt;adres&gt; &lt;maska&gt;"</code> - dodaje wpis do tablicy routingu klienta.
+* <code>push "dhcp-option DNS &lt;adres_IP_serwera_DNS&gt;</code> - ustawia nowy DNS w konfiguracji klienta.
+* <code>push "dhcp-option DOMAIN &lt;nazwa_domeny&gt;</code> - ustawia sufiks domeny w konfiguracji DNS klienta.
+* <code>push "redirect-gateway"</code> - ustawienia tej opcji spowoduje przekierowanie całego ruchu klienta (domyślna trasa)
+
+Skorzystanie z ostatniej opcji (<code>redirect-gateway</code>) będzie wymagało utworzenia regułek NAT-u, aby użytkownik mógł "wychodzić na świat" z adresu firmowego routera.
+
+Korzystając z ww. opcji, utworzymy dla każdego z użytkowników odpowiedni plik w katalogu <em>ccd</em>. Będziemy przekazywali adres IP oraz wpisy dodające trasy w tabeli routingu.
+
+<strong>Logowanie zdarzeń do pliku</strong>
+
+Jeśli planujemy produkcyjnie wdrożyć program OpenVPN z większą liczbą użytkowników, warto mieć możliwość szybkiego i łatwego sprawdzenia informacji takich jak: kto, kiedy i skąd połączył się z VPN. Informacje tego typu warto archiwizować jako ewentualny "dowód w sprawie". Może też wrzucić je do bazy SQL w celu łatwiejszej obróbki i generowania statystyk. Do tego celu możemy wykorzystać opcję serwera OpenVPN <code>learn-address</code>. Opcja ta - jeśli jest załączona - wywoła skrypt podany jako parametr podczas zdarzeń takich jak podłączenia klienta, zmiana adresu IP klienta, odłączenie klienta. Składnia opcji jest następująca:
+<pre>
+learn-address <skrypt>
+</pre>
+
+OpenVPN przekaże do skryptu parametry takie, jak: 
+<ol>
+<li>parametr: <code>akcja</code> (<code>add,delete,update</code>) - w zależności od tego co miało miejsce,</li>
+<li>parametr: adres IP klienta (przydzielony w ramach tunelu),</li>
+<li>parametr: nazwa <code>Common Name</code> użytkownika.</li>
+</ol>
+
+Niestety żaden skrypt nie jest dołączony do OpenVPN. Musimy napisać go samodzielnie.
+
+== Unieważnianie certyfikatów ==
+
+Przy większej liczbie użytkowników prędzej czy później zajdzie potrzeba zablokowania dostępu do VPN któremuś z nich. Powody mogą być różne, najczęstsze to odjeście z pracy lub kradzież laptopa.
+
+Załóżmy, że chcemy unieważnić certyfikat użytkownika <em>jkowalski</em>. W pierwszej kolejności musimy korzystając z programu OpenSSL, unieważnić certyfikat. Logujemy się na komputer CA, i przechodzimy do katalogu /etc/ssl, a następnie wpisujemy polecenie:
+<pre>
+root@ca:/etc/ssl# openssl ca -revoke jkowalskicert.pem
+</pre>
+
+OpenSSL zapyta o hasło klucza CA i po podaniu prawidłowego unieważni certyfikat. Po unieważnieniu certyfikatu dostaniemy informacje zwrotną że baza została zaktualizowana. Możemy teraz podejrzeć zawartość pliku <em>index.txt</em> - przy użytkowniku <em>jkowalski</em> zobaczymy znacznik <em>R</em> (ang. <em>revoked</em>).
+
+Musimy jeszcze wygenerować listę CRL, w której zapisane są wszystkie unieważnione certyfikaty.
+<pre>
+root@ca:/etc/ssl# openssl ca -gencrl -out crl.pem
+</pre>
+
+Teraz należy wygenerowany plik <em>crl.pem</em>, przegrać na serwer do katalogu z konfiguracją OpenVPN. Następnie do pisać do pliku konfiguracyjnego:
+<pre>
+crl-verify crl.pem
+</pre>
+
+Restartujemy usługę (zatrzymujemy i uruchamiamy ponownie) OpenVPN. Teraz możemy przetestować czy <em>jkowalski</em> rzeczywiście nie ma już dostępu do VPN, zestawiając połączenie jako on. Nie dostaniemy żadnego komunikatu, po stronie klienta. Połączenie po prostu się nie zestawia.
+
+== Łączenie oddziałów firmy ==
+
+Rozważmy przypadek, w którym musimy połączyć siedzibę firmy z nowo powstałym oddziałem w innym mieście.
+
+Sposób pierwszy, podobny w działaniu do poprzedniego przypadku to tunel VPN działający w trybie routera. W tym przypadku komputery w siedzibie A i siedzibie B będą w innych klasach adresowych i do komunikacji między sobą będą używały bram. Rozwiązanie dobre bo separuje podsieć przepuszczając tylko wymagany ruch. Niestety nie zawsze się to sprawdza, gdyż, jak wiemy routery nie przekazują pakietów wysyłanych na adres rozgłoszeniowy sieci (ang. <em>broadcast</em>), a niektóre protokoły używają tego adresu do poprawnego działania. 
+
+W związku z powyższym omówimy też drugie rozwiązanie - oparte na mostach sieciowych. W tym przypadku tunel VPN będzie przezroczysty dla warstwy sieci, dzięki czemu komputery będą się widziały tak, jakby oddziały były połączone siecią Ethernet. Wówczas komputery w oddziałach A i B będą w tej samej klasie adresowej i do komunikacji nie będą używały bram. 
+
+Generalnie zalecam używanie trybu routera wszędzie tam gdzie to tylko możliwe. Rozwiązanie "mostkowe" przepuszcza przez tunel cały ruch warstwy sieci, w tym także zapytania ARP, co oczywiście wpływa na obciążenie łącza VPN.
+
+<strong>Przykład rozwiązania z routerem</strong>
+
+Rozważmy przypadek. Siedzibę firmy A musimy połączyć tunelem z oddziałem B. Klasa używana w sieci wewnętrznej w siedzibie A to <code>192.168.20.0/24</code>. Komputery w oddziale B powinny mieć dostęp do trzech serwerów z sieci w siedzibie A: <code>192.168.20.3, 192.168.20.4, 192.168.20.5</code>. Dodatkowo komputery z oddziału B powinny mieć dostęp do internetu przez łącze z siedziby A. Routery po obu stronach działają na Linuksie.
+
+Na interfejsach tunelu użyjemy klasy <code>10.3.0.0/30</code>. Dla potrzeb sieci wewnętrznej w oddziale B wykorzystamy klasę <code>192.168.30.0/24</code>.
+
+<ol>
+<li>Zainstaluj program OpenVPN na obu routerach opisany w początkowych sekcjach tego artykułu.</li>
+<li>Generujemy współdzielony klucz na serwerze. W tym celu wpisujemy polecenie:
+<pre>
+openvpn --genkey --secret secret.key
+</pre>
+W omawianym przypadku jako metodę uwierzytelnienia zastosujemy współdzielony klucz (ang. <em>pre-shared key</em> - PSK) - ponieważ jest tylko jeden klient, nie ma potrzeby generowania certyfikatów.</li>
+<li>Przegrywamy plik <em>secret.key</em> na drugi router, używając bezpiecznego kanału danych - najlepiej połączeniem SCP:
+<pre>
+scp secret.key root@router.siedzibab.pl:/etc/openvpn
+</pre>
+</li>
+<li>Przygotowujemy plik konfiguracyjny dla serwera (brama w siedzibie A)
+<pre>
+dev tun                         ; rodzaj interfejsu — dla routera zawsze TUN
+local 85.98.29.251              ; adres routera, na którym „słucha” OpenVPN
+proto udp                       ; tunel będzie działał na porcie UDP
+port 17003                      ; używany port
+ifconfig 10.3.0.1 10.3.0.2      ; adres serwera, adres klienta
+secret /etc/openvpn/secret.key  ; ścieżka do współdzielonego klucza (PSK)
+user openvpn                    ; zrzuć uprawnienia na wskazanego użytkownika
+group openvpn                   ; jw. dla grupy
+keepalive 10 120
+comp-lzo                        ; algorytm kompresji
+verb 3                          ; poziom szczegółowości logowania
+</pre></li>
+<li>Przygotuj plik konfiguracyjny dla klienta (brama w siedzibie B)
+<pre>
+dev tun                         ; rodzaj interfejsu — dla routera zawsze TUN
+remote 85.98.29.251             ; adres drugiej strony — routera w siedzibie A
+proto udp                       ; tunel będzie działał na porcie UDP
+port 17003                      ; używany port
+ifconfig 10.3.0.2 10.3.0.1      ; adres klienta, adres serwera
+secret /etc/openvpn/secret.key  ; ścieżka do współdzielonego klucza (PSK)
+user openvpn                    ; zrzuć uprawnienia na wskazanego użytkownika
+group openvpn                   ; jw. dla grupy
+keepalive 10 120
+comp-lzo                        ; algorytm kompresji
+verb 3                          ; poziom szczegółowości logowania
+</pre>
+Zauważ brak słowa kluczowego <code>client</code> w pliku konfiguracyjnym klienta. Nie jest to błąd. Opcja <code>client</code> jest synonimem opcji <code>tls-client</code>, a w tym przypadku nie używamy uwierzytelnienia TLS.</li>
+<li> Upewniamy się, czy na obu routerach załączone jest przekazywania pakietów. 
+<pre>
+cat /proc/sys/net/ipv4/ip_forward
+</pre>
+Polecenie powinno na obu routerach zwrócić 1, jeśli zwraca 0. To należy wykonać polecenie:
+<pre>
+echo 1 > /proc/sys/net/ipv4/ip_forward
+</pre>
+oraz dopisać to linijkę skryptów startowych systemu (sysctl.conf)
+<li>Jeżeli domyślną polityką bezpieczeństwa na serwerze (bramie w siedzibie A) jest <code>blokuj</code>, to musimy otworzyć port 17003. W tym celu wpisujemy polecenie
+<pre>
+iptables -I INPUT -i ethX -p udp -d IP_routera --dport 17003 -j ACCEPT 
+</pre>
+Gdzie <code>ethX</code> jest nazwą interfejsu łączącego router z internetem, <code>IP_routera</code> adres IP, pod którym router jest dostępny w internecie. Pamiętajmy aby zapisać nasze reguły firewalla.
+</li>
+<li>Jeżeli komputery oddziale B mają mieć dostęp do internetu przez tunel VPN, to na routerze w siedzibie B musimy zmienić domyślną bramę. Powinna wskazywać adres IP tunelu VPN routera w siedzibie A. Obecnej bramy (przedzielonej przez ISP dla siedziby B użyjemy tylko do komunikacji z routerem w siedzibie A. Na routerze w siedzibie B wpisujemy polecenie:
+
+<strong><u>Uwaga!</u></strong>Jeśli pracujemy zdalnie na routerze ważna jest tutaj kolejność działania. Gdybyśmy zaczęli od usunięcia domyślnej bramy na routerze w oddziale, skutkowało by to utratą komunikacji z nim! 
+
+<pre>
+rtr-officeB:~# ip route add <IP_rtr_w_office_A>/32 via <Brama_ISP_w_office_B>
+</pre>
+Jeśli w naszym systemie brakuje polecenia <code>ip</code>, to należy użyć starszego polecenia:
+<pre>
+rtr-officeB:~# route add -host <IP_rtr_w_office_A> gw <Brama_ISP_w_office_B>
+</pre>
+Następnie usuwamy istniejącą trasę domyślną:
+<pre>
+rtr-officeB:~# ip route delete deafult
+lub
+rtr-officeB:~# route delete default
+</pre></li>
+<li>Pora na zestawienie tunelu i sprawdzenie czy strony widzą się na wzajem po adresach ustawionych w plikach konfiguracyjnych w dyrektywie <code>ifconfig</code>
+<pre>
+# openvpn --config <ścieżka do pliku konfiguracyjny>
+</pre>
+</li>
+<li>Jeśli mamy wzajemną widoczność, musimy ustawić bramę domyślną na routerze w biurze B:
+<pre>
+rtr-officeB:~# ip route add default via <ip_tun_w_office_A>
+lub 
+rtr-officeB:~# route add default gw <ip_tun_w_office_A>
+</pre>
+Od tej chwili cały ruch z oddziału B będzie przechodził przez łącze VPN.</li>
+<li>Pozostało jeszcze skonfigurować reguły firewalla na routerze w siedzibie A. Musimy określić na co zezwalamy komputerom z sieci "oddziałowej" <code>192.168.30.0/24</code>. Jako że domyślną polityką może być <code>blokuj</code>, każdy dostep trzeba jawnie zadeklarować. Zgodnie z założenia komputery z siedziby B powinny mieć dostęp do odpowiednich serwerów. Na routerze w siedzibie A wpisujemy poniższe polecenia:
+<pre>
+iptables -I FORWARD -i tun0 -p ip -s 192.168.30.0/24 -d 192.168.20.3 -j ACCEPT
+iptables -I FORWARD -i tun0 -p ip -s 192.168.30.0/24 -d 192.168.20.4 -j ACCEPT
+iptables -I FORWARD -i tun0 -p ip -s 192.168.30.0/24 -d 192.168.20.5 -j ACCEPT
+</pre>
+Aby zapewnić komputerom z oddziału B połączenie z internetem, musimy jeszcze stworzyć jakąś regułkę NAT. Przykładowa może wyglądać następująco:
+<pre>
+iptables -t nat -A POSTROUTING -o ethX -s 192.168.30.0/24 -j SNAT --to <ADRES NAT>
+</pre>
+<code>ethX</code> oznacza interfejs przez których łączymy się z internetem. <em>ADRES NAT</em> jest to adres na jaki zachodzić ma translacja adresów, przeważnie adres interfejsu przez który łączymy się z internetem.</li>
+</ol>
+
+<strong>Tunel VPN z mostkowaniem</strong>
+
+W niniejszym przykładzie rozważymy przypadek połączenia oddziału firmy z centralą "przezroczystym" tunelem VPN. Założenie jest takie aby przez tunel przekazywane były adresy rozgłoszeniowe. Klasa adresowa używana w obu podsieciach to <code>192.168.20.0/24</code>. Most zbudujemy z dwóch interfejsów: karty sieciowej eth1 łączącej router z siecią LAN oraz wirtualnego interfejsu TAP. Oprócz programu OpenVPN będziemy potrzebowali wkompilowanego w jądro systemu (bądź w postaci programu modułu) sterownika mostów sieciowych ora programu do administracji mostem. Do zarządzania mostem służy pakiet <em>bridge-utils</em>, który na ogół nie wchodzi w skład popularnych dystrybucji i będzie trzeba go doinstalować. W przypadku debianowskich dystrybucji: <code>apt-get install bridge-utils</code>.
+
+<ol>
+<li><u>Przygotowanie środowiska</u>
+<ol>
+<li>Zainstaluj program OpenVPN na obu routerach opisany w początkowych sekcjach tego artykułu.</li>
+<li>Generujemy współdzielony klucz na serwerze. W tym celu wpisujemy polecenie:
+<pre>
+openvpn --genkey --secret secret.key
+</pre>
+W omawianym przypadku jako metodę uwierzytelnienia zastosujemy współdzielony klucz (ang. <em>pre-shared key</em> - PSK) - ponieważ jest tylko jeden klient, nie ma potrzeby generowania certyfikatów.</li>
+<li>Przegrywamy plik <em>secret.key</em> na drugi router, używając bezpiecznego kanału danych - najlepiej połączeniem SCP:
+<pre>
+scp secret.key root@router.siedzibab.pl:/etc/openvpn
+</pre></li>
+<li>Przygotowywujemy plik konfiguracyjny dla serwera (brama w siedzibie A)
+<pre>
+dev tap                                 ; rodzaj interfejsu — dla bridge zawsze TAP
+local 85.98.29.251                      ; adres routera, na którym „słucha” OpenVPN
+proto udp                               ; tunel będzie działał na porcie UDP
+port 17003                              ; używany port
+ifconfig 192,168.20.0 255.255.255.0     ; adres serwera, adres klienta
+secret /etc/openvpn/secret.key          ; ścieżka do współdzielonego klucza (PSK)
+user openvpn                            ; zrzuć uprawnienia na wskazanego użytkownika
+group openvpn                           ; jw. dla grupy
+keepalive 10 120
+comp-lzo                                ; algorytm kompresji
+verb 3                                  ; poziom szczegółowości logowania
+</pre></li>
+<li>Przygotuj plik konfiguracyjny dla klienta (brama w siedzibie B)
+<pre>
+dev tap                                  ; rodzaj interfejsu — dla bridge zawsze TAP
+remote 85.98.29.251                      ; adres drugiej strony — routera w siedzibie A
+proto udp                                ; tunel będzie działał na porcie UDP
+port 17003                               ; używany port
+ifconfig 192,168.20.0 255.255.255.0      ; adres klienta, adres serwera
+secret /etc/openvpn/secret.key           ; ścieżka do współdzielonego klucza (PSK)
+user openvpn                             ; zrzuć uprawnienia na wskazanego użytkownika
+group openvpn                            ; jw. dla grupy
+keepalive 10 120
+comp-lzo                                 ; algorytm kompresji
+verb 3                                   ; poziom szczegółowości logowania
+</pre>
+Zauważ brak słowa kluczowego <code>client</code> w pliku konfiguracyjnym klienta. Nie jest to błąd. Opcja <code>client</code> jest synonimem opcji <code>tls-client</code>, a w tym przypadku nie używamy uwierzytelnienia TLS.</li>
+<li>Jeżeli domyślną polityką bezpieczeństwa na serwerze (bramie w siedzibie A) jest <code>blokuj</code>, to musimy otworzyć port 17003. W tym celu wpisujemy polecenie
+<pre>
+iptables -I INPUT -i ethX -p udp -d IP_routera --dport 17003 -j ACCEPT 
+</pre>
+Gdzie <code>ethX</code> jest nazwą interfejsu łączącego router z internetem, <code>IP_routera</code> adres IP, pod którym router jest dostępny w internecie. Pamiętajmy aby zapisać nasze reguły firewala.
+</li>
+<li>Uruchamiamy program OpenVPN i sprawdzamy czy istnieje on liście procesów (w obu sidzibach).
+<pre>
+# openvpn --config <plik konfiguracyjny>
+</pre>
+</li>
+<li>Tworzymy na obu routerach most używając programu <code>brctl</code>. W tym celu wpisujemy podane poniżej polecenia zahowując kolejność na obu komputerach.
+<pre>
+brctl addbr br0                         # tworzy interfejs dla bridge'a
+brctl addif br0 eth1                    # dodaje do bridge'a interfejs eth1
+brctl addif br0 tap0                    # dodaje do bridge'a interfejs tap0
+ifconfig eth1 0.0.0.0 promisc up        # przestawia karty eth1 i tap0
+ifconfig tap0 0.0.0.0 promisc up        # w tryb nasłuchiwania (promiscuous mode)
+</pre>
+Szczególną uwagę warto zwrócić na komendę brcrl addif br0 eth1, a konkretnie na interfejs eth1 podany jako parametr. Powinien to być interfejs łączący router z siecią lokalną, a nie internetem. Pomyłka w tym miejscu będzie skutkować utratą komunikacji z serwerem (jeśli pracujesz zdalnie).
+
+Następną rzeczą na którą warto zwrócić uwagę jest to że na interfejscie <code>eth1</code> nie przydzielamy adresu IP! Interfejsy mostu są przezroczyste dla warstwy sieciowej i nie posiadają adresów IP. Aby nasz router miał przydzielony adres z klasy lokalnej, musisz skonfigurować go na interfejsie <code>br0</code>. Nadajmy więc routerom adresy z puli lokalnej. Przypisz IP <code>192.168.20.1</code> routerowi po stronie siedziby A.
+<pre>
+ifconfig br0 192.168.20.1 up
+</pre>
+Routerowi w oddziale B przypiszemy adres IP 192.168.1.200.
+<pre>
+ifconfig br0 192.168.20.200 up
+</pre>
+Jeśli wszystko poszło pomyślnie to strony powinny się "pingować".
+</li>
+</ol>
+Zauważmy że adres <code>192.168.20.1</code> przydzielony na interfejsie <code>br0</code> routera w siedzibie A pełni też funkcje bramy domyślnej dla komputerów w swoim LAN-ie (komputerów w siedzibie A)!
+W związku z powyższym wszystkie reguły firewalla, które dotyczyłyby interfejsu <code>eth1</code>, teraz dotyczą interfejsu <code>br0</code>.
+
+Most nie potrzebuje do przebuje załączonego przekazywania pakietów, natomiast w związku z faktem że serwer w siedzibie A, pełni funkcje mostu i routera, przekazywanie musi być załączone. Upewnijmy się, czy plik <em>/proc/sys/net/ipv4/ip_forward</em> ma zawartość 1.
+<pre>
+cat /proc/sys/net/ipv4/ip_forward
+</pre>
+Jeśli nie to dopisujemy to skryptów startowych.
+<pre>
+echo 1 > /proc/sys/net/ipv4/ip_forward
+</pre>
+</li>
+<li><u>Debugowanie</u>
+<br />
+Nie wykluczone że za pierwszym razem wszystko nie zadziała od razu. Zostaną tutaj przedstawione kilka kroków, które przydają się podczas debugowania.
+<ol>
+<li>
+Sprawdzamy czy tunel w ogóle się zestawił - przeglądamy logi programu OpenVPN. 
+Sprawdzamy, czy program widnieje na liście procesów - za pomocą polecenia <code>ps aux | grep vpn</code>.
+</li>
+<li>
+Sprawdzamy, czy interfejs br0 powstał po obu stronach tunelu.
+Wpisujemy polecenie <code>ifconfig | grep br0</code>.
+</li>
+<li>
+Używając polecenia <code>brctl show br0</code>, sprawdzamy, czy oba interfejsy (<code>tap0</code> i <code>eth1</code>) widnieją na liście interfejsów członkowskich w bridge'u br0. Jeśli któregoś z nich brakuje - dodajemy go, za pomocą polecenia <code>brctl addif</code> 
+</li>
+<li>Upewniamy się czy wszystkie tworzące most działają w trybie <em>promiscuose</em> (nasłuchiwania).
+Wpisujemy polecenie <code>ifconfig eth1 promisc</code> oraz <code>ifconfig tap0 promisc</code>.
+</li>
+<li>
+Możemy użyć programu <code>tcpdump</code>, do przeglądania pakietów pojawiających się na obu stronach mostu.
+</li>
+<li>Możemy podglądać na bierząco jak most uczy się adresów MAC. Listę adresów sprawdzamy poleceniem.
+<pre>
+brctl showmacs br0
+</pre>
+</li>
+<li>Jeśli w dalszym ciągu nic nie działa, czasem dobrym rozwiązaniem jest jest zresetowanie komputerów i rozpoczęcie wszystkiego od nowa</li>
+<li>Jeśli pracujemy zdalnie na odległym serwerze, dobrym rozwiązaniem będzie napisanie skryptu, który będzie pingował wybrany serwer co 20 min. W przypadku braku odpowiedzi, skrypt powinien zresetować serwer.
+</li>
+</ol>
+</li>
+</ol>
+

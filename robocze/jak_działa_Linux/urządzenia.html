@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="https://i.ibb.co/khy45hh/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+					text-align: left;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				ul {
+					text-align: left;
+				}
+        p { text-align: justify; }
+			</style>
+		</head>
+		<body style="font-family: monospace;">
+<pre>
+     _       _          _     _       _         _     _                  ___ 
+    | | __ _| | __   __| |___(_) __ _| | __ _  | |   (_)_ __  _   ___  _|__ \
+ _  | |/ _` | |/ /  / _` |_  / |/ _` | |/ _` | | |   | | '_ \| | | \ \/ / / /
+| |_| | (_| |   <  | (_| |/ /| | (_| | | (_| | | |___| | | | | |_| |>  < |_| 
+ \___/ \__,_|_|\_\  \__,_/___|_|\__,_|_|\__,_| |_____|_|_| |_|\__,_/_/\_\(_)
+</pre>
+<p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+	&#9760;&nbsp;<a href="https://morketsmerke.github.io">morketsmerke</a>&nbsp;&#9760;
+</p>
+<div style="margin-left: auto; margin-right: auto; width: 80%;">
+  <h1 style="text-aling: center;">Urządzenia</h1>
+  <p>
+    W Linuxie przez wiele lat zachodziło wiele zmian w sposobie udostępniania
+    urządzeń użytkownikom. Wycieczkę po infrastrukturze funkcjonującego systemu
+    jakim jest materiał rozpoczniemy od poznania tradycjnego systemu
+    prezentowania przez jądro informacji o konfiguracji urządzeń za pomocą
+    interfejsu <strong>sysfs</strong>.
+  </p>
+  <p>
+    Aby zrozumieć co dzieje się po pojawieniu się nowego urządzenia w systemie
+    niezbędne będzie zapoznianie się z nowym system <strong>udev</strong>.
+    Dzięki temu użytkownik i jego programy mogą korzystać i konfigurować nowe
+    urządzenia. Poznamy podstawowe zasady zgodnie, z którymi jądro wysyła do
+    procesów przestrzeni użytkownika komunikaty za pomocą <em>udev</em>,
+    dowiemy się także jak procesy reagują na tego typu sygnały.
+  </p>
+  <h2>Pliki urządzeń</h2>
+  <p>
+    Manipulowanie urządzeniami w UNIX-ach (bo nie tylko w Linuxie), jest proste
+    ponieważ system udostępnia wiele interfejsów wejścia/wyjścia pod postacią
+    plików. Takie pliki nazywamy <strong>węzłami urządzeń</strong>.
+    Programiści do pracy z urządzeniami wykorzystują standardowe operacje na
+    plikach, oczywiście jak wszystko taki spósób udostępniania ma również
+    swoje ograniczenia. Nie wszystkie urządzenia da się przedstawić za 
+    pomocą tego rozwiązania.
+  </p>
+  <p>
+    Pliki urządzeń w Linuxie znajdują się w katalogu <em>/dev</em>. Jeśli
+    wylistujemy sobie zawartość tego katalogu, to uświadomimy z jak dużej
+    ilości, różnej maści urządzeń korzysta ten system (nie tylko ten, bo
+    system tradycjny został zaczerpnięty od innych wariantów systemów
+    UNIX-owych).
+  </p>
+  <p>
+    Najprostszym przykładem pracy z urządzeniami jest wysłanie jakiegoś ciągu
+    znaków do urządzenia <em>/dev/null</em>.
+  </p>
+<pre class="code-block">
+$ echo "To jest przykładowy tekst" &gt; /dev/null
+</pre>
+  <p>
+    Za pomocą symbolu przekierowania wysłaliśym dane do wspomnianego wyżej
+    urządzenia. Z racji tego, że <em>/dev/null</em> jest urządzeń jądro musi
+    zadecydować co należy zrobić zapisywanymi do niego urządzeniami. Dla tego
+    urządzenia jądro nie robi nic. Dane zapisywane do <em>/dev/null</em> są
+    po prostu ignorowane.
+  </p>
+  <p>
+    Użycie przełącznika <code class="code-inline">-l</code> podczas
+    wyświetlania zawartości katalogu <em>/dev</em> pozwala zidentyfikować
+    rozdzaj urządzenia, spójrzmy na typ pliku. Jeśli podczas listowania tego
+    katalogu napotkamy pliki z pierwszym znakiem trybu plików rówym
+    <em>b</em>, <em>c</em>, <em>p</em> lub <em>s</em>, to oznacza, że mamy
+    doczynienia z urządzeniem. Pokrótce opisze teraz każdy z tych rodzaji.
+  </p>
+  <ul>
+    <li><strong>urządzenia blokowe</strong> - jedną z cech urządzeń blokowych
+      jest odczyt/zapis danych z pomocą bloków o stałej wielkość.
+      Najlepszym przykładem urządzeń blokowych są dyski. Każdy dysk można
+      łatwo podzielić na bloki. Procesy mogą za pomocą jądra uzyskać swobodny
+      dostęp do dowolnego bloku, ponieważ ich wielkość jest stała i łatwo ją
+      zindeksować.</li>
+    <li><strong>urządzania znakowe</strong> - Działanie urządzeń znakowych
+      opiera się na strumieniach. Zapisywać do nich można jedynie
+      pojedyńcze znaki. Odczyt również opiera się na pojedyńczych znakach.
+      Przykładem takiego urządzenia jest <em>/dev/null</em>. Urządzenia
+      znakowe nie mają ustalonej wielkości. Operacje zapisu i odczytu są
+      przeważnie wykonywane na faktycznym urządzeniu. Drukarki są prezentowane
+      właśnie jako urządzenia znakowe. Warto zaznaczyć, że przy pracy z
+      urządzeniami znakowymi, jadro nie będzie mogło powtórzyć danych ze 
+      strumienia po przezkazaniu ich do urządzenia lub do procesu.</li>
+    <li><strong>urządzenie potokowe/potoki nazwane</strong> - Urządzenia
+      podobne do urządzeń znakowych, jednak po drugiej stronie strumienia
+      wejścia i wyjścia znajduje się inny proces a nie urządzenie obsługiwane
+      przez jądro.</li>
+    <li><strong>urządzenia gniazdkowe</strong> - Tego typu pliki są
+      urządzeniami specjalnymi przeznaczonymi do komunikacji międzyprocesowej.
+      Często występują poza katalogiem <em>/dev</em>. O gniadzach będzie
+      w późniejszych rozdziałach.</li>
+  </ul>
+  <p>
+    Przyglądając się listingowi, że przy nie których urządzeniach zamiast
+    rozmiaru znajdują się dwie liczby oddzielone od siebie przecinkiem.
+    Wyznaczają one <strong>główny</strong> i <strong>poboczny</strong> numer
+    urządzenia, te numery ułatwiają jądru ich zidentyfikowanie. Dla przykładu
+    partycje dysków mają ten sam numer główny co dysk.
+  </p>
+  <p>
+    Nie wszystkie urządzenia mają swoje pliki. Wyjątkiem są interfejsy sieciowe,
+    ze względu na trudności w obsłudze ich za pomocą standardowych operacji
+    na plikach, stosują inny interfejs wejścia i wyjścia.
+  </p>
+  <h2>Ścieżka urządzenia sysfs</h2>
+  <p>
+    Jądro za pomocą katalogu <em>/dev</em> udostępnia urządzenia procesom
+    użytkownika w uproszczony, ale bardzo wygodny sposób. Po samej nazwie
+    pliku urządzenia możemy wywnioskować z czym mamy doczynienia, jednak
+    poza naszymi domysłami nie uzyskamy z niej więcej informacji. Istotną
+    cechą tej metody jest fakt, że jądro przypisuje nazwy urządzeniom w
+    kolejności w jakiej są wykrywane, przez co to samo urządzenie po
+    ponownym rozruchu komputera może znajdować się pod inną nazwą.
+  </p>
+  <p>
+    Jądro Linuxa na potrzeby ujednoliconego widoku dla wszystkich podłaczonych
+    urządzeń, na podstawie ich atrybutów sprzętowych tworzy
+    <strong>interfejs sysfs</strong>. Główną ścieżką dla przedstawienia
+    urządzeń w ten sposób jest katalog <em>/sys/devices</em>. Dla przykładu
+    pierwszy dysk SATA w systemie <em>sysfs</em> może być reprezentowany w
+    poniższy sposób:
+  </p>
+<pre class="code-block">
+/sys/device/pci0000:00/0000:00:1f:2/host0/target0:0:0/0:0:0:0/block/sda
+</pre>
+  <p>
+    Ta ścieżka jest dłuższa od <em>/dev/sda</em>. Nie powinno się zestawiać
+    tych dwóch ścieżek gdyż mają w one różne zastosowanie. Scieżka
+    <em>sysfs</em> wskazuje na katalog, który umożliwia przeglądanie informacji
+    o urządzeniach oraz zarządzanie nimi, wszystkie ścieżki w
+    <em>/sys/devices</em> mają takie zastosowanie. Jeśli wylistujemy sobie
+    wskazywaną przez ścieżkę katalog nie uzyskamy zbyt wielu informacji,
+    ponieważ zawarte tam informacje powinny być odczytywane raczej przez
+    programy nie przez ludzi. Jeśli w katalogu będzie istnieć plik o nazwie
+    <em>dev</em>, to będzie zawierać numer główny i poboczny urządzenia.
+  </p>
+  <p>
+    Jeśli przyjrzymy się samemu folderowi <em>/sys</em>, to znajduje się w
+    nim kilka skrótów. Dla przykładu w katalogu <em>/sys/block</em> znajdują
+    się same urządzenia blokowe. Te skróty to tylko dowiązania symboliczne.
+    Za pomocą bardzie szczegółowego listingu poleceniem
+    <code class="code-inline">ls</code> możemy poznać pełne ścieżki
+    sktruktury katalogowej <em>sysfs</em>.
+  </p>
+  <p>
+    Znalezienie odpowiedniego katalogu w systemie <em>sysfs</em>, dla pliku
+    z folderu <em>/dev</em> może być nielada wyzwaniem. Do tego celu możemy
+    użyć narzędzia z nowszego systemu <strong>udev</strong>>, mianowicie
+    polecenia
+    <code class="code-inline">udevadm</code> w następującej składni:
+  </p>
+<pre class="code-block">
+$ udevadm info --query=all --name=/dev/sda
+</pre>
+  <p>
+    Polecenie to wyświetli odpowienią ścieżkę oraz atrybuty urządzenia. Na
+    temat powyższego polecenia oraz samego systemu <em>udev</em> będzie w
+    dalszej części materiału.
+  </p>
+  <h2>Polecenie dd i urządzenia</h2>
+  <p>
+    Polecenie <code class="code-inline">dd</code> służy do kopiowania danych,
+    z jednego miejsca (strumienia, czy pliku) w drugie w jasno określonych i
+    stałych blokach. Polecenie jest przydane przy pracy z urządzeniami 
+    blokowymi oraz znakowymi. Przykładowa składnia polecenia znajduje się 
+    poniżej.
+  </p>  
+<pre class="code-block">
+$ dd if=/dev/zero bs=1M of=/dev/sda count=1
+</pre>
+  <p>
+    To polecenie nadpisze zerami pierwszy megabajt dysku. Jak widać polecenie
+    ma nieco inną składnie niż poznane dotychczas poznane narzędzia UNIX-owe.
+    Poniżej znajdują się najważniejsze opcje programu <em>dd</em>.
+  </p>
+  <ul>
+    <li><strong>if=plik</strong> - plik wejściowy; domyślnie stosowane jest
+        standardowe wejście.</li>
+    <li><strong>of=plik</strong> - plik wyjściowy; domyślnie stosowane jest
+        standardowe wyjście.</li>
+    <li><strong>bs=rozmiar</strong> - rozmiar bloku danych, podczas
+        podawania rozmiaru można użyć wielokrotności bajtów. Warto zwrócić
+        uwagę na to, że nie które implementacje tego narzędzia przyjmują
+        przyrostki rozmiaru zapisane mała i nie które wielką. Inny przyrostkiem
+        jest litera <strong>b</strong> oznaczająca blok czyli 512B.</li>
+    <li><strong>ibs=rozmiar, obs=rozmiar</strong> - rozmiar bloku wejściowego,
+        rozmiar bloku wyjściowego. Ustalenie jednego rozmiaru bloku w pewnych
+        sytuacjach może być nie możliwe, dlatego te opcje mogą znaleźć
+        zastosowanie, jeśli nie jest są wymagane różne rozmiary bloków dla
+        pliku wejściowego i wyjściowego to lepiej jest stosować opcję
+        <em>bs</em></li> 
+    <li><strong>count=liczba</strong> - liczba kopiowanych bloków danych.
+        Opcja przydatna podczas pracy z dużymi plikami lub strumieniami. Bez
+        podania tego argumentu działanie programu w zależności miejsca 
+        docelowego mogłoby działać w nieskończoność marnującym przy tym znaczną
+        ilość zasobów komputera. Połączenie tej opcji oraz opcji opisanej
+        poniżej pozwala skopiowanie wycinka danych z miejsca źródłowego.</li>
+    <li><strong>skip=liczba</strong> - pominęcie <em>liczba</em> bloków danych
+        z miejsca wejściowego.</li>
+  </ul>
+  <p>
+    Dzięki swojej prostocie polecenie <code class="code-inline">dd</code> jest
+    uznawane za bardzo potężne narzędzie. Żeby nie na robić sobie kłopotów
+    lepiej jest myśleć przed jego użyciem.
+  </p>
+  <h2>Nazewnictwo urządzeń</h2>
+  <p>
+    Podczas pracy z dystrybucjami Linuxa, chcąc skomunikować się z urządzeniem
+    możemy mieć na początku problem z odnalezieniem jego nazwy w systemie.
+    Poniżej znajduje się kilka wskazówek gdzie możemy szukać wystąpienia danego
+    sprzętu w systemie.
+  </p>
+  <ul>
+    <li>Odpytanie systemu <strong>udev</strong> za pomocą polecenia
+        <code class="code-inline">udevadm</code></li>
+    <li>Sprawdzenie katalogu <em>/sys</em> pod kątem obecności urządzenia</li>
+    <li>Ustalenie nazwy urządzenia na podstawie komunikatów jądra dostępnych
+        za pomocą polecenia <code class="code-inline">dmesg</code> lub plików
+        dziennika, o których będzie poźniejszych rodziałach tej serii. Oba
+        źródła będą zawierać informacje o znalezionych przez jądro 
+        urządzeniach.</li>
+    <li>W przypadku automatycznie podmontowanego dysku wymiennego (typowe 
+        desktopy lub duże środowiska graficzne) możemy sprawdzić dyski 
+        poleceniem <code class="code-inline">mount</code>.</li>
+    <li>Plik <em>/proc/devices</em> zawiera wszystkie urządzenia znakowe oraz
+        blokowe, którym system przydzielił sterownik, więc możemy wypisać jego
+        zawartość i tam poszukać urządzenia. Zawartość pliku wygląda dość
+        specyficznie. Podzielona na dwie sekcje <em>charcter devices</em>
+        oraz <em>block devices</em>. Każda z sekcji posiada dwie kolumny w
+        pierwszej z nich znajduą się numery główne urządzeń, w drugiej nazwy
+        ogólne. Do poszukiwania urządzeń najlepiej przepuścić
+        <em>stdout</em> polecenia <code class="code-inline">ls -al /dev</code>
+        przez polecenie <code class="code-inline">grep 'numer_główny,'</code>
+        Numer główny należy wybrać na podstawie ogólnej nazwy urządzenia.
+    </li>
+  </ul>
+  <p>
+    Jedynym sposobem z pośród wymienionych powyżej na którym możemy w 100%
+    polegać jest skorzystanie z systemu <em>udev</em>. Możemy jednak nie mieć
+    dostępu do tego systemu - wszystko zależy od dystrybucji, wtedy trzeba
+    posiłkować się pozostałymi sposobami. Warto pamiętać tym, że nie wszystkie
+    urządzenia będą mieć swój plik.
+  </p>
+  <p>
+    Poniżej przedstawie najczęściej stosowane konwencje nazewnictwa służące do
+    oznaczania urządzeń w systemie.
+  </p>
+  <ul>
+    <li>Dyski twarde - <strong>/dev/sd*</strong> - Wszystkie dyski
+        wykorzystujące do komunikacji protokół SCSI będą posiadać oznaczenie
+        <em>/dev/sd</em>, każdy następny dysku będzie posiadać kolejną małą
+        literę alfabetu. O protokole SCSI będzie w ostatniej części tego
+        materiału. Urządzeniami obecnie wykorzystującymi protokół SCSI są 
+        dyski z interfejsem SATA (głównie z poleceń SCSI, historia dysków SATA
+        w Linuxie jest nieco bardziej skomplikowana) oraz pamięci flash 
+        korzystające z interfejsu USB. Warto dodać iż to nazewnictwo nie
+        sprawdza się tabeli montowania systemów znajdującej sie w pliku
+        <em>/etc/fstab</em>, ponieważ jeśli przy trzech dysk, dysk numer 2 
+        ulegnie uszkodzeniu, to przy następnym uruchomieniu komputera dysk
+        numer 3 dostanie jego oznaczenie, przez co system może zostać 
+        unieruchomiony. Dlatego w tym pliku zaczęto stosować
+        <strong>UUID</strong> - Unikalny Uniwersalny IDentyfikator, które
+        pozwalające trwały dostęp do dysku. O UUID oraz pliku 
+        <em>/etc/fstab</em> będzie w następnym rozdziale materiału. 
+    </li>
+    <li>Napędy CD i DVD - <strong>/dev/sr*</strong> - Linux napędy płyt będzie
+      rozpoznawać jako napedy SCSI, pliki napędu <em>/dev/sr0</em> czy
+      <em>/dev/sr1</em> są urządzeniami tylko do odczytu. Jeśli chcemy użyć
+      napędu do kasowania płyty lub zapisania danych wtenczas należy użyć
+      ogólnych urządzeń SCSI takich jak <em>/dev/sg0</em>.
+    </li>
+    <li>Dyski twarde PATA - <strong>/dev/hd*</strong> - Starsze dyski PATA
+      są rozpoznawane w starszych jądrach jako <em>/dev/hda</em>, 
+      <em>/dev/hdb</em> z racji umiesczenia ich na sztywno w interfejsie
+      IDE/PATA na płycie głównej. Może zdarzyć sie tak, że dysk SATA może być
+      wykrywany w ten sposób. Oznacza to nie właściwe ustawienia SATA w 
+      BIOS-ie. Przy wykorzystaniu takiego dysku możemy doświadczyć znacznego
+      spadku jego wydajności.</li>
+    <li>Terminale - <strong>/dev/tty*</strong>, <strong>/dev/pts*</strong> i
+        <strong>/dev/tty</strong> - <strong>Terminale</strong> są urządzeniami 
+        znakowymi służącymi do przesyłania ciągów znaków pomiędzy system a 
+        urządzeniem wejścia-wyjścia. Pierwsze terminale przypominały maszyny
+        do pisania. Innymi urządzeniami są <strong>pseudotermiale</strong>
+        ich działanie jest identyczne, tak jak w przypadku zwykłych terminali
+        jednak nie są to fizyczne urządzenia a okno programu często nazywane
+        emulatorem terminala, własnie ten pseudoterminal daje nam dostęp do
+        powłoki, jeśli korzystamy ze środwiska graficznego.<br /><br />
+        Obecnie możemy wyróżnić dwa rodzaje terminali, pierwszy z nich 
+        <em>/dev/tty1</em> - pierwsza konsola wirtualna oraz 
+        <em>/dev/pts/0</em> - pierwsze urządzenie pseudoterminala (pierwsze
+        okno powłoki). Urządzenie <em>/dev/tty</em> jest terminalem właściwym
+        dla aktualnego procesu. Jeśli proces dokonuje operacji wejścia-wyjścia
+        do terminala to urządzenie jest synonimem tego terminala, a sam proces
+        nie musi być do niego podłączony.<br /><br />
+        <strong>Tryb wyświetlania i konsole wirtualne</strong><br /><br />
+        Linux wykorzystuje dwa tryby wyświelania: tryb tekstowy (konsoli,
+        stosowany głównie na serwerach) oraz tryb graficzny z wykorzystaniem
+        serwera X.org lub Wayland, jednego z menedżerów wyświetlania 
+        (pełnią funkcję logowania, oraz zarządzają sesją) oraz mendżera okien.
+        Co większość osób utoższamia już z właściwym środowiskiem graficznym. 
+        System do pewnego
+        momentu staruje w trybie konsoli, dystrybucje bardziej z orientowane
+        na komputery biurkowe, próbują ukryć ten etap za oknem ładowania z
+        nazwą dystrybucji i jakimś paskiem postępu, przy takich konfiguracjach
+        tryb graficzny uruchamia się automatycznie. Mimo trybu graficznego
+        do dyspozycji będziemy mieć 7 konsol (6 użytkowych) bo na 7-mej lub
+        1-szej będzie uruchiony właśnie tryb graficzny między konsolami
+        przełączamy sie za pomocą konbinacji klawiszy 
+        <strong>Ctrl+Alt+F1-F7</strong> - w przypadku typowych dystrybucji lub
+        jeśli ta kombinacja nie działa nalezy użyc <strong>Alt+F1-F7</strong>.
+        Kolejne klawisze <em>F</em> oznaczają kolejne, konsole. Do przełączania
+        między konsolami możemy użyć polecenia 
+        <code class="code-inline">chvt</code> jako parametr podajemy numer
+        konsoli.
+    </li>
+    <li>Porty szeregowe - <strong>/dev/ttyS*</strong> - Porty szeregowe jak i
+        porty <em>RS-232</em> znane potocznie jako porty <em>COM</em> są
+        specjalnymi urządzeniami terminalowymi. Wymagają wielu specyficznych
+        dla siebie ustawień przez co nie mamy za dużego pola manewru chcąc
+        wykorzystać te urządzenia z poziomu terminala. Pierwszy port 
+        <em>COM</em> w Linuxie nosi nazwę <em>/dev/ttyS0</em>, każdy kolejny
+        to kolejna cyfra w powyższej nazwie. Adaptery portów szeregowych
+        podłączone do USB mogą mieć nazwy zawierające <em>USB</em> lub
+        <em>ACM</em> w nazwie na przykład, <em>/dev/ttyUSB0</em> lub
+        <em>/dev/ttyAMC0</em>.
+    </li>
+    <li>Porty równoległe - <strong>/dev/lp0</strong> i <strong>/dev/lp1</strong>
+        - Jednokierunkowe porty LPT, do których kiedyś podłączano drukarkę
+        dziś zostały całkowicie wyparte przez USB. Plik drukowało się na
+        przesyłąc wyjście polecenia <code class="code-inline">cat</code> do
+        urządzeń <em>/dev/lp0</em> lub <em>/dev/lp1</em>. Obecnie drukarki
+        potrzebują dodatkowych znaków sterujących, dlatego lepszym rozwiązaniem
+        jest wykorzystanie systemu drukowania <strong>CUPS</strong>.
+    </li>
+    <li>Urządzenia audio - <strong>/dev/dsp</strong>,
+        <strong>/dev/audio</strong>, <strong>/dev/snd/*</strong> i inne -
+        Dzwięk w Linuxie to dość zgmatwany temat, w dystrybucjach istnieją dwa
+        zestawy urządzeń dla interfejsu ALSA oraz starszego OSS. Urządzenia
+        związane z interfejsem ALSA znajdują się w katalogu <em>/dev/snd</em>
+        i raczej nie nadają się one do pracy bezpośrednej. Urządzenia starszego
+        interfejsu takie jak <em>/dev/dsp</em> oraz <em>/dev/audio</em>
+        pozwalają na wykonanie podstawowych operacji. Możemy odtworzyć plik
+        <em>.wav</em> przesyłając go do pliku <em>/dev/dsp</em>. Nie będzie on
+        brzmieć najlepiej z powodu nie dopasowania częstotliwości. Równie
+        dobrze możemy nie uzyskać dostępu do żadnego z tych urządzeń, ponieważ
+        zostają one od razu zajęte po zalogowaniu użytkownika.<br /><br />
+        Inną wartswą są serwery dźwieku takie jak <strong>PulseAudio</strong>.
+        Zarządzają one źródłami oraz wyjściami dzwięku pośredniczą w 
+        komunikacji pomiędzy urządzeniami dźwiękowymi a procesami użytkownika.
+    </li>
+  </ul>
+  <h3>Tworzenie plików urządzeń</h3>
+  <p>
+    Obecnie w nowoczesnych dystrybucjach nie trzeba samodzielnie tworzyć 
+    plików urządzeń ponieważ zajmują się tym takie systemy jak 
+    <strong>devtmpfs</strong> czy <strong>udev</strong>. Warto jednak 
+    zapoznać się z tą metody wrazie gdy zajdzie potrzeba utworzenia powiedzmy
+    nazwanego potoku.
+  </p>
+  <p>
+    Do tworzenie pojedyńczych plików urządzeń służy polecenie
+    <code class="code-inline">mknod</code>, musimy podać nazwę urządzenia,
+    jego rodzaj, do wyboru mamy <strong>b</strong> - urządzenia blokowe,
+    <strong>c</strong> - urządzenia znakowe lub <strong>p</strong> - nazwane
+    potoki oraz numer główny i poboczny, w przypadku nazwanych potoków można
+    pominąć numery.
+  </p>
+<pre class="code-block">
+# mknod /dev/namedpipe p
+</pre>
+  <p>
+    Z tego polecenia będziemy korzystać okazjonalnie w specyficznych warunkach.
+  <p>
+  <h2>System udev</h2>
+  <p>
+    Kiedy nowe urządzenie zostanie wykryte przez jądro Linuxa (na przykład
+    po włożeniu do portu USB pendrive-a) zostanie wysłane powiadomienie do 
+    procesu w przestrzeni użytkownika. Proces ten (<strong>udevd</strong>)
+    zbada charakterystykę urządzenia utworzy dla niego odpowiedni plik
+    a następnie przeprowadzi jego inicjację. W ten sposób pozbyto się z jądra
+    dodatkowej złożoności, co je dodatkowo ustablizowało. Tak powstał 
+    system <strong>udev</strong>. Obsługą urządzeń zajmuje się teraz proces
+    przestrzeni użytkownika.
+  </p>
+  <p>
+    Plik urządzeń są potrzebne już we wczesnych fazach uruchomienia systemu
+    dlatego też proces <em>udev</em> musi zostać uruchomiony bardzo wcześnie
+    i nie posiadać zależności względem urządzeń, które miałby tworzyć.
+    Procedura jego uruchomienia powinna być bardzo szybka aby nie spowalniać
+    uruchamiania systemu.
+  </p>
+  <h3>System plików devtmpfs</h3>
+  <p>
+    Podczas uruchamiania systemu z nowym system <em>udev</em>, wystąpił problem
+    z dostępnością plików podczas faz startowytch.
+    Rozwiązaniem stał się systemu plików <strong>devtmpfs</strong>.
+    Jądro tworzy w razie potrzeby pliki urządzeń jednocześnie informując o
+    dostępnym nowym urządzeniu system <em>udev</em>, ten pomija tworzenie pliku
+    dla niego i przechodzi do jego inicjacji i powiadaniamia innych procesów.
+    Po za tymi czynościami tworzy on dodatkowo kilka dowiązań symbolicznych
+    opisujących bardziej szczegółowo urządzenie, takie dowiązania możemy 
+    znaleźć w katalogu <em>/dev/disk/by-id</em>.
+  </p>
+<pre class="code-block">
+razem 0
+drwxr-xr-x 2 root root 300 10-15 08:23 .
+drwxr-xr-x 7 root root 140 10-15 08:23 ..
+lrwxrwxrwx 1 root root   9 10-15 08:23 ata-ATAPI_iHAS122_F_3522551_2H8708501298 -&gt; ../../sr0
+lrwxrwxrwx 1 root root   9 10-15 08:23 ata-Patriot_Burst_BAC7078B1A5300208266 -&gt; ../../sda
+lrwxrwxrwx 1 root root  10 10-15 08:23 ata-Patriot_Burst_BAC7078B1A5300208266-part1 -&gt; ../../sda1
+lrwxrwxrwx 1 root root  10 10-15 08:23 ata-Patriot_Burst_BAC7078B1A5300208266-part2 -&gt; ../../sda2
+lrwxrwxrwx 1 root root  10 10-15 08:23 ata-Patriot_Burst_BAC7078B1A5300208266-part3 -&gt; ../../sda3
+</pre>
+  <p>
+    <em>Udev</em> nadaje nazwy dyskom na podstawie typu interfejsu, nazwy
+    producenta, modelu, numery seryjnego oraz partycji.
+  </p>
+  <h3>Konfiguracja i działanie procesu udevd</h3>
+  <p>
+    Zasady działania demona <em>udevd</em>:
+  </p>
+  <ul>
+    <li>
+      Jądro po przez wewnętrzne łącze wysyła powiadomienie 
+      <strong>uevent</strong>.</li>
+    <li>Demon pobiera z powiadomienia wszystkie atrybuty.</li>
+    <li>Na podstawie własnych reguł demon wykonuje zaplanowane działania lub
+        definiuje kolejne atrybuty.</li>
+  </ul>
+  <p>
+    Po otrzymaniu powiadomienia proces zna ścieżkę <em>sysfs</em> urządzenia
+    oraz numery innych powiązanych z nim atrybutów przez co może przystąpić
+    do obsługi kolejnych reguł.
+  </p>
+  <p>
+    Pliki reguł znajdują się w katalogach <em>/lib/udev/rules.d</em> i
+    <em>/etc/udev/rules.d</em>. Domyślna postać znajduje się w katalogu
+    <em>/lib</em> w katalogu <em>/etc</em> znajdują się ewentulne nasze
+    poprawki. Opis reguł znajdują się na stronie podręcznika systemu
+    <em>udev</em>: <code class="code-inline">man 7 udev</code>.
+  </p>
+  <p>
+    Dla przykładu przyjrzyjmy się regułom zapisanym w pliku 
+    <em>/lib/udev/rules.d/60-persistent-storage.rules</em>. Reguły zapisane
+    w tych plikach służą przypisaniu dopowiednich metod oznaczania urządzeń
+    w systemie weźmy regułę, która ma oznaczyc zwykły dysk SATA.
+  </p>
+<pre class="code-block">
+KERNEL=="sd*[!0-9]|sr*", ENV{ID_SERIAL}!="?*", IMPORT{program}="scsi_id --export --whitelisted -d $devnode", ENV{ID_BUS}="scsi"
+</pre>
+  <p>
+    System <em>udev</em> spróbuje dopasować do regułe do każde urządzenia
+    którego nazwa rozpoczyna sie od liter <em>sd</em>
+    (<code class="code-inline">sd*</code>) nie zawiera żadnej z cyfr lub 
+    (<code class="code-inline">|</code>) rozpoczyna sie od liter <em>sr</em>
+    (<code class="code-inline">sr*</code>) oraz atrybut
+    <code class="code-inline">ID_SERIAL</code> nie posiada żadnej wartości.
+    Jeśli reguła zostanie dopasowana to zostaje uruchomiona dyrektywa
+    <code class="code-inline">IMPORT{program}</code> uruchamiająca dodatkowe
+    polecenie pozwalające zebrać więcej informacji na temat danego urządzenia
+    w przypadku tej reguły zdefiniowana zostaje również nazwa magistrali
+    (<code class="code-inline">ENV{ID_BUS}="scsi"</code>). Ta reguła to za
+    mało aby odpowiednio oznaczyć urządzenie, proces <em>udevd</em> przejdzie
+    do kolejnej.
+  </p>
+<pre class="code-block">
+KERNEL=="sd*|sr*|cciss*", ENV{DEVTYPE}=="disk", ENV{ID_SERIAL}=="?*", SYMLINK+="disk/by-id/$env{ID_BUS}-$env{ID_SERIAL}"
+</pre>
+  <p>
+    Ponieważ po drodze była jeszcze jedna reguła próbująca dopasować urządzenia
+    magistrali <em>cciss</em>, mamy dodatkowy warunek, przy wyrażeniu
+    tutaj również pojawiły się dwa dodatkowe, na podstawie atrybutów
+    <code class="code-inline">ENV{DEVTYPE}=="disk"</code> jeśli to wyrażenie
+    zwróci prawdę (czy atrybut <code class="code-inline">DEVTYPE</code>
+    zawiera wartość <code class="code-inline">disk</code>) przechdzimy do
+    kolejnego wyrażenia <code class="code-inline">ENV{ID_SERIAL}=="?*"</code>
+    czy atrybut <code class="code-inline">ID_SERIAL</code> zawiera jaką
+    kolwiek wartość, jeśli wartości zwracane przez te wyrażenia to prawda to
+    uruchamiana jest dyrektywa <code class="code-inline">SYMLINK</code>
+    tworząca dowiązanie symboliczne do pliku utworzonego przez jądro w katalogu
+    <em>/dev</em>. Nazwa dowiązania jest określana przez atrybuty uzyskane na
+    podstawie reguł. To właśnie z reguł biorą się te wszystkie dowiązania.
+  </p>
+  <p>
+    Ostatnim słowem odnośnie reguł procesu <em>udevd</em>, jak możemy
+    rozróżnić dyrektywę od wyrażeń warunkowych. Otóż wyrażenia warunkowe
+    przeważnie po lewej stronie mają nazwę jakiegoś atrybutu charkterystycznego
+    dla urządzenia. Wyrażenia warunkowe przeważnie zawierają albo podwójny
+    znak równości (<strong>==</strong>) albo znak nierówności 
+    (<strong>!=</strong>). Dyrektywy zawierają słowa kluczowe dla reguł takie
+    <em>IMPORT</em> lub <em>SYMLINK</em> oraz pojedyńczy znak równości
+    (<strong>=</strong>) lub znak dodawnia wraz ze znakiem równości
+    (<strong>+=</strong>) czy dwukropek ze znakiem równości
+    (<strong>:=</strong>).
+  </p>
+  <h3>Program udevadm</h3>
+  <p>
+    Program ten jest narzędziem do administrowania procesem <em>udevd</em>
+    pozwala na ponowne załadowanie reguł, uruchamianie zdarzenie, czy 
+    monitorowanie powiadomień <em>uevent</em>, ale najważniejszą
+    funkcje tego narzędzie jest możliwość przeglądania i wyszukiwania
+    urządzeń w systemie. Składania tego polecenie niestety, nie jest zbyt
+    klarowna. Jeśli odpytamy się o pierwszy dysk sata w systemie wykorzystujac
+    poniższe polecenie to odpowiedź będzie następująca.
+  </p>
+<pre class="code-block">
+$ udevadm info --query=all --name=/dev/sda
+</pre>
+<pre class="code-block">
+P: /devices/pci0000:00/0000:00:17.0/ata4/host3/target3:0:0/3:0:0:0/block/sda
+N: sda
+L: 0
+S: disk/by-path/pci-0000:00:17.0-ata-4
+S: disk/by-path/pci-0000:00:17.0-ata-4.0
+S: disk/by-id/ata-Patriot_Burst_BAC7078B1A5300208266
+E: DEVPATH=/devices/pci0000:00/0000:00:17.0/ata4/host3/target3:0:0/3:0:0:0/block/sda
+E: DEVNAME=/dev/sda
+E: DEVTYPE=disk
+E: MAJOR=8
+E: MINOR=0
+E: SUBSYSTEM=block
+E: USEC_INITIALIZED=1789035
+E: ID_ATA=1
+E: ID_TYPE=disk
+E: ID_BUS=ata
+E: ID_MODEL=Patriot_Burst
+E: ID_MODEL_ENC=Patriot\x20Burst\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20
+E: ID_REVISION=SBFM81.2
+E: ID_SERIAL=Patriot_Burst_BAC7078B1A5300208266
+E: ID_SERIAL_SHORT=BAC7078B1A5300208266
+E: ID_ATA_WRITE_CACHE=1
+E: ID_ATA_WRITE_CACHE_ENABLED=1
+E: ID_ATA_FEATURE_SET_HPA=1
+E: ID_ATA_FEATURE_SET_HPA_ENABLED=1
+E: ID_ATA_FEATURE_SET_PM=1
+E: ID_ATA_FEATURE_SET_PM_ENABLED=1
+E: ID_ATA_FEATURE_SET_SECURITY=1
+E: ID_ATA_FEATURE_SET_SECURITY_ENABLED=0
+E: ID_ATA_FEATURE_SET_SECURITY_ERASE_UNIT_MIN=20
+E: ID_ATA_FEATURE_SET_SECURITY_ENHANCED_ERASE_UNIT_MIN=60
+E: ID_ATA_FEATURE_SET_SECURITY_FROZEN=1
+E: ID_ATA_FEATURE_SET_SMART=1
+E: ID_ATA_FEATURE_SET_SMART_ENABLED=1
+E: ID_ATA_DOWNLOAD_MICROCODE=1
+E: ID_ATA_SATA=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN2=1
+E: ID_ATA_SATA_SIGNAL_RATE_GEN1=1
+E: ID_ATA_ROTATION_RATE_RPM=0
+E: ID_PATH=pci-0000:00:17.0-ata-4.0
+E: ID_PATH_TAG=pci-0000_00_17_0-ata-4_0
+E: ID_PATH_ATA_COMPAT=pci-0000:00:17.0-ata-4
+E: ID_PART_TABLE_UUID=96934582
+E: ID_PART_TABLE_TYPE=dos
+E: DEVLINKS=/dev/disk/by-path/pci-0000:00:17.0-ata-4 /dev/disk/by-path/pci-0000:00:17.0-ata-4.0 /dev/disk/by-id/ata-Patriot_Burst_BAC7078B1A5300208266
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+</pre>
+  <p>
+    Jak możemy zauważyć to każdą z linii określa przedrostek, przedrostki 
+    są dokładnie opisane na stronie podręcznika polecenia
+    <code class="code-inline">udevadm</code>, jednak po zawartości tych linii
+    możemy określić, czy są te przedroski.
+  </p>
+  <ul>
+    <li><strong>P:</strong> - ścieżka systemu <em>sysfs</em></li>
+    <li>
+      <strong>N:</strong> - węzeł urządzenia, pliki w katalogu <em>/dev</em>
+    </li>
+    <li><strong>L:</strong> - priorytet dowiązań symbolicznych systemu
+        <em>udev</em></li>
+    <li><strong>S:</strong> - dowiazania symboliczne systemu <em>udev</em></li>
+    <li><strong>E:</strong> - atrybuty urządzenia uzyskane przez system
+        <em>udev</em></li>
+  </ul>
+  <h3>Monitorowanie urządzeń</h3>
+  <p>
+    Aby monitorować urządzenia użyjemy tego samego narzędzia, ale jego 
+    składnia będzie prostsza.
+  </p>
+<pre class="code-block">
+$ udevadm monitor
+</pre>
+  <p>
+    Monitorowanie polega przeglądaniu zdarzeń <em>uevent</em>, uruchommy
+    powyższe polecenie i włóżmy pendrive-a do gniazda USB. Tak wygląd 
+    wyjście polecenia po wpięciu pendrive-a
+  </p>
+<pre class="code-block">
+KERNEL[31991.051274] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1 (usb)
+KERNEL[31991.052153] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0 (usb)
+KERNEL[31991.052250] bind     /devices/pci0000:00/0000:00:14.0/usb1/1-1 (usb)
+UDEV  [31991.063313] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1 (usb)
+KERNEL[31991.084344] add      /devices/virtual/workqueue/scsi_tmf_6 (workqueue)
+KERNEL[31991.084611] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6 (scsi)
+KERNEL[31991.084675] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/scsi_host/host6 (scsi_host)
+KERNEL[31991.084772] bind     /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0 (usb)
+KERNEL[31991.084832] add      /bus/usb/drivers/usb-storage (drivers)
+KERNEL[31991.084874] add      /module/usb_storage (module)
+UDEV  [31991.087491] add      /devices/virtual/workqueue/scsi_tmf_6 (workqueue)
+UDEV  [31991.089963] add      /bus/usb/drivers/usb-storage (drivers)
+UDEV  [31991.090267] add      /module/usb_storage (module)
+KERNEL[31991.091629] add      /bus/usb/drivers/uas (drivers)
+KERNEL[31991.091714] add      /module/uas (module)
+UDEV  [31991.092003] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0 (usb)
+UDEV  [31991.093022] add      /bus/usb/drivers/uas (drivers)
+UDEV  [31991.093113] add      /module/uas (module)
+UDEV  [31991.099158] bind     /devices/pci0000:00/0000:00:14.0/usb1/1-1 (usb)
+UDEV  [31991.100334] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6 (scsi)
+UDEV  [31991.101425] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/scsi_host/host6 (scsi_host)
+UDEV  [31991.102450] bind     /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0 (usb)
+KERNEL[31992.094696] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0 (scsi)
+KERNEL[31992.094771] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0 (scsi)
+KERNEL[31992.094804] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/scsi_device/6:0:0:0 (scsi_device)
+KERNEL[31992.094980] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/scsi_disk/6:0:0:0 (scsi_disk)
+KERNEL[31992.095055] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/bsg/6:0:0:0 (bsg)
+UDEV  [31992.097110] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0 (scsi)
+UDEV  [31992.099140] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0 (scsi)
+UDEV  [31992.100200] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/scsi_device/6:0:0:0 (scsi_device)
+UDEV  [31992.100224] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/scsi_disk/6:0:0:0 (scsi_disk)
+UDEV  [31992.100360] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/bsg/6:0:0:0 (bsg)
+KERNEL[31992.107015] add      /devices/virtual/bdi/8:16 (bdi)
+UDEV  [31992.107341] add      /devices/virtual/bdi/8:16 (bdi)
+KERNEL[31992.108252] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/block/sdb (block)
+KERNEL[31992.108277] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/block/sdb/sdb1 (block)
+KERNEL[31992.108294] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/block/sdb/sdb2 (block)
+KERNEL[31992.108916] bind     /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0 (scsi)
+UDEV  [31992.152378] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/block/sdb (block)
+UDEV  [31992.173575] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/block/sdb/sdb2 (block)
+UDEV  [31992.196834] add      /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0/block/sdb/sdb1 (block)
+UDEV  [31992.197342] bind     /devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0/host6/target6:0:0/6:0:0:0 (scsi)
+</pre>
+  <p>
+    Każdy komunikat wyświetlany jest w dwóch egzemplarzach jedno powiadomienie
+    od jądra (oznaczone słowem <em>KERNEL</em>) oraz jedno od system
+    <em>udev</em>. Powiadomienia systemu <em>udev</em> są powiadomieniami
+    wysłanymi do innych procesów po zakończeniu przetwarzania i filtrowania
+    komunikatów otrzymanych od jądra.
+  </p>
+  <p>
+    Informacje zwracane możemy filtrować uruchamiając <em>monitor</em> z 
+    odpowiednimi opcjami:
+  </p>
+  <ul>
+    <li><strong>--kernel</strong> - wyświelanie wyłącznie komunikatów 
+        przychodzących - powiadomień od jądra.</li>
+    <li><strong>--udev</strong> - wyświetlanie wyłączniie komunikatów
+        wychodzących - powiadomień system <em>udev</em> wysyłanych do innych
+        procesów.</li>
+    <li><strong>--property</strong> - wyświetlanie całych powiadomień
+        <em>uevent</em>.</li>
+    <li><strong>--subsystem-match</strong> - wyświetla komunikaty dotyczące
+        zmian w określonym przez opcje podsystemie.</li>
+  </ul>
+  <p>
+    Z systemu <em>udev</em>, korzysta wiele innych programów np. system
+    <em>D-Bus</em>, służący do komunikacji międzyprocesowej wykorzysuje
+    program <em>udisks-daemon</em> nasłuchujący komunikatów procesu
+    <em>udevd</em> w celu automatycznego montowania pojawiających się dysków
+    informowania innych programów o nowym napędzie w systemie.
+  </p>
+  <h2>SCSI i jądro Linuxa</h2>
+  <p>
+    Sprzęt SCSI kiedy jeszcz był w powszechnym użyciu składał się z adaptera
+    hosta i podłączonych do niego urządzeń za pomocą magistrali. Adapter był
+    podłączany do komputera. Adapter oraz wszystkie urządzenia mają swój 
+    identyfikator SCSI. Do magistrali można podłaczyć od 8 do 16 urządzeń w
+    zależności od wersji specyfikacji. W fachowej literaturze terminem
+    określającym urządzenie wraz z identyfikatorem jest 
+    <strong>cel SCSI</strong> (ang. <em>SCSI target</em>).
+  </p>
+  <p>
+    Adapter hosta komunikuje się z urządzeniami za pomocą poleceń SCSI.
+    Komputer nie jest włączony w zestaw urządzeń dlatego musi komunikowac się
+    z urządzeniami za pomocą adaptera. Komputer przekazuje swoje polecenia do
+    adaptera, który przekazuje je dalej do urządzeń, a następnie przekazuje
+    odpowiedź do komputera.
+  </p>
+  <p>
+    Obecnie w komputerach próźno jest szukać prawdziwych urządzeń SCSI,
+    natkniemy się w większości przypadku na pamięci masowe USB wykorzystujące
+    polecenia SCSI, urządzenia ATAPI (takie jak napędy CD/DVD) korzystające
+    ze specjalnej wersji zestawu poleceń SCSI. Dyski SATA pojawiają się w
+    systemie jako urządzenia SCSI dzieki warstwie transalacyjne oferowanej
+    przez bibliotekę <strong>libata</strong>. Niektóre kontrolery SATA w
+    w szczególności, kontrolery RAID dokonują translacji na poziomie sprzętowym
+  </p>
+  <p>
+    Za pomocą polecenia <code class="code-inline">lsscsi</code>, możemy
+    wyświetlić urządzenia podłączone przez subsystem SCSI. Poniżej znajduje
+    się wynik dla mojego komputera.
+  </p>
+<pre class="code-block">
+[2:0:0:0]    cd/dvd  ATAPI    iHAS122   F      EL9H  /dev/sr0 
+[3:0:0:0]    disk    ATA      Patriot Burst    81.2  /dev/sda 
+</pre>
+  <p>
+    Liczby w nawiasach kwadratowych oznaczają (od lewej do prawej) numer
+    adaptera hosta SCSI, numer magistrali SCSI, identyfikator urządzenia SCSI
+    oraz logiczny numer jednoski LUN (ang. <em>Logical Unit Number</em>) będący
+    dokładniejszym podziałem urządzenia.
+    Jak widać urządzenia te są podłączone do dwóch róznych adapterów,
+    są one podłączone za pomocą pojedyńczej magistrali. Każde z urządzeń jest
+    podłączone do komputera osobno. Wyjątkiem mogą być czytniki kart, gdzie
+    każde gniazdo jest kolejną jednostką logiczną.
+  </p>
+  <p>
+    Poniżej znajduje się rysunek przestawiający hierarchię sterownika i
+    interfejsów w jądrze dla powyższej konfiguracji systemu dodałem również
+    do tego rysunku pamięc typu flash na USB, aby zobrazować jak to będzie
+    wyglądać dla pamięci tego typu. 
+  </p>
+  <p>
+   <img src="https://i.ibb.co/g7t67Wq/Diagram1.png" alt="schemat1" border="0">
+  </p>
+  <p>
+    Przedstawiona struktura jest dość zagmatawana, ale przepływ danych jest
+    liniowy. W podsystemie SCSI znajdują się trzy warstwy sterowników:
+  </p>
+  <ul>
+    <li>Górna warstwa obsługuje operacje dla pewnej klasy urządzeń. Przykładowo
+        w tej warstwie znajduje się sterownik dysków SCSI 
+        (sterownik <em>sd</em>), może on zmieniać żądania z pliku jądra na
+        polecenia właściwe dla dysku w protokole SCSI i na odwrót.</li>
+    <li>Wartstwa środkowa moderuje i przekierowuje komunikaty SCSI pomiędzy
+        górną i dolną warstwą sterowników, a także zapamiętuje wszystkie
+        magistrale i urządzenia SCSI podłączone do komputera.</li>
+    <li>Warstaw dolna zajmuje się operacjami na samym sprzęcie. Sterowniki
+        obecne w tej warstwie wysłają komunikaty protokłu SCSI do wybranych
+        adapterów hosta albo do elementów sprzętowych. Oprócz tego odbierają
+        komunikaty pochodzące od sprzętu. Powodem wydzielenia
+        dolnej warstwy są różne rodzaje adapterów hosta, każdy adapter może
+        mieć różne procedury wysyłania takich samych komunikatów.</li>
+  </ul>
+  <p>
+    Wartstwy mogą zawierać wiele sterowników, należy jednak zapamiętać, że
+    dla każdego pliku urządzenia jądro używa po jednym sterowniku w każdej
+    z tych warstw. Jedna są przypadki gdzie jądro użyje więcej niż jednego
+    sterownika górnej warstwy do komunikacji ze sprzętem. W przypadku
+    rzeczywistych urządzeń SCSI, dysków podłączonych do adaptera lub
+    sprzętowego kontrolera RAID, sterowniki dolnej warstwy mogą bezpośrednio
+    komunikować się ze sprzętem. Jednak w przypadku większości urządzeń
+    podłączanego do podsystemu SCSI sytuacja wygląda zupełnie inaczej.
+  </p>
+  <h3>Pamięci masowe USB i protokół SCSI</h3>
+  <p>
+    Jądro potrzebuje czegoś więcej niż sterownika z dolnego poziomu, żeby
+    podsystem SCSI mógł skomunikować się z pamięciami typu pendrive czy dysk
+    przenośny, musi dowiedzieć się jak przesyłać polecenia SCSI poprzez system
+    USB.
+  </p>
+  <p>
+    Standard USB jest bardzo podobny do SCSI. Nie powinno nas dziwić,
+    że w jądrze Linuxa znajduje się trójwarstwowy sterownik podsystemu USB.
+    Jeśli spojrzymy na rysunek powyżej, to na górnej warstwie podsystemu USB
+    znajduje się sterownik klasy urzadzenia, to tak jak sterownik dysku czy
+    napędu w SCSI, dalej mamy obsługę USB, czyli zarządzanie magistralą a
+    na dolnej sterownik strownik kontrolera hosta. Podsystem USB również
+    przesyła między wartstwami komunikaty, nawet istnieje narzędzie takie jak
+    <em>lsscsi</em> - <code class="code-inline">lsusb</code>.
+  </p>
+  <p>
+    W tym miejscu najbardziej powinien interesować nas sterownik pamięci
+    masowych USB, znajdujący się w górnej warstwie. Sterownik ten potrafi
+    operować poleceniami obu podsystemów. Umieszcza on polecenia SCSI w
+    wewnątrz komunikatów USB. Jego zadanie jest dośc proste, sprowadza się do
+    przepakowania danych. Ostatnim brakującym elementem do komunikacji z
+    pamięciami Flash, jest sterownik dolnego poziomu w podsystemie SCSI. Ze
+    względów organizacyjny te dwa podsystemy nie powinny współdzielić żadnych
+    sterowników ze sobą. Komunikacje pomiędzy tymi podsystemami zapewnia
+    niskopoziomowy sterownik mostka SCSI, łączący się ze sterownikiem pamięci
+    masowych podsystemu USB.
+  </p>
+  <h3>SCSI i ATA</h3>
+  <p>
+    Tym razem mechanizm jest inny i o wiele bardzie skomplikowany. Napedy
+    optyczne używają protokółu ATAPI, który jest specjalną wersją poleceń
+    SCSI umiesczonych w protokole ATA. Patrząc na dyski SATA to nie korzystają
+    one ani z protokołu ATAPI, ani nie wykorzystują one żadnych poleceń SCSI.
+  </p>
+  <p>
+    Jądro wykorzystuje do bibliotekę <strong>libata</strong> do tego aby móc
+    obsługiwać dyski SATA oraz ATA za pomocą podsystemu SCSI. W przypadku
+    protokołu ATAPI jest to proste (patrz akapit wyżej), to w przy dyskach
+    SATA potrzebna jest pełna translacja poleceń między protokołami.
+  </p>
+  <h3>Ogólne urządzenia SCSI</h3>
+  <p>
+    Procesy użytkownika mogą obejść górną warstwę sterówników urządzeń i
+    przekazywać polecenia SCSI bezpośrednio do urządzęń korzystając z tak
+    zwanych <strong>urządzeń ogólnych</strong> (ang. <em>generic devices</em>)
+    Jeśli dodamy opcję <code class="code-inline">-g</code> do polecenia
+    <code class="code-inline">lsscsi</code> to zostaną nam również wyświelone
+    urządzenie ogólne.
+  </p>
+  <p>
+    Po co w ogóle nam urządzenia ogólne? Otóż istotna jest tutaj złożoność kodu
+    jądra, jeśli planować będziemy skomplikowane operacje jak
+    zapis danych na płyty CD/DVD to jepiej nie przekazywać ich wykonania do
+    jądra. Zapis danych na płyty jest znacznie bardziej skomplikowanym procem
+    niż odczyt. Program, który będzie zapisywac informacje bezpośrednio będzie
+    na pewno mniej efektywy niż usługa jądra, jednak jest bezpieczniejszy dla
+    systemu, łatwiejszy do napisania i utrzymania. Dlatego też programy do
+    zapisu danych dyskach optycznych wykorzystują urządzenia ogólne. Patrząc
+    na to z drugiej strony odczyt danych z powodu względnej prostoty w
+    porównaniu do zapisu, odbywa się poprzez specjalne urządzenie
+    <strong>sr</strong>, które jest powiązane z sterownikiem w jądrze.
+  </p>
+  <h3>Wiele metod dostępu do jednego urządzenia</h3>
+  <p>
+    Poniżej na rysunku przedstawiono dwie metody dostępu do napędu optycznego
+    w zakresie podsystemu SCSI. Proces A odczytuje dane z dysku za 
+    pośrednictwem sterownika <em>sr</em> a proces B zapisuje dane przy pomocy
+    sterownika <em>sg</em>. Te procesy nie będą działać jednocześnie, ponieważ
+    musiały by uzykać dostęp do tego samego urządzenia w tym samym czasie.
+  </p>
+  <p>
+ <img src="https://i.ibb.co/KD6JLc1/Diagram2.png" alt="schemat2" border="0">
+  </p>
+  <p>
+    Zazwyczaj procesy nie odczytują danych w tak bezpośredni sposób jak
+    jak przestawiony na powyższym schemacie, pomiędzy programem, sterownikiem
+    a samym urządzeniem zajduje się jescze wiele warstw, o których będzie w
+    następnym rozdziale.
+  </p>
+  <p>
+    Żródła:
+  </p>
+  <ol>
+    <li>Jak działa Linux Wyd. II, Brian Ward, Helion 2015</li>
+  </ol>
+  <p>
+    ~xf0r3m
+  </p> 
+
+</div>
+<p style="margin: 15px; padding: 0; outline: 0;">
+  2021; COPYLEFT; ALL RIGHTS REVERSED;
+</p>
+</body>
+</html>

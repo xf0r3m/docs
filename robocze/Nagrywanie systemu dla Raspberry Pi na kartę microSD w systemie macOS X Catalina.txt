@@ -1,0 +1,3 @@
+unzip 2020-02-13-raspbian-buster-lite.zip
+diskutil unmountDisk disk2
+sudo dd bs=1m if=2020-02-13-raspbian-buster-list.img of=/dev/rdisk2 conv=sync

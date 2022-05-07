@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="https://i.ibb.co/khy45hh/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+					text-align: left;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				ul {
+					text-align: left;
+				}
+        p { text-align: justify; }
+			</style>
+		</head>
+		<body style="font-family: monospace;" >
+<pre>
+     _       _          _     _       _         _     _                  ___ 
+    | | __ _| | __   __| |___(_) __ _| | __ _  | |   (_)_ __  _   ___  _|__ \
+ _  | |/ _` | |/ /  / _` |_  / |/ _` | |/ _` | | |   | | '_ \| | | \ \/ / / /
+| |_| | (_| |   <  | (_| |/ /| | (_| | | (_| | | |___| | | | | |_| |>  < |_| 
+ \___/ \__,_|_|\_\  \__,_/___|_|\__,_|_|\__,_| |_____|_|_| |_|\__,_/_/\_\(_)
+</pre>
+<p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+	&#9760;&nbsp;<a href="https://morketsmerke.github.io">morketsmerke</a>&nbsp;&#9760;
+</p>
+			<div style="margin-left: auto; margin-right: auto; width: 80%;">
+        <h1>Podstawy obsługi Linuxa</h1>
+        <p>
+          Jakiś czas temu dowiedzieliśmy z czego tak naprawdę składa się Linux,
+          omówiliśmy jakie zadania ma jądro, wiemy co nie o co o 
+          przestrzeni użytkownika, teraz zajmiemy się obsługą tego systemu. Nie
+          którzy mogą mieć z tym systemem styczność pierwszy raz. Rzeczy 
+          przedstawione tutaj nie są trudne, warto też wspomnieć, że 
+          przedstawione tutaj polecenia oraz narzędzia sprawdzą się nie tylko 
+          na Linuxie ale i na innych systemach UNIX-opodobnych takich jak np. 
+          macOS.
+        </p>
+        <h2>Powłoka</h2>
+        <p>
+          Powłoka jest potężnym narzędziem, programem uruchamiającym inne 
+          programy jednak pozostawienie tej definicji bez rozwiniecią było by
+          sporą ujmą. Powłoka jest również małym IDE, pozwalającym programistom
+          podzielić program na mniejsze zadania i sterować ich wykonaniem za 
+          pomocą skryptu powłoki. Wiele znanych narzędzi UNIX-owych to skrypty
+          powłoki.
+        </p>
+        <p>
+          W wszystkich UNIX-ach można spotkać <strong>powłokę Bourne-a</strong>
+	  <em>/bin/sh</em>, 
+          jest ona niezbędna do działania jakiegokolwiek z tych systemów. W 
+          dzisiejszych systemach raczej używa się <strong>BASH</strong>,
+	  powłoki (nie jedynej),
+          która ma wiele zapożyczeń z oryginalnej powłoki SH. Jeśli sprawdzimy
+          rozwinięcie akronimu BASH, będzie to Bourne Again SHell przez co 
+          możemy wynioskować, że jest to odświerzona, usprawniona i 
+          zaktualizowana do wymagań dzisiejszego świata wersja klasycznej 
+          powłoki. Innym przypadkiem jest ZSH (Z SHell), posiadająca jeszcze 
+          więcej usprawnień w pisaniu poleceń, jednak moim zdaniem jest
+          za mało hackerska, aby poświecać jej więcej uwagi.
+        </p>
+        <p>
+          Z powłoki można skorzystać albo w konsoli komputera albo w oknie 
+          emulatora terminala. Terminale to urządzenia (fizyczne), które 
+          zajmowały się obsługą powłoki, teraz terminale to programy, które 
+          realizują podobne funkcje jednak nie są to rzeczywiste urządzenia. Z
+          konsolą spotkamy się przeważniej na serwerach lub bardzo hackerskich
+          instalacjach bez środowiska graficznego. Dlatego też powłoka jest 
+          tak ważna jest to najlepszy i najbardzie optymalny obsługi
+	  jakiegokolwiek 
+          UNIX-a. Z poziomu powłoki możemy zrobić dosłownie wszyskto w systemie.
+        </p>
+        <p>
+          Wprowadzenia poleceń w powłoce zwykle rozpoczyna się od znaku zachęty
+           - ciągu znaków zdradzających nam nieco informacji. Prompt bo tak 
+          inaczej można nazwać znak zachęty składa się przeważnie z nazwy 
+          użytkownika, nazwy hosta (komputera), nazwy katalogu w którym się 
+          znajdujemy lub ścieżki prowadzącej do obecnego katalogub oraz znaku
+	  dolara (<strong>$</strong>)
+          oznaczającego zwykłego użytkownika czy też znaku krzyżyka
+	  (<strong>#</strong>)
+	  oznaczającego superużytkownika (root, administratora systemu). W znaku
+          zachęty kursor zawsze jest ustawiony za znakiem wyznaczającym
+          uprawnienia i to własnie za nim rozpoczynamy wpisywanie poleceń. Jak
+          można zauważyć wiele materiałów na tej stronie przedstawiających 
+          polecenia rozpoczyna się od znaku <em>$</em> lub <em>#</em>, dlatego
+	  aby wskazać
+	  z jakim uprawnieniamia należy uruchamiać dane polecenie. Teraz 
+          wyświetlimy sobie w powłoce napis "Hello, World!".
+        </p>
+<pre class="code-block">
+$ echo "Hello, World!"
+</pre>
+        <h2>Polecenia</h2>
+        <h3>Polecenie cat</h3>
+        <p>
+          Jednym z najprostszych do przyswojenia poleceń jest 
+          <code class="code-inline">cat</code>, które wypisuje zawartość 
+          podanych plików. Jego składnia jest następująca.
+        </p>
+<pre class="code-block">
+$ cat plik1 plik2
+</pre>
+        <p>
+          Uruchomienie tego polecenia wypisze zawartość podanych plików jeden po
+          drugim, tak jak byłby to jeden plik. Stąd też nazwa polecenia 
+          <code class="code-inline">cat</code> od angielskiego słowa 
+          <em>concatenation</em> co potocznie tłumaczy się jako połączenie. 
+        </p>
+        <p>
+          Opis działania tego polecenia jak i samo polecenie posłuży nam do 
+          zobrazowania działania strumieni danych w UNIX-ach.
+        </p>
+        <h3>Strumienie danych</h3>
+        <p>
+          Każdy proces na UNIX-ie może wykorzystać strumienie danych do 
+          odczytu i zapisu informacji. Strumienie są bardzo elastyczne ich 
+          źródłem może być plik, urządzenie, terminal czy nawet strumień 
+          wyjściowy innego procesu.
+        </p>
+        <p>
+          Aby zobrazować sobie jak działają strumienie, uruchommy polecenie 
+          <code class="code-inline">cat</code> bez podawania żadnych plików. 
+          Zwróćmy uwagę na to, że program nie zakończył swojego działania 
+          tak jak w przykładzie z plikami. Działa dalej, jeśli wpiszemy co 
+          kolwiek z to po naciśnięciu klawisza "Enter" program powtórzy 
+          dokładnie to co wpisaliśmy. Dzieje się tak dlatego iż program bez 
+          podania jakich kolwiek plików wywołuje takie interaktywne zachowanie 
+          i zaczyna współpracować ze strumieniami. Bez pliku polecenie zaczęło 
+          odczytywać dane ze <strong>standardowego wejścia</strong> podanego
+	  przez jądro Linuxa,
+          które jest połączone z terminalem. Polecenie 
+          <code class="code-inline">cat</code> wypisuje swoje dane na
+	  <strong>strumień wyjścia</strong>,
+	  który również jest połączony z terminalem, dzięki czemu 
+          mogliśmy zobaczyć to co wpisaliśmy. Taką funkcję kiedy dane ze 
+          strumienia wejściowego trafiają do strumienia wyjściowego nazywamy 
+          <em>echem</em>. Dzieki nie mu możemy zobaczyć co piszemy w oknie 
+          terminala lub konsoli. <em>Echo</em> można wyłączyć i dzieje się to 
+          automatycznie kiedy będziemy wpisywać jakieś tajne dane jak hasła. 
+          Istnieje jeszcze trzeci typ strumienia, jest to
+	  <strong>strumień błędów</strong>,
+          którego zdaniem jest wyświetlanie wszelkich komunikatów 
+          diagnostycznych wysłanych przez proces. Strumienie można 
+          przekierować, tak aby ich dane zostały zapisane lub odczytane z 
+          innych miejsc niż okno terminala, tak też robi polecenie 
+          <code class="code-inline">cat</code>, kiedy plik zostanie podany. 
+          Samo w sobie polecenie <code class="code-inline">cat</code> 
+          przekazuje dane tylko na standarowe wyjscie dlatego też jego użycie 
+          często idzie w parze z <strong>przekierowaniem strumieni</strong>.
+        <h3>Polecenia podstawowe</h3>
+        <p>
+          Polecenie <code class="code-inline">ls</code> - wypisanie zawartości 
+          katalogu na standardowym wyjściu. Kilka przełączników:
+        </p>
+        <ul>
+          <li>
+            <code class="code-inline">-l</code> - możemy wyświetlić bardziej
+            szczegółową listę,
+          </li>
+          <li>
+            <code class="code-inline">-a</code> - wyświetlamy wszystkie pliki 
+            i katalogi razem z ukrytymi, często używane w kombinacji 
+            przełącznikiem <code class="code-inline">-l</code> (
+            <code class="code-inline">-al</code> lub 
+            <code class="code-inline">-la</code>)
+          </li>
+          <li>
+            <code class="code-inline">-h</code> - wyświetla rozmiary plików 
+            w przeskalowanych jednostkach.
+          </li>
+          <li>
+            <code class="code-inline">-R</code> - rekurencyjne wyświetlanie 
+            zawartości pliku.
+          </li>
+          <li>
+            <code class="code-inline">-F</code> - wyświetlenie typów plików
+              <ul>
+                <li>plik bez oznaczeń - zwykły plik</li>
+                <li>plik ze <strong>/</strong> na końcu - katalog</li>
+                <li>plik z <strong>*</strong> na końcu - plik wykonywalny</li>
+              </ul>
+          </li>
+        </ul>
+        <p>
+          Przyjrzymy się na chwilę wynikowi polecenia 
+          <code class="code-inline">ls -l</code>, wyświetla ono zawartość
+          katalogu w kilku kolumnach, jeden rząd jest przeznaczony dla jednego
+          pliku. W pierszej kolumnie znajduje się tryb pliku, w którego skład
+          wchodzi typ pliku oraz uprawnienia
+          (będzie o tym poźniej), w drugiej znajduje się liczba twardych 
+          dowiązań. Trzeci i czwarta kolumna wskazują właściciela oraz grupę, 
+          do której dany plik należy, następna kolumna zawiera wielkość pliku 
+          podaną w bajtach (dlatego stosuje przełącznik 
+          <code class="code-inline">-h</code>), w trzech kolumnach pomiędzy 
+          rozmiarem a nazwą pliku (ostatnia kolumna) znajduje się czas 
+          ostatniej modyfikacji pliku.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">cp</code> - to polecenie utworzy
+          kopię pliku źródłowego w podanym miejscu. Kilka przełączników:
+        </p>
+        <ul>
+          <li>
+            <code class="code-inline">-p</code> - zachowaj uprawnienia 
+            kopiowanych plików,
+          </li>
+          <li>
+            <code class="code-inline">-r</code> - kopiowanie rekurencyjne, 
+            program skopiujej katalogi wraz z podfolderami,
+          </li>
+          <li><code class="code-inline">-v</code> - wyświetli informacje o tym
+               co teraz robi program. Klasycznie program nie zwraca żadnych 
+               informacji. Przydatna opcja jeśli chcemy zobaczyć co się teraz 
+               kopiuje.
+          </li>
+        </ul>
+<pre class="code-block">
+$ cp tekst1.txt tekst1_kopia.txt
+</pre>
+        <p>
+          Za pomocą <code class="code-inline">cp</code> możemy skopiować kilka
+          plików do jednego folderu.
+        </p>
+<pre class="code-block">
+$ cp tekst1.txt teskt2.txt teksty/
+</pre>
+        <p>
+          Gdzie pliki mają rozszerzeniem .txt, a "teksty" to katalog.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">mv</code> - polecenie to każdemu
+          kojarzy się z przenoszeniem plików i dobrze, jednak, to polecenie w 
+          najprostrzej postaci zmienia nazwę.
+        </p>
+<pre class="code-block">
+$ mv plik1 plik2
+</pre>
+        <p>
+          Plik <code class="code-inline">plik1</code> zmieni nazwę na 
+          <code class="code-inline">plik2</code>. Podanie jako drugi 
+          argument katalogu przeniesie plik do niego.
+        </p>
+
+<pre class="code-block">
+$ mv plik1.txt teskty/
+</pre>
+        <p>
+          Podobnie jak w przypadku polecenia 
+          <code class="code-inline">cp</code>, możemy przenosić wiele plików.
+        </p>
+<pre class="code-block">
+$ mv plik1.txt plik2.txt plik3.txt teksty/
+</pre>
+        <p>
+          Polecenie <code class="code-inline">touch</code> - tworzy pusty plik
+          o nazwie podanej w argumencie, jeśli plik istnieje, aktualizuje 
+          jedynie ostatni czas modyfikacji. Polecenie użyteczne szczególnie, 
+          gdy program wymaga utworzenie pustego pliku.
+        </p>
+<pre class="code-block">
+$ touch ssh
+</pre>
+        <p>
+          Polecenie <code class="code-inline">rm</code> - służy do trwałego 
+          kasowania plików. Po skasowaniu plików za pomocą tego polecenia 
+          są one nie do odzyskania, chyba że uzyskamy fachową pomoc. Kilka 
+          przełączników:
+        </p>
+        <ul>
+          <li>
+            <code class="code-inline">-r</code> - kasowanie rekurencyjne, 
+            przydatne do kasowania całych katalogów z podkatalogami.
+          </li>
+          <li>
+            <code class="code-inline">-f</code> - wymusznie kasowania, bez 
+            pytania o to czy skasować plik. Jeśli chcemy skasować plik katalog 
+            z 100-ma plikami, to bez opcji <code class="code-inline">-f</code>,
+            polecenie zapyta o potwiedzenie kasowania każdego pliku.
+          </li>
+        </ul>
+        <p>
+          Polecnie <code class="code-inline">echo</code> - wypisuje na 
+          standardowe wyjście podane argumenty. Przydatnym przełącznikiem 
+          tutaj jest <code class="code-inline">-n</code>, który niweluje 
+          przejście do nowej linii po wypisaniu argumentu.
+        </p>
+        <h3>Polecenia działające na katalogach.</h3>
+        <p>
+          Unixy korzystają z hierarchi katalogów, głownym katalogiem jest tak 
+          zwany "root" lub poprostu <strong>katalog główny</strong> oznaczany
+	  pojedyńczym 
+          slashem <strong>/</strong>, w głownym katalogu znajduje się kilka
+	  podstawowych 
+          podkatalogów. Określenie drogi do katalogu nazywane jest
+	  <strong>ścieżką</strong>, a 
+          elementem separujacym katalogi jest <strong>"/" - slash</strong>.
+	  Po za slashami
+          na ścieżce możemy spotkać <strong>..</strong> - dwie kropki, oznaczają
+	  one katalog 
+          nadrzędny; <strong>.</strong> - jedną kropkę, oznaczającą katalog, w
+	  którym się 
+          znajdujemy. Często pomija się pojedyńcze kropki, bo programy uznają 
+          obecny katalog za początek ścieżki. Scieżki nie rozpoczynające
+	  się od slasha nazywane są <strong>ścieżkami względnymi</strong>.
+        </p>
+        <p>
+          Występować tutaj będzie termin
+	  <strong>katalog roboczy powłoki</strong> - jest to 
+          katalog w którym obecnie się znajdujemy.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">cd</code> - zmienia aktualny 
+          katalog roboczy powłoki, "przejście" do innego katalogu.
+        </p>
+<pre class="code-block">
+$ cd Dokumenty
+</pre>
+        <p>
+          Jeśli pominiemy argument zostaniemy przeniesieni do naszego katalogu
+          domowego. Warto również wspomnieć o <strong>-</strong>
+          podanym jako argument, przejdziemy do poprzedniego katalogu roboczego
+	  powłoki.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">mkdir</code> - tworzy katalog
+        </p>
+<pre class="code-block">
+$ mkdir Muzyka
+</pre>
+        <p>
+          Polecenie <code class="code-inline">rmdir</code> - usuwa katalog, 
+          katalog aby operacja się powiodła <strong>musi być pusty</strong>
+	  inaczej katalog nie zostanie usunięty.
+        </p>
+<pre class="code-block">
+$ rmdir Publiczny
+</pre>
+        <h3>Nazwy wieloznaczne</h3>
+        <p>
+          Elementy na ścieżkach, w szczególności pliki możemy zapisywać za
+	  pomocą
+          <strong>nazw wieloznacznych</strong>, takie nazwy tworzone są z
+	  fragmentów nazw plików 
+          i symboli wieloznacznych lub z samych tych znaków. 
+          Najprostszą nazwą wieloznaczną jest <strong>*</strong> - gwiazdka 
+          oznaczająca dowlną 
+          ilość dowolnych znaków. Gwiazdki są rozwijane jako wszystkie normalnie
+          widoczne elementy w katalogu. Wzorce do poszukiwania możemy tworzyć 
+          z fragmentów nazw oraz symboli wieloznacznych. Na przykład:
+        </p>
+<pre class="code-block">
+mv archive* archives/
+</pre>
+        <p>
+          Wszystkie plik rozpoczynające od słowa "archive" zostaną przeniesione
+          do katalogu "archives". Takie porównywanie prostych wzorców z nazwami
+          plików dokonywane przez powłokę nazywane jest rozwiązywaniem nazw lub
+          <strong>globbingiem</strong>.
+        </p>
+        <p>
+          Inny symbolem wieloznaczym jest <strong>?</strong> - znak zapytania,
+          ozaczna on pojedyńczy dowolny znak.
+        </p>
+        <p>
+          Jeśli nie chcemy aby nazwy były rozwijane zapisujemy symbole nazw
+          wieloznacznych w pojedyńczych cudzysłowach (<strong>''</strong>).
+        </p>
+        <h3>Polecenie pośredniczące</h3> 
+        <p>
+          Polecenie <code class="code-inline">grep</code> - polecenie to 
+          wypisuje z pliku bądź strumienia wyjściowego tylko te wiersze 
+          pasujące do podanego wyrażenia.
+        </p>
+        <p>
+          Jeśli szukalibyśmy słowa "user" w pliku <em>/etc/passwd</em>, to 
+          polecenie powinno wyglądać w następujący sposób:
+        </p>
+<pre class="code-block">
+$ grep user /etc/passwd
+</pre>
+        <p>
+          Polecenie <code class="code-inline">grep</code> świetnie sprawdza 
+          się również, gdy szukamy tego samego wzorca w wielu plikach, 
+          ponieważ przed każdym znalezionym wierszem wypisywana jest także 
+          nazwa pliku.
+        </p>
+        <p>
+          Najważniejszymi przełącznikami dla polecenia 
+          <code class="code-inline">grep</code>, jest 
+          <code class="code-inline">-i</code> - wyłączenie rozróżniania 
+          wielkości liter oraz <code class="code-inline">-v</code> - 
+          odwrócenia działania programu, polecenie wypisze wszystkie wiersze 
+          niezgodne z wyrażeniem.
+        </p>
+        <p>
+          Wyrażenia jakimi posługuje się polecenie
+	  <code class="code-inline">grep</code>, nazywane są
+	  <strong>wyrażeniami regularnymi</strong> i wywodzą się nie tylko z
+	  UNIX-a, ale ogólnych nauk 
+          komputerowych przez inną znacznie rozbudowaną składnie mają znacznie
+          większe zastosowanie niż nazwy wieloznaczne. Opis poszczególnych 
+          elementów wyrażeń regularnych znajduje się na stronie podręcznika 
+          polecenia <code class="code-inline">grep</code>.
+        </p>
+<pre class="code-inline">
+$ man grep
+</pre>
+        <p>
+          Tutaj przedstawie tylko dwa wyrażenia, które należy zapamiętać to:
+        </p>
+        <ul>
+          <li><strong>".*"</strong> - dowolna liczba, dowolnych znaków</li>
+          <li><strong>"."</strong> - pojedyńczy dowolny znak</li>
+        </ul>
+        <p>
+          Polecenie <code class="code-inline">less</code> służy do stronicowania
+          wyjścia programów lub wyświetlenia zawartości dużych plików. Polecenie
+          może przyjmować dane ze strumienia jak i również z pliku, który jest
+	  podawany jako 
+          argument. W UNIX-ach istnieje jeszcze jedno polecenie o podobnym 
+          zastosowaniu jest to polecenie <code class="code-inline">more</code>. 
+          Jednak polecenie <code class="code-inline">less</code> umożliwia 
+          cofniecie się do poprzedniej strony, gdzie 
+          <code class="code-inline">more</code> wyświetla kolejne strony do 
+          końca danych. 
+        </p>
+        <p>
+          Tekstem wyświetlonym przez polecnie możemy sterować za pomocą 
+          strzałek. Możemy również wyszukiwać słowa naciskając klawisz slasha 
+          (<strong>/</strong>) następnie po nim podajemy wyszukiwaną frazę. 
+          Przy użyciu <strong>/</strong> polecenie 
+          <code class="code-inline">less</code> będzie szukać frazy na 
+          następnych stronach. Słów możemy szukać również na poprzednich
+	  stronach za pomocą <strong>?</strong> - znaku zapytania,
+          po znaku podajemy wyszukiwaną frazę.
+        </p>
+        <p>
+          Przeniesienia do następnego wystąpienia danej frazy dokonujemy za 
+          pomocą naciśnięcia klawisza <strong>n</strong>.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">pwd</code> - powoduje 
+          wyświetlenie aktualnego katalogu roboczego, jest ono przydatne kiedy
+          przechodzimy przez dowiązania symboliczne (będzie o nich poźniej), 
+          mogą one zaciemniać prawdziwą ścieżke aktualnego katalogu jednak 
+          polecenie z przełącznikiem <code class="code-inline">-P</code> 
+          pokaże prawdziwią ścieżkę. Może mieć również zastosowanie w 
+          skryptach powłoki.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">diff</code> - pozwala 
+          wskazanie różnić pomiędzy dwoma plikami tekstowymi.
+        </p>
+<pre class="code-block">
+$ diff plik1 plik2
+</pre>
+        <p>
+          Polecenie to posiada wiele opcji pozwalających na formatowanie 
+          informacji przez nie zwracanych, Programiści często użwają 
+          przełącznika <code class="code-inline">-u</code>, przez co informacje
+          zwracane przez polecenie mogą być przetworzone przez inne narzędzia 
+          lub skrypty, mimo tego jest on bardziej zrozumiały niż standardowe
+          formatowanie. Przełącznik <code class="code-inline">-u</code> 
+          powoduje wyświetlenie dodatkowych linii (domyślnie: 3), które są 
+          takie same w celu zachowania kontekstu.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">file</code> - zwraca typ pliku 
+          przekazanego jako argument.
+        </p>
+<pre class="code-block">
+$ files plik1.txt
+</pre>
+        <p>
+          Mimo iż jest to niepozorne narzędzie, to jego możliwości mogą być 
+          zaskakujące.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">find</code> - pozwala na 
+          znalezienie pliku w podanym katalogu. Składnia polecenia jest 
+          dość charakterystyczna.
+        </p>
+<pre class="code-block">
+$ find /home/xf0r3m -name 'plik*' -print
+</pre>
+        <p>
+          Przełącznik <code class="code-inline">-print</code>, powoduje 
+          wypisane na standardowym wyjściu pełnych nazw plików (ścieżek) w 
+          pojedyńczych liniach.
+        </p>
+        <p>
+          Korzystając z nazw wieloznacznych w wartości przełącznika 
+          <code class="code-inline">-name</code>, należy je umieszczać w 
+          pojedynczych cudzysłowach.
+        </p>
+        <p>
+          Innym sposobem na znajdowanie plików jest wykorzystanie polecenia 
+          <code class="code-inline">locate</code>. Polecenie to działa nieco 
+          inaczej niż <code class="code-inline">find</code> ponieważ szuka 
+          plików po indeksach systemu plików. Jeśli plik jest w miarę nowy, 
+          to polecenie to może go nieznaleźć ponieważ nie został jeszcze 
+          stworzony dla niego indeks, jednak działa nieco szybciej od
+          <code class="code-inline">find</code>.
+        </p>
+        <p>
+          Polecenia <code class="code-inline">head</code> i 
+          <code class="code-inline">tail</code> - służą do wypisywania na 
+          standardowym wyjściu początkowego
+	  (<code class="code-inline">head</code>) lub końcowego
+	  (<code class="code-inline">tail</code>) 
+          wycinka danych z pliku lub ze strumienia. Domyśnie wypisują 10 linii.
+          Liczbę linii można zmienić podając ją jako przłącznik np. 
+          <code class="code-inline">-5</code> - polecenia wypisą 5 linii. 
+          Poleceniu <code class="code-inline">tail</code> można również 
+          wskazać od którego momentu ma zaczać wypisywać dane za pomoca
+          przełącznika <code class="code-inline">+n</code>, gdzie za 
+          <strong>n</strong> podaje się numer linii.
+        </p>
+        <p>
+          Bardzo użytecznym narzędziem jest przełącznik 
+          <code class="code-inline">-f</code> polecenia 
+          <code class="code-inline">tail</code>, pozwala na wypisywanie danych
+	  na żywo, przydatne podczas obserwowania logów.
+        </p>
+        <p>
+          Polecenie <code class="code-inline">sort</code> - układa wiersze z
+          pliku w kolejności alfabetycznej i wypisuje je na standardowym
+	  wyjściu. Jeśli na początku wierszy znajdują
+          się liczby to aby były posortowane według wartości numerycznej to
+	  należy
+          użyć przełącznika <code class="code-inline">-n</code>. Sortowanie 
+          można odwrócić za pomocą przełącznika 
+          <code class="code-inline">-r</code>.
+        </p>
+        <h2>Zmienianie hasła i powłoki</h2>
+        <p>
+          Do zmiany powłoki służy polecenie 
+          <code class="code-inline">passwd</code>, polecenie poprosi o obecne 
+          hasło następnie dwukrotnie, w celach weryfikacji będzie pytać o nowe.
+          Metod na hasła jest bardzo wiele. Dobre hasło powinno składać z 
+          wielu różnorodnych znaków i nie być pojedyńczym słowem ze słownika 
+          oraz nie powinno się z nami kojarzyć. Przypadkowy ciąg znaków.
+        </p>
+        <p>
+          Do zmiany powłoki służy polecnie 
+          <code class="code-inline">chsh</code>, jednak osobiście w praktyce 
+          się z nim nie spotkałem. Jeśli muszę skorzystać z innej połoki 
+          niż BASH, wtenczas poprostu uruchamiam ją jako podpowłokę wydając 
+          polecenie <code class="code-inline">sh</code> lub inne.
+        </p>
+        <h2>Pliki z kropką</h2>
+        <p>
+          Jeśli rozejrzymy się po naszym katalogu domowym, najlepiej za pomocą 
+          polecenia <code class="code-inline">ls -al</code>, w wyniku polecnie
+          ujrzymy pliki i katalogi, których nazwa rozpoczyna się od kropki. Te
+          pliki różnią się tym, że nie które programy ich nie wyświetlają 
+          oszczędzająć długich list plików. Potocznie przyjeło się nazywać te 
+          pliki poprostu <strong>ukrytymi</strong>.
+        </p>
+        <p>
+          Istotną rzeczą wsród plików z kropką jest wykorzystanie nazw 
+          wieloznacznych ponieważ do takiego wzorca <strong>.*</strong> to 
+          zaliczają się do niego również <strong>.</strong> - obecny
+          katalog oraz <strong>..</strong> - katalog nadrzędny, przez co 
+          możemy sobie narobić bałaganu w folderze docelowym oraz niepotrzebnie
+          przedłużyć plik czas operacji kopiowania. Przy kopiowaniu dot-files 
+          znacznie lepszym wzorcem wydaje <code class="code-inline">.??*</code>.
+        </p>
+        <h2>Zmienne środowiskowe oraz zmienne powłoki.</h2>
+        <p>
+          <strong>Zmienne powłoki</strong> służą do przechowywania liczby czy
+	  ciągów znaków, z 
+          których możemy skorzystać podczas korzystania z wiersza poleceń np. 
+          gdy chcemy zachować wynik wykonania jednego polecenia poźniej wykonać
+          inne polecenie z użyciem tych danych. Przypisania wartości do 
+          zmiennych dokonujemy za pomocą znaku równości <strong>=</strong>
+        </p>
+<pre class="code-block">
+url=$(grep "url" file.html | cut -d "=" -f 2);
+</pre>
+        <p>
+          Do zmiennej powłoki <code class="code-inline">url</code> trafi 
+          adres konkretnej strony internetowej. Zmienne powłoki są 
+          wykorzystywane w skryptach jak zmienne w każdym innym języku
+          programownia.
+        </p>
+        <p>
+          Zmienne powłoki istnieją do momentu istnienia procesu powłoki, w 
+          której zostały zadeklarowane - do momentu zamknięcia powłoki.
+        </p>
+        <p>
+          Istnieje inny rodzaj zmiennych, a mianowicie
+	  <strong>zmienne środowiskowe</strong>
+          róznica między nimi jest taka, że zmienne powłoki wykorzystywane są 
+          przez powłokę. Jeśli skrypt jest uruchomiony to zadeklarowane w nim 
+          zmienne będą dostępne tylko dla niego. Zmienne środowiskowe są 
+          przekazywane przez system operacyjny do wszystkich uruchamianych 
+          programów UNIX-owych. Tutaj warto dodać, że zadeklarowane zmienne 
+          środowiskowego zadeklarowane w tej powłoce będą dostępne dopiero w 
+          kolejnej uruchomionej. Zmienne środowiskowego deklaruje się tak jak 
+          zmienne powłoki jednak poprzedza się nazwę zmiennej słowem 
+          <code class="code-inline">export</code>.
+        </p>
+<pre class="code-block">
+export url=$(grep "url" file.html | cut -d "=" -f 2);
+</pre>
+        <p>
+          Zmienne środowiskowe są wykorzystywane do odgórnego ustalania 
+          przełączników i ich wartości dla wielu programów, przeważnie na 
+          stronie podręcznika polecenia można znaleźć informacje jak można 
+          wykorzystać zmienne środowiskowe do pracy z programem.
+        </p>
+        <h2>Ścieżka poleceń</h2>
+        <p>
+          Zmienna <strong>PATH</strong> jest specjalnym 
+          rodzajem zmiennej środowiskowej ponieważ przechowuje ścieżkę 
+          poleceń - jest to lista katalogów, które przeszuka powłoka w celu 
+          odnależnia polecenia. Istoną cechą powłoki związaną ze ścieżką 
+          poleceń jest fakt, że na ścieżce może występować kilka poleceń o 
+          tej samej nazwie, a powłoka uruchomi pierwszy napotkany z nich.
+        </p>
+        <p>
+          Elementy na ścieżce poleceń są oddzielone od siebie znakiem 
+          dwukropka (<strong>:</strong>), możemy sobie wypisać zawartość
+          zmiennej PATH, aby bardziej zobrazować sobie jak wygląda
+          ta ścieżka.
+        </p>
+<pre class="code-block">
+$ echo $PATH
+</pre>
+        <p>
+          Ścieżkę poleceń mozemy zmienić w każdej chwili. Dodając katalog do 
+          niej musimy pamiętać o wspomnianej wcześniej właściwości. Dlatego 
+          też najlepiej aby nasze własne narzędzia miały unikatowe nazwy i 
+          katalog je zwierający dodajemy na końcu ścieżki dzieki czemu 
+          nie nadpiszemy żadnego z istniejeących już poleceń. Oczywiście to 
+          nadpisanie nie jest szkodliwe wystarczy zamknąć powłokę i
+          uruchomić ją ponownie, w razie pomyłki.
+        </p>
+<pre class="code-block">
+$ PATH=${PATH}:/home/xf0r3m/bin
+</pre>
+        <p>
+          Jeśli zmieniamy ściężkę poleceń to należało by użyć tej zmiennej jako 
+          zmiennej środowiskowej aby każda uruchomiona powłoka posiada 
+          dostęp do dodanego katalogu.
+        </p>
+<pre class="code-block">
+$ export PATH=${PATH}:/home/xf0r3m/bin
+</pre>
+        <h2>Znaki specjalne</h2>
+        <p>
+          Poniżej znajduje się tabela z znakami specjalnymi, z którymi 
+          spotkamy się podczas pracy z połowką.
+        </p>
+        <table>
+          <tr>
+            <th>Symbol</th>
+            <th>Nazwa</th>
+            <th>Opis</th>
+          </tr>
+          <tr>
+            <td>*</td>
+            <td>gwiazdka</td>
+            <td>Wyrażenia regularne, symbol nazwy wieloznacznej</td>
+          </tr>
+          <tr>
+            <td>.</td>
+            <td>kropka</td>
+            <td>Aktualny katalog, ogranicznik nazwy pliku lub hosta</td>
+          </tr>
+          <tr>
+            <td>!</td>
+            <td>wykrzyknik</td>
+            <td>Negacja, historia poleceń</td>
+          </tr>
+          <tr>
+            <td>|</td>
+            <td>potok</td>
+            <td>Potoki poleceń</td>
+          </tr>
+          <tr>
+            <td>/</td>
+            <td>ukośnik</td>
+            <td>Ograniczniki katalogów, polecenie szukania</td>
+          </tr>
+          <tr>
+            <td>\</td>
+            <td>lewy ukośnik</td>
+            <td>Literały, makra (nigdy katalogi)</td>
+          </tr>
+          <tr>
+            <td>$</td>
+            <td>dolar</td>
+            <td>Ograniczenie zmiennych, koniec wiersza</td>
+          </tr>
+          <tr>
+            <td>''</td>
+            <td>pojedyńczy cudzysłów</td>
+            <td>Ciągi znaków literałów</td>
+          </tr>
+          <tr>
+            <td>`</td>
+            <td>lewy cudzysłów</td>
+            <td>Podmiana polecenia</td>
+          </tr>
+          <tr>
+            <td>""</td>
+            <td>podwójny cudzysłów</td>
+            <td>Ciągi znaków pseudoliterałów</td>
+          </tr>
+          <tr>
+            <td>^</td>
+            <td>daszek</td>
+            <td>Negacja, początek wiersza</td>
+          </tr>
+          <tr>
+            <td>~</td>
+            <td>tylda</td>
+            <td>Negacja, skrót katalogu</td>
+          </tr>
+          <tr>
+            <td>#</td>
+            <td>krzyżyk</td>
+            <td>Komentarze, dyrektywy preprocesora, podmiany</td>
+          </tr>
+          <tr>
+            <td>[]</td>
+            <td>nawiasy kwadratowe</td>
+            <td>Zakresy</td>
+          </tr>
+          <tr>
+            <td>{}</td> 
+            <td>nawiasy klamrowe</td>
+            <td>Bloki poleceń, zakresy</td>
+          </tr>
+          <tr>
+            <td>_</td>
+            <td>podkreślenie</td>
+            <td>Prosty zmiennik znaku spacji</td>
+          </tr>
+        </table>
+        <p>
+          Znakiem daszka często zastępowany jest symbol klawisza Control 
+          dlatego też zapisowi <em>^C</em> równoznaczne jest Ctrl+C.
+        </p>
+        <h2>Edycja wiersza poleceń.</h2>
+        <p>
+          Jak mogliśmy zauważyć możemy dowlnie edytować wiersz polecenia 
+          używając strzałek w lewo oraz w prawo możemy również w prosty sposób
+          przeszukiwać historię za pomocą strzałek w górę i w dół. Warto obok 
+          korzystania ze strzałek znać jeszcze jedną metodę i samemu uznać co 
+          jest dla nas wygodniejsze. Inną metodą jest używanie określonych 
+          skrótów klawiszowych, które wykorzystywane są nie tylko w edycji 
+          wiersza poleceń ale i obsłudze innych programów UNIX-owych. Oto lista
+          kombinacji klawiszy wykorzystywanych podczas edycji wiersza
+          polecenia.
+        </p>
+        <table>
+          <tr>
+            <th>Skrót</th>
+            <th>Opis</th>
+          </tr>
+          <tr>
+            <td>Ctrl+B</td>
+            <td>Przesunięcie kursora w lewo</td>
+          </tr>
+          <tr>
+            <td>Ctrl+F</td>
+            <td>Przesunięcie kursora w prawo</td>
+          </tr>
+          <tr>
+            <td>Ctrl+P</td>
+            <td>Powrót do poprzednie polecenia 
+            (lub przesunięcie kursora w górę)</td>
+          </tr>
+          <tr>
+            <td>Ctrl+N</td>
+            <td>Przjescie do następnego polecenia 
+            (lub przesunięcie kursora w dół)</td>
+          </tr>
+          <tr>
+            <td>Ctrl+A</td>
+            <td>Przesunięcie kursora na początek wiersza</td>
+          </tr>
+          <tr>
+            <td>Ctrl+E</td>
+            <td>Przesunięcie kursora na koniec wiersza</td>
+          </tr>
+          <tr>
+            <td>Ctrl+W</td>
+            <td>Usunięcie słowa poprzedzającego kursor</td>
+          </tr>
+          <tr>
+            <td>Ctrl+U</td>
+            <td>Usunięcie tekstu od kursora do początku wiersza</td>
+          </tr>
+          <tr>
+            <td>Ctrl+K</td>
+            <td>Usunięcie tesktu od kursora do końca wiersza</td>
+          </tr>
+          <tr>
+            <td>Ctrl+Y</td>
+            <td>Wklejenie usuniętego tekstu (np. usuniętego poleceniem 
+            Ctrl+U)</td>
+          </tr>
+        </table>
+        <h2>Edytory tekstu</h2>
+        <p>
+          W UNIX-ach edytuje się bardzo dużo plików podczas administracji 
+          systemem. Wiele ustawień systemowych to zwykły tekst w pliku 
+          zapisanym gdzieś w katalogu /etc. Dlatego dość istotny jest wybór 
+          odpowiedniego edytora. Spośród wielu dostępnych warto rozważyć dwa. 
+          <strong>Vim</strong> oraz <strong>Emacs</strong>. Vim jest 
+          preinstalowany w wielu systemach, Emacsa należy instalować. Oba 
+          edytory są specyficzne i ich obsługi należy się nauczyć. Emacs 
+          integruje w sobie wszystko edytor, terminal, kompilator.
+        </p>
+        <p>
+          Jeśli potrzebny nam jest edytor, który może zrobić niemal wszystko, 
+          posiada rozbudowany system pomocy, a nie będzie przeszkadzać nam to,
+          że dostęp do nie których funkcji wymaga wpisania kilku polceń, 
+          to należy się skłonić w kierunku Emacsa.
+        </p>
+        <p>
+          Jeśli jednak cenimy sobie szybkość działania, to lepszym wyborem 
+          będzie Vim, obsługuje się go trochę jak grę.
+        </p>
+        <p>
+          W Emacs dostępny jest samouczek wciskając Ctrl+H następnie należy 
+          naciśnąć klawisz <strong>t</strong>.
+        </p>
+	<p>
+	  Kuszące możę być wykorzystanie jakiegoś przyjaznego edytora, lepiej
+	  zrezygnować z tego rozwiązania. Poniważ przedstawione tutaj
+	  rozwiązania, albo dają ogromne możliwości albo są uniwersalne
+	  dla różnych UNIX-ów.
+	</p>
+	<h2>Uzyskiwanie pomocy</h2>
+	<p>
+	  UNIX-y są czesto dostarczane z ogromną ilością dokumentacji. Pomoc
+	  odnośnie polecenia możemy znaleźć na jego
+	  <strong>stronie podręcznika</strong>.
+	  Stronę podręcznika możemy wywołać za pomocą polecenia
+	  <code class="code-inline">man</code> podają jako argument polecenie
+	  do którego chcielibyśmy uzyskać pomoc.
+	</p>
+<pre class="code-block">
+$ man ls
+</pre> 
+	<p>
+	  Strony podręcznika skupiają się generalnie na podaniu suchej
+	  informacji na temat wywołania polecenia i jego opcji czy też
+	  przełączników. Nie liczne mogą zawierać jakieś przykłady, ale to
+	  wszystko. Nie można oczekiwać od stron podręcznika, samouczka czy
+	  literackiego stylu.
+	</p>
+	<p>
+	  Strony podręcznika możemy przeszukać pod kątem słów kluczowych, jest
+	  przydane gdy nie znamy nazwy polecenia.
+	</p>
+<pre class="code-block">
+$ man -k słowo_kluczowe
+</pre>
+	<p>
+	  Przy wyszukiwaniu słów kluczowych warto pamietąć o tym, że wiele
+	  różnych słów może określać tą samą czynność. Wszukująć słowo kluczowe
+	  <em>delete</em> nie znajdziemy wśród wyników polecenia
+	  <code class="code-inline">rm</code>, ale przy słowie <em>remove</em>
+	  już tak.
+	</p>
+	<p>
+	  Jeśli przyjrzymy się wynikowi polecenia
+	  <code class="code-inline">man -k</code> to wyszukane polecenia obok
+	  nazwy mają cyfrę w nawiasie, jest to <strong>numer rozdziału</strong>.
+	  Strony podręcznika są podzielone na następujące rodziały.
+	</p>
+	<table>
+	  <tr>
+	    <th>Numer rozdziału</th>
+	    <th>Opis</th>
+	  </tr>
+	  <tr>
+	    <td>1</td>
+	    <td>Polecenia użytkownika</td>
+	  </tr>
+	  <tr>
+	    <td>2</td>
+	    <td>Niskopoziomowe wywołoanie systemowe</td>
+	  </tr>
+	  <tr>
+	    <td>3</td>
+	    <td>Dokumentacja wysokopoziomowych bibliotek UNIX-a</td>
+	  </tr>
+	  <tr>
+	    <td>4</td>
+	    <td>Informacje o interfejsach urządzeń i sterownikach</td>
+	  </tr>
+	  <tr>
+	    <td>5</td>
+	    <td>Opis plików (konfiguracji systemu)</td>
+	  </tr>
+	  <tr>
+	    <td>6</td>
+	    <td>Gry</td>
+	  </tr>
+	  <tr>
+	    <td>7</td>
+	    <td>Formaty plików, konwencje i kodowania
+	      (ASCII, przysrostki itd.)</td>
+	  </tr>
+	  <tr>
+	    <td>8</td>
+	    <td>Polecenia systemowe i serwery</td>
+	  </tr>
+	</table>
+	<p>
+	  Aby uzupełnić ten wiedzę przyswojoną z tego materiału warto się
+	  zapoznać z rozdziałami 1, 5, 7, 8. Rozdział 6 mógłby być ciekawy gdy
+	  by nie to, że nie ma tam zbyt wielu informacji. Podczas korzystania
+	  z stron podręcznika warto wziąć pod uwagę numer rozdziału. Ponieważ
+	  polecenie otworzy nam pasującą stronę w pierwszym napodkanym
+	  rozdziale. Powiedzmy, że chcemy dowiedzieć się czegoś wiecej o pliku
+	  <em>/etc/passwd</em> (przechowuje informacje o użytkownikach, nazwa
+	  sugeruje, że może przechowywać hasła, jednak od bardzo dawna [1988
+	  AT&T UNIX SVR3, żależy od UNIX-a] nie przechowuje zaszyfrowanych
+	  haseł.) jeśli wydamy polecenie:
+	</p>
+<pre class="code-block">
+$ man /etc/passwd
+</pre>  
+	<p>
+	  To nie dostaniemy nic, to może takie
+	</p>
+<pre class="code-block">
+$ man passwd
+</pre>
+	<p>
+	  To polecenie uruchomi nam strone podręcznika polecenia
+	  <code class="code-inline">passwd</code>. Jedynym
+	  prawidłowym poleceniem jest to poniższe:
+	</p>
+<pre class="code-block">
+$ man 5 passwd
+</pre>
+	<p>
+	  Czasami nie trzeba zaglądać na strony podręcznika aby poznać jakiś
+	  przełącznik lub opcje. Często wystarczające możebyć wydanie polecenia
+	  z przełącznikiem <code class="code-inline">-h</code>
+	  lub <code class="code-inline">--help</code>.
+	</p>
+	<p>
+	  Inny źródłem informacji może być plik dokumentacji GNU zwany
+	  <strong>info</strong> lub <strong>texinfo</strong>. Często te
+	  dokumenty zawierają znacznie więcej informacji niż strony podręcznika,
+	  choć ich format może być nieco bardziej skomplikowany.
+	</p>
+	<p>
+	  Niektóre pakiety dostaczają swoją dokumentacje do katalogu
+	  <em>/usr/share/doc</em> bez zwracania na to uwagi czy są strony
+	  podręcznika czy format <em>texinfo</em>. Warto tam zajrzeć jeśli
+	  informacje zawarte w powyższych źródłach będą niewystarczające.
+	</p>
+	<h2>Wejście i wyjście powłoki.</h2>
+	<p>
+	  Jeśli chcielibyśmy przesłać wynik działania polecenia bez oglądania
+	  jego wyniku na ekranie to moglibyśmy
+	  <strong>przekierować wyjście</strong> do pliku.
+	</p>
+<pre class="code-block">
+$ ls -al /home/xf0r3m &gt; my_home_listing.txt
+</pre>
+	<p>
+	  Jeśli plik nie istnieje to zostanie utworzony, jeśli jest inaczej to
+	  jego zawartość jest pierw wymazywana (nazwy się to
+	  <strong>cobberling</strong>), w nie których powłokach można zablokować
+	  wymazywanie, na przykład w BASH-u wystarczy wydać polecenie.
+	</p>
+<pre class="code-block">
+$ set -C
+</pre>
+	<p>
+	  Jeśli chcemy dopisać wynik działania od pliku to wtedy należy użyć
+	  dwóch symboli przekierowanie.
+	</p>
+<pre class="code-block">
+$ ls -al /home/xf0r3m &gt;&gt; systems_dirs_listings.txt
+</pre>
+	<p>
+	  Prawy ostry nawias jest symbolem który przekierowuje wyjście
+	  polecenia do pliku. Innym symbole jest potok zapisywany pionową kreską
+	  (|), <strong>potok</strong> łączy wyjście polecenia po lewej z
+	  wejściem polecenia po
+	  prawej. Dane trafiają z jednego polecenia do drugiego.
+	</p>
+<pre class="code-block">
+$ ls -al /home/xf0r3m | grep 'Downloads'
+</pre>
+	<p>
+	  Jeśli wywołamy jakieś polecenie, którego wyjście przekierowaliśmy do
+	  pliku a mimo to widzimy jakieś dane to oznacza to, że te informacje
+	  są wypisywane przez program na standardowy strumień błedów. Ten
+	  strumień również możemy przekierować jednak nie tak łatwo jak
+	  standardowe wyjsćie. W UNIX-ach obok nazw standardowy strumień jakiś
+	  tam, są jeszcze <strong>oznaczenia numeryczne</strong>, po których
+	  rozeznaje się sam system. Dla
+	  <em>stdout</em> (standardowego wyjścia) jest 1 (jedynka) dla
+	  strumienia błedów
+	  jest 2 (dwójka) i chcąc przekierować zarówno <em>stdout</em> jak
+	  <em>stderr</em>
+	  (strumień błedów) należy wydać takie polecenie jak to poniżej:
+	</p>
+<pre class="code-block">
+$ ls /ffffff &gt; f 2&gt;e
+</pre>
+	<p>
+	  Teraz każdy błąd wypisany przez to polecenie na <em>stderr</em>
+	  zostanie przekierowany do pliku o nazwie <em>e</em>.
+	</p>
+	<p>
+	  Za pomocą znaków <strong>&gt;&amp;</strong> możliwe jest
+	  przekierowanie strumienia błedów w to samo miejsce co strumień
+	  wyjścia.
+	</p>
+<pre class="code-block">
+$ ls /fffffff &gt; f 2&gt;&amp;1
+</pre>
+	 <p>
+	   Wyjście tego polecenia wraz z strumieniem błędów zostanie zapisane
+	   w pliku <em>f</em>.
+	 </p>
+	 <p>
+	   Istnieje możliwość jeszcze jednego przekierowania. Do omowienia
+	   pozostało przekierowanie pliku na standardowe wejście programu.
+	 </p>
+<pre class="code-block">
+$ head &lt; /proc/cpuinfo
+</pre>
+	 <p>
+	   <strong>Przekierowania wejścia</strong> dokonujemy za pomocą lewego
+	   ostrego nawiasu
+	   (<strong>&lt;</strong>). Tego typu działania nie są powszechną
+	   praktyką ponieważ większość programów UNIX-owych przyjmuje pliki, z
+	   których ma odczytać dane jako argument.
+	 </p>
+	 <h2>Prawidłowe odczytywanie komunikatów o błędach.</h2>
+	 <p>
+	   Podczas pracy z Linuxem może zdażyć się, że program w ogóle się nie
+	   uruchomi zwróci jedynie lakoniczną odpowiedź co mogło pójść nie tak.
+	   Poniżej spróbujemy naświetlić nieco jak wyglądają błędy z którymi
+	   będziemy spotykać się na codzień podczas pracy z systemami tego typu.
+	 </p>
+	 <p>
+	   Z czego składa się błąd:
+	 </p>
+	 <ul>
+	   <li><strong>nazwa programu</strong>, choć nie wszystkie programy
+	     wyświetlają własną nazwę w błędach,</li>
+	   <li><strong>nazwa pliku</strong>, w przypadku błedów dotyczących
+	     operacji na plikach oczywiście nazwa pliku jest uogólnieniem
+	     równie dobrze może być to nazwa katalogu,</li>
+	   <li><strong>komunikat błędu</strong>, opis przyczyny wystąpienia
+	     błędu.</li>
+	 </ul>
+	 <p>
+	   Opis typowych błędów:
+	 </p>
+	 <ul>
+	   <li><strong>No such file or directory</strong> - (
+	     <em>Nie ma takiego pliku lub katalogu</em>) odwołanie się do nie
+	     istniejącej ścieżki lub pliku.</li>
+	   <li><strong>File exist</strong> - (<em>Plik istnieje</em>) - Próba
+	     utworzenia pliku, który już istnieje w tym katalogu. Czasami sam
+	     komunikat może pojawiać się jako ostrzeżenie.
+	   </li>
+	   <li><strong>Not a directory / Is a directory</strong> - (
+	     <em>Nie jest katalogiem / Jest katalogiem</em>) - Użycie pliku w
+	     roli katalogu (np. na ścieżce) oraz na odwrót.</li>
+	   <li><strong>No left space on device</strong> - (
+	     <em>Brak miejsca w urządzeniu</em>) - Wyczerpanie wolnego miejsca
+	     na urządzeniu do którego chcemy zapisać dane. Pojawia się również w
+	     momencie zakończenia operacji zerowania dysku przy użyciu
+	     klasycznych UNIX-owych narzędzi.</li>
+	   <li><strong>Permission denied</strong> - (
+	     <em>Niewystarczające uprawnienia</em>) - Próba wykonania czynności,
+	     do której nie mamy uprawnień. Na przykład wykonywanie uprawnień na
+	     plikach, które nie należą do nas oraz nie mamy do nich żadnych praw
+	     czy wykonanie czynności, która potrzebuje uprawnień administratora.
+	   </li>
+	   <li>
+	     <strong>Operation not permitted</strong> - (
+	     <em>Brak zezwolenia na wykonanie operacji</em>) - tę rodzaj błędu
+	     najczęciej występuje w momencie gdy chcemy zakończyć proces, do
+	     którego nie mamy uprawnień.
+	   </li>  
+	   <li><strong>Segmentation fault / Bus Error</strong> - (
+	     <em>Błąd segmentacji / Błąd magistrali</em>) - Błąd programisty,
+	     program próbował uzyskać dostęp do obszaru pamięci, do którego nie
+	     miał żadnych uprawnień. Działanie takiego programu zostało
+	     przerwane przez system operacyjny. Błąd magistrali jest podobny do
+	     błędu sementacji z tą różnicą, że program, który zwrócił ten
+	     komunikat
+	     próbował dostać się do pamięci w sposób nieprawidłowy. Te błędy są
+	     otrzymywane przeważnie wtedy gdy przekażemy do programu dane,
+	     których on się nie spodziewał.
+	   </li>
+	 </ul>
+	   <h2>Przeglądanie procesów i maniupulowanie nimi.</h2>
+	   <p>
+	     Każdy z proces w systemie to jeden z działających w nim programów.
+	     Procesy mają przypisane numery identyfikacje <strong>PID</strong>
+	     (Process IDentifier), aby łatwiej nimi zarządzać lepiej wpisać
+	     krótki numer niż całą nazwę procesu. Dostęp do listy
+	     procesów możemy uzyskać za pomocą polecenia
+	     <code class="code-inline">ps</code>. Jednak nie zwróci
+	     ono zbyt wielu informacji, wiele zależy od jego implementacji w
+	     systemie. Najbardziej uniwersalnym sposobem na uzyskanie informacji
+	     o procesach jest wydanie
+	     <code class="code-inline">ps</code> w raz trzema przełącznikami
+	     <code class="code-inline">-aux</code> (Wiele podstawowych narzędzi
+	     pozwala łączyć ze sobą przełączniki).
+	   </p>
+<pre class="code-block">
+$ ps -aux
+</pre>
+	   <p>
+	     Polecenie to zwróci tabelę ze wszystkimi procesami aktualnie
+	     uruchomionymi w systemie wydruk podzielony jest na 11 kolumn.
+	   </p>
+	   <ul>
+	     <li><strong>USER</strong> - użytkownik, z którego uprawnieniami
+	       działa proces. Proces został uruchomiony przez wskazanego przez
+	       kolumnę użytkownika.</li>
+	     <li><strong>PID</strong> - Identyfikator procesu.</li>
+	     <li><strong>%CPU</strong> - Procentowe zużycie procesora przez
+	       proces</li>
+	     <li><strong>%MEM</strong> - Procentowe zużycie pamięci RAM przez
+	       proces</li>
+	     <li><strong>VSZ</strong> - Rozmiar pamięci wirtualnej procesu w
+	       KiB.</li>
+	     <li><strong>RSS</strong> - Rozmiar rzeczywistej pamięci
+	       wykorzystywanej przez proces bez pamięci SWAP w KB.</li>
+	     <li><strong>TTY</strong> - Terminal kontrolujący, powłoka w której
+	       proces został uruchomiony.</li>
+	     <li><strong>STAT</strong> - Wieloznakowy status procesu.</li>
+	     <li><strong>START</strong> - Czas startu procesu, jeśli proces
+	       wystartował mniej niż 24 godziny temu wtedy format czasu jest
+	       następujący: <em>HH:MM</em>.</li>
+	     <li><strong>TIME</strong> - Łączny czas pracy procesora poświęcony
+	       na wykonanie procesu wraz z przełączaniem kontekstu.</li>
+	     <li><strong>COMMAND</strong> - Polecenie/nazwa procesu.</li>
+	   </ul>
+	   <p>
+	     Status procesu:
+	   </p>
+	   <ul>
+	     <li><strong>D</strong> -
+	       <em>Uninterruptible sleep (nieprzerywalny sen)</em> - Proces
+	       oczekuje na operacje wejścia/wyjscia (dane z napędu lub dysku).
+	     </li>
+	     <li><strong>I</strong> -
+	       <em>Idle kernel thread (Proces bezczynności jądra)</em> - Stan
+	       bezczynności procesu.</li>
+	     <li><strong>R</strong> -
+	       <em>Running or runnable (on run queue)</em> - Proces działą
+	       obecnie lub oczekuje na działanie.</li>
+	     <li><strong>S</strong> -
+	       <em>Interruptible sleep (przerywalny sen)</em> -
+	       Proces oczekuje na zdarzenie.</li>
+	     <li><strong>T</strong> -
+	       <em>Stopped by job control signal</em> - Proces zatrzymany
+		 za pomocą sygnału kontroli zadań.</li>
+	     <li><strong>t</strong> -
+	       <em>Stopped by debuger during the tracing</em> - Proces
+	       zatrzymany przez debuger na czas śledzenia.</li>
+	     <li><strong>W</strong> -
+	       <em>Paging (not valid since the 2.6.xx kernel)</em> -
+	       Stronicowanie, stan niewłaściwy od kernela 2.6.xx.</li>
+	     <li><strong>X</strong> - <em>Dead (Martwy)</em> -
+	       Ten stan nigdy nie powinien mieć miejsca.</li>
+	     <li><strong>Z</strong> -
+	       <em>defunct ("zombie") proces</em> - Proces zombie, proces
+	       zakończył działanie jednak oczekuje na zamknięcie przez proces
+	       nadrzędny.</li>
+	   </ul>
+	   <p>
+	     Podczas pracy z poleceniem <code class="code-inline">ps</code>,
+	     przydatny może okazać się przełącnik
+	     <code class="code-inline">-w</code> wyświetlający pełne polecenia
+	     zamiast pojedyńczej linii. Podając PID jako parametr polecenia
+	     <code class="code-inline">ps</code> możemy uzyskać więcej
+	     informacji na temat podanego
+	     procesu. Przykładowo możemy sprawdzić proces aktualnej powłoki
+	     wydając poniższe polecenie:
+	   </p>
+<pre class="code-block">
+$ ps -u $$
+</pre>
+	   <p>
+	     Symbol <strong>$$</strong>, to zmienna powłoki przechowująca PID
+	     obecnej powłoki.
+	   </p>
+	   <h3>Przerywanie działania procesów.</h3>
+	   <p>
+	     Mając odpowiednie uprawnienia w systemie możemy przerwać działanie
+	     niemal, każdego procesu (niemal, ponieważ nigdy nie próbowałem
+	     przerwać działania procesu init (PID: 1)). Do przerywania działania
+	     procesów służy polecenie
+	     <code class="code-inline">kill</code>, polecenie prosi jądro
+	     systemu o wysłanie odpowiedniego sygnału. Sygnał podaje użytkownik
+	     jako argument polecenia, poniżej znajdują się najważniejsze sygnały
+	     Pozostałe znajduje się na stronie podręcznika:
+	     <code class="code-inline">man 7 signals</code>
+	   </p>
+	   <ul>
+	     <li><strong>TERM</strong><em>(15)</em> - Sygnał zakończenia.
+<pre class="code-block">
+$ kill -TERM pid
+</pre>
+	     </li>
+	     <li><strong>STOP</strong><em>(19)</em> - Sygnał zatrzymania.
+<pre class="code-block">
+$ kill -STOP pid
+</pre>
+	     </li>
+	     <li><strong>CONT</strong><em>(18)</em> - Sygnał wznowienia.
+<pre class="code-block">
+$ kill -CONT pid
+</pre>
+	     </li>
+	     <li><strong>KILL</strong><em>(9)</em> - Sygnał zabicia.
+<pre class="code-block">
+$ kill -KILL pid
+</pre>
+	     </li>
+	   </ul>
+	   <p>
+	     Oba sygnały <em>TERM</em> oraz <em>KILL</em> zamykają proces.
+	     Jednak sygnał <em>TERM</em> jest bardziej polubowny, pozwala
+	     procesowi na posprzątanie po sobie, zwolnienie pamięci. Sygnał
+	     <em>KILL</em>, zamyka natychmiast proces, nie pozwalając na
+	     powyższe czynności. Proces zostaje siłą usunięty z pamięci. Nie
+	     powinno się przerywać działania dowlnych, jeśli nie wiemy co one
+	     teraz robią.
+	   </p>
+	   <p>
+	     Sygnałów można używać za pomocą wartości liczbowych przedstawionych
+	     w nawiasie obok nazwy np.
+	   </p>
+<pre class="code-block">
+$ kill -9 pid
+</pre>
+
+<h3>Kontrola zadań</h3>
+
+	   <p>
+	     Powłoki posiadają tak zwany
+	     <strong>mechanizm kontroli zadań</strong>, jest to inna
+	     metoda przesłania do procesu sygnały TSTP (podobny do <em>STOP</em>
+	     i <em>CONT</em>) za pomocą konbinacji klawiszy lub poleceń.
+	     Wysłanie sygnału TSTP realizowane jest za pomocą kombinacji Ctrl+Z.
+	     Zatrzymany w ten sposób proces można wznowić przy użyciu polecenia
+	     <code class="code-inline">fg</code> (polecenie to wznowi działanie
+	     procesu na pierwszym planie [normalnie w terminalu]) lub
+	     <code class="code-inline">bg</code> (wznowi działanie procesu w
+	     tle). Za pomocą polecenia <code class="code-inline">jobs</code>
+	     sprawdzimy czy terninalu nie oczekuje jakiś uśpiony proces.
+	   </p>
+	   <h3>Procesy działające w tle</h3>
+	   <p>
+	     Podczas uruchomienia polecenia UNIX-owego w powłoce, dostęp do
+	     znaku
+	     zachęty otrzymamy dopiero gdy ów polecenie zakończy działanie.
+	     Istnieje możliwość odłączenia procesu od terminala przekazania go
+	     tła. <strong>Przekazywaniu poleceń na tło</strong> służy ampersand
+	     (<strong>&</strong>) na końcu
+	     wiersza polecenia. Działajace procesy możemy zatrzymać stosując
+	     Ctrl+Z znane z kontroli zadań a następnie wznowić je na tle.
+	     Przekazaniu procesu do tła, powłoka wypisze numer procesu i odrazu 
+	     uzyskamy dostęp do znaku zachęty. Proces uruchomiony w tle działać
+	     będzie nawet po naszym wylogowaniu, co może być przydatne gdy
+	     będzie on wykonywać długotrwałe operacje. Należy jednak pamiętać
+	     aby nie przekazywać do tła programów, które mogą potrzebować do
+	     działania danych od użytkownika. Taki program może zostać
+	     zamrożony lub zamknięty, inny czynnikiem na który należy zwróć
+	     uwagę są dane z <em>stdout</em> oraz <em>stderr</em>.
+	     Przed przekazaniem programu do
+	     tła należy wszystko przekierować. Ponieważ dane z strumieni
+	     wyjściowych będą wypisywane bezpośrednio w terminalu, którym
+	     przekazaliśmy program do tła.
+	   </p>
+	   <p>
+	     Innym sposobem na uruchamianie
+	     programów w tle (tak jakby) jest wykorzystanie takich programów jak
+	     GNU Screen czy TMUX. Te programy to multipleksery terminali, dzięki
+	     nim możemy np. odłączyć sesje (terminal) wylogować się i a program
+	     uruchomiony w odłączonym terminalu dalej będzie działać jakby był
+	     uruchomiony normalnie w oknie terminala.
+	   </p>
+	   <h2>Tryby plików i uprawnienia.</h2>
+	   <p>
+	     Z racji tego iż wszystko na UNIX-ch jest plikiem, użytkownik musi
+	     rozróżniać co jest czym. Pierwsza
+	     kolumna informacji wypisanych przez polecenie
+	     <code class="code-inline">ls -l</code> zwraca tryb pliku,
+	     w którego skład wchodzą pierwszy znak tej kolumny -
+	     <strong>typ pliku</strong> oraz
+	     uprawnienia. W systemie możemy wyróżnić kilka rodzajów plików:
+	   </p>
+	   <ul>
+	     <li><strong>-</strong>(<em>myślnik</em>) - Zwykły plik.</li>
+	     <li><strong>d</strong> - Katalog.</li>
+	     <li><strong>l</strong> - Dowiązanie symboliczne.</li>
+	     <li><strong>s</strong> - Gniazdo. Plik specjalny, dzięki nim
+	       procesy mogą się ze sobą komunikować.</li>
+	   </ul>
+	   <p>
+	     W systemie możemy spotkać się jeszcze z dwa rodzajami plików są to
+	     pliki urządzeń o których będzie kolejnym rozdziale.
+	   </p>
+	   <ul>
+	     <li><strong>b</strong> - plik urządzenia blokowego.</li>
+	     <li><strong>c</strong> - plik urządzenia znakowego.</li>
+	   </ul>
+	   <p>
+	     Każdy plik w UNIX-ie posiada
+	     <strong>zestaw uprawnień</strong> określających dostęp
+	     do niego. UNIX-y wyróżniają trzy prawa: odczyt, zapis i wykonanie.
+	     Prawa pliku są podzielone ma trzy grupy. Każdej z grup można
+	     przypisać wszystkie dostępne prawa. Dla zwięzłości zapisu, każde z
+	     praw określa jedna litera pochodząca z jego angielskiej nazwy.
+	   </p>
+	   <ul>
+	     <li><strong>r</strong> - (<em>read</em>) -
+	       Odczyt, programy mogą czytać plik, pobierać z niego dane.</li>
+	     <li><strong>w</strong> - (<em>write</em>) - Zapis, można zapisywać
+	       w nim dane lub go usunąć.</li>
+	     <li><strong>x</strong> - (<em>execute</em>) - Wykonanie, nadawane
+	       plikom wykonywalnym, programom i skryptom pozwala na uruchomienie
+	       pliku.</li>
+	   </ul>
+	   <p>
+	     Grupy określają zakres uprawnień dla poszczególnych użytkowników.
+	     Możemy wydzielić zatem poszczególne uprawnienia dla:
+	   </p>
+	   <ul>
+	     <li><strong>u</strong> - (<em>user</em>) - Właściciel.</li>
+	     <li><strong>g</strong> - (<em>group</em>) - Grupa.</li>
+	     <li><strong>o</strong> - (<em>others</em>) - Pozostali użytkownicy
+	       systemu.</li>
+	   </ul>
+	   <p>
+	     Jeśli wyświetlimy sobie zawrtość katalogu za pomocą polecenia
+	     <code class="code-inline">ls -l</code>, to w trzeciej kolumnie
+	     znajduje się właściciel a w czwartej znajduje się grupa. Jeśli
+	     myslisz
+	     że korzystając z Linuxa jesteś drugim i ostatnim obok root
+	     użytkownikiem systemu to się mylisz. W systemie jest oko 23
+	     dodatkowych użytkowników. Służą oni głównie ograniczaniu uprawnień
+	     dużych programów działajacych w tle i świadczących róznorakie
+	     usługi tzw. demonów. Te programy często świadczą różne usługi
+	     sieciowe
+	     przez co narzażone są na atak z zewnątrz. Stąd taka ilość
+	     użytkowników systemie. Tacy użytkownicy często nie mają możliwości
+	     nawet zalogowania się do systemu. Jednak warto ustawić jak
+	     najbardziej restrykcyjne uprawnienia dla pozostałych bo kiedy uda
+	     się złamać jeden z takich programów i haker zaloguje się do serwera
+	     to bez odpowiednich uprawnień nie będzie mógł przeglądać naszych
+	     plików.
+	   </p>
+	   <p>
+	     Uprawnienia możemy nadać albo poszczególnej grupie albo od razu
+	     zmodyfikować całe uprawnienia pliku. Do zmiany uprawnień służy
+	     polecenie <code class="code-inline">chmod</code>. Uprawnienia
+	     nadawane są poprzez podanie grupy (u,g lub o) następnie za pomocą
+	     znaku plusa (<strong>+</strong>) lub minusa (<strong>-</strong>)
+	     nadajemy lub odbieramy prawo i na końcu do czego (r,w lub x).
+	   </p>
+<pre class="code-block">
+$ chmod u+rwx test.sh
+$ chmod g+rx test.sh
+$ chmod o+rx test.sh
+</pre>
+	   <p>
+	     Te trzy polecenia możemy zapisać za pomocą jednego:
+	   </p>
+<pre class="code-block">
+$ chmod u+rwx,g+rx,o+rx test.sh
+</pre>
+	   <p>
+	     Tutaj każdej z grup nadaliśmy posczególne uprawnienia. Jednak
+	     wykorzystanie oznaczeń grup, w tym celu nie ma sensu bo zmieniamy
+	     wszystkie uprawnienia pliku w tym celu lepiej użyć <strong>wartości
+	     liczbowych</strong>. Każde prawo można zapisać za pomocą wartości
+	     liczbowych.
+	   </p>
+	   <ul>
+	     <li><strong>r</strong> - <strong>4</strong> - (<em>read</em>) -
+	       Odczyt.</li>
+	     <li><strong>w</strong> - <strong>2</strong> - (<em>write</em>) -
+	       Zapis.</li>
+	     <li><strong>x</strong> - <strong>1</strong> - (<em>execute</em>) -
+	       Wykonanie</li>
+	   </ul>
+	   <p>
+	     Korzystając z wartości liczbowych, każdej z grup musimy przypisać
+	     sumę powyższych wartości. Pierwsza grupa to właściciel, następna to
+	     grupa i ostatnia to pozostali użytkownicy. Nadawania i odbierania
+	     uprawnień dokonujemy w głowie zmieniając wielkości tych sum. Jeśli
+	     chcemy odebrać wszystkie prawa to suma wynosi 0.
+	   </p>
+
+<pre class="code-block">
+$ chmod 755 test.sh
+</pre>
+	   <p>
+	     Korzystając z wartości liczbowych, posługujemy tzw.
+	     <strong>bezwzględymi uprawnieniami</strong>.
+	     Ponieważ modyfikując jedną grupę musimy zmodyfikować całe
+	     uprawnienia.
+	   </p>
+	   <h2>Dowiązania symboliczne</h2>
+	   <p>
+	     Dowiązania symboliczne w Linuxie, nie są niczym innym niż jak
+	     skrótami. Są to pliki, które wskazuje na inne pliki. Czasami za ich
+	     pomocą można wykonać kilka magicznych sztuczek. Oszukać programy
+	     systemu. Dowiązania mogą powodować pewne problemy z rozróżnieniem
+	     co kryje się za dowiązaniem czy jest plik czy katalog. W tym celu
+	     należy sprawdzić sam element wskazywany przez dowiązanie. Polecenie
+	     <code class="code-inline">ls -l</code> pokazuje na co wskazują
+	     dowiązania symboliczne.
+	   </p>
+	   <p>
+	     Dowiązania tworzy się za pomocą polecenia
+	     <code class="code-inline">ln</code> przełącznikiem
+	     <code class="code-inline">-s</code>. BARDZO WAŻNE aby pamiętać o
+	     tym przełączniku, w przeciwnym razie stworzymy tzw. hard link
+	     (dowiązanie twarde). <s>Usunięcię twardego dowiązania w nie umiejętny
+	     sposób, spowoduje usunięcie wskazywanego przez niego pliku.</s>
+       </em>(Patrz: Rozdział: Dyski i systemy plików, Tradycjny system plików)</em>
+	   </p>
+<pre class="code-block">
+$ ln -s cel nazwa_dowiązania
+</pre>
+
+<h2>Archwizowanie i kompresowanie plików</h2>
+
+<h3>Archiwa</h3>
+	   <p>
+	     W większości UNIX-ów będziemy posiadać wbudowane narzędzia, które
+	     służą archwizacji oraz kompresji plików. Pierwszym narzędziem, z
+	     którym się za poznamy będzie polecenie
+	     <code class="code-inline">tar</code>. To polecenie służy do
+	     obsługi archiwów w UNIX-ach. Archiwum tworzy się za pomocą
+	     poniższego polecenia:
+	   </p>
+	   
+<pre class="code-block">
+$ tar -cvf nazwa_archiwum.tar pliki*
+</pre>
+	   <p>
+	     Opis przełączników:
+	   </p>
+	   <ul>
+	     <li><strong>c</strong> - tworzy nowe archiwum</li>
+	     <li><strong>v</strong> - tryb gadatliwy, normalnie
+	       <code class="code-inline">tar</code> nie wyświetla co robi,
+	       z tym przełącznikiem wypisze na <em>stdout</em> nazwę/ścieżkę
+	       każdego dodanego do archiwum pliku.</li>
+	     <li><strong>f</strong> - <code class="code-inline">tar</code>
+	       utworzy archwiwum w pliku. Domyślnie korzysta z na napędu
+	       taśmowego.</li>
+	   </ul>
+	   <p>
+	     Po utworzeniu archiwum, powiedzmy że przenieśliśmy je gdzieś i
+	     potrzebujemy dostęp do zamkniętych w nim plików. W tym celu należy
+	     archiwum rozpakować.
+	   </p>
+<pre class="code-inline">
+$ tar -xvf nazwa_archiwum.tar
+</pre>
+	   <p>
+	     Program wypakuje wszystkie pliki do katalogu, w którym znajduje się
+	     archiwum. Polecenie różni się jednym przełącznikiem.
+	   </p>
+	   <ul>
+	     <li><strong>x</strong> - wypakuj archiwum</li>
+	   </ul>
+	   <p>
+	     Przed wypakowanie archiwum możemy podejrzeć jego zawartość ile nie
+	     jest skompresowany za pomocą innego programu niż
+	     <code class="code-inline">gzip</code> (o tym będzie poźniej).
+	   </p>
+<pre class="code-block">
+$ tar -tvf nazwa_archwum.tar
+</pre>
+	   <p>
+	     Polecenie to zwróci zawartość archiwum w formacie podobnym do
+	     polecenia <code class="code-inline">ls -l</code>.
+	   </p>
+	   <ul>
+	     <li><strong>t</strong> - wylistowuje zawartość archiwum</li>
+	   </ul>
+	   <p>
+	     Jeśli od plików wymaga się tych samych uprawnień jakie miały w
+	     archiwum (po rozpakowaniu, uprawnienia plików zostaną zmienione),
+	     należy użyć przełącznika <code class="code-inline">-p</code>,
+	     podczas wypakowywania <code class="code-inline">tar</code> zachowa
+	     uprawnienia z archiwum. Warto
+	     dodać że jeśli wypakowujemy coś jako root, to opcja zachowania
+	     uprawnień jest domyślnie włączona.
+	   </p>
+	   <h3>Archwa skompresowane</h3>
+	   <p>
+	     Archiwum do jeden plik i może być on naprawdę duży. Dlatego też
+	     możemy wspomóc się algorytmami kompresji. Jednym z nich jest
+	     GNU zip. Skompresowane ma rozszerzenie .tar.gz lub .tgz. Oznacza to
+	     że operacje na nim musimy zacząc od prawej strony. Na początku
+	     należy je zdekompresować. Do dekompresji, plików skompresowanych
+	     przez wspomniany algorytm używa się polecenia
+	     <code class="code-inline">gunzip</code>
+	   </p>
+<pre class="code-block">
+$ gunzip nazwa_archiwum.tar.gz
+</pre>
+	   <p>
+	     Nazwę pliku podajemy jak pierwszy argument, bez żadnych
+	     przełączników. Wynikiem polecenia jest usunięte rozszerzenie z
+	     nazwy pliku oraz ewentualna zmiana rozmiaru pliku. To możemy
+	     zobaczyć. Tak naprawdę plik został
+	     zdekompresowany stąd zmiany w pliku. Kolejną rzeczą będzie
+	     wypakowanie samego archiwum, tak jak wskazano to powyżej w sekcji
+	     odnośnie archwiwów.
+	   </p>
+<pre class="code-block">
+$ tar -xvf nazwa_archiwum.tar
+</pre>
+	   <p>
+	     Cała powyszą operacje możemy przeprowadzić szybciej, ponieważ
+	     <code class="code-inline">tar</code> jest w stanie zdekompresować
+	     archiwum podczas wypakowywania kiedy podamy mu odpowiedni dla
+	     algorytm kompresji przełącznik. Dwa powyższe polecnia
+	     można zastąpić jednym tym poniżej:
+	   </p>
+<pre class="code-block">
+$ tar -xzvf nazwa_archiwum.tar.gz
+</pre>
+	   <p>
+	     Innym algorytmami do wykorzystania są bzip2 oraz xz (LZMA2).
+	   </p>
+	   <ul>
+	     <li><strong>j</strong> - bzip2</li>
+	     <li><strong>J</strong> - xz</li>
+	   </ul>
+	   <p>
+	     Tworzenie skompresowanych archiwów, jest identyczne jak tworzenie
+	     zwykłych tylko dodajemy odpowiedni przełącznik dla wybranego przez
+	     nas algorytmu oraz rozszerzenie dla stworzonego archiwum.
+	   </p>
+<pre class="code-block">
+$ tar -czvf nazwa_archiwum.tar.gz pliki*
+</pre>
+	   <p>
+	     Podgląd zawartości skompresowanego archiwum. Możemy zrealizować
+	     na dwa sposoby, pierwszy z nich sugeruje wykorzystanie potoku
+	     oraz skryptu <code class="code-inline">zcat</code> (tak
+	     <code class="code-inline">zcat</code> to skrypt,
+	     wywołuje <code class="code-inline">gzip</code> z odpowiednimi
+	     przełącznikami) wypisuje na standardowym wyjściu zawartość
+	     zdekompresowanego
+	     pliku. Za pomocą potoku przekażemy zdekompresowany strumień do
+	     polecenia <code class="code-inline">tar</code>
+	   </p>
+<pre class="code-block">
+$ zcat nazwa_archiwum.tar.gz | tar -tvf -
+</pre>
+	   <p>
+	     Warto zwrócić uwagę na to jak zostało przedstawione standardowe
+	     wejscie w momencie gdy program będzie oczekiwać na plik - myślnik
+	     (<strong>-</strong>).
+	   </p>
+	   <p>
+	     Drugi sposób ze wskazaniem algorytmu poleceniu
+	     <code class="code-inline">tar</code>, tutaj nie potrzeba potoków.
+	   </p>
+<pre class="code-block">
+$ tar -tzvf nazwa_archiwum.tgz
+</pre>
+	   <p>
+	     Plik przeniesione z MS Windows .zip możemy rozpakować za pomocą
+	     programów <code class="code-inline">zip</code> oraz
+	     <code class="code-inline">unzip</code>. Jeśli nie został
+	     preinstalowany w twoje dystrybucji to można go na pewno można go
+	     zainstalować z repozytorium. Innym popularnym archiwum,
+	     które możemy spotkać są archiwa z rozszerzeniem .7z
+	     Te pliki zostaly przygotowane za pomocą programu
+	     <code class="code-block">7-zip</code>, każda większa lub mniejsza
+	     dystrybucja ma go w swoim repozytorium.
+	     <code class="code-inline">7-zip</code> jako jedyny na UNIX-y
+	     program zajmujący się archiwami umożliwiający zaszyfrowanie
+	     archwium. Tworzerzenie zaszyfrowanych archwiwów z
+	     <code class="code-inline">7-zip</code> znajduje się po tym linkiem.
+	   </p>
+	   <p>
+	     <a href="https://morketsmerke.github.io/articles/faq/index.html">
+	       https://morketsmerke.github.io/articles/faq/index.html
+	     </a>
+	   </p>
+	   <p>
+	     Reliktem przeszłości z jakim możemy się spotkać, są archiwa
+	     skompresowane za pomocą starego UNIX-owego polecenia
+	     <code class="code-inline">compress</code>, takie archiwa
+	     posiadają rozszerzenie .Z. Mimo iż program nie jest już dostępny na
+	     współczesne komputery to nadal możemy rozpakować takie archwum za
+	     pomocą polecenia <code class="code-inline">gunzip</code>.
+	   </p>
+
+	   <h2>Hierarchia katalogów</h2>
+	   <p>
+	     Jak zapewne pamiętamy z wstępu poleceń działających na katalogach.
+	     UNIX-y wykorzystują hierachię katalogów. Najwyższym katalogiem jest
+	     <strong>katalog główny</strong> <strong>/</strong>
+	     <em>root</em>. Powyżej niego niema już żadnego innego katalogu czy
+	     pliku. Sam katalog główny zawiera od kilku do kilkunastu
+	     podkatalogów, to w nich znajdują się nasze dane, programy czy pliki
+	     konfiguracyjne systemu. Ilość podkatalogów zależy dystrybucji i jej
+	     przeznaczenia. Omówimy sobie jakie dane przechowuje podkatalogi
+	     katalogu głównego.:
+	   </p>
+	   <ul>
+	     <li><strong>/</strong> - katalog główny, zawiera wszystkie poniższe
+	       katalogi.</li>
+	     <li><strong>/bin</strong> - Niezbędne programy/pliki binarne
+	       wykorzystywane przez wszystkich użytkowników. W nie których
+	       dystrybucjach jest to dowiązanie symboliczne do katalogu
+	       <em>/usr/bin</em></li>
+	     <li><strong>/boot</strong> - Statyczne pliki programu ładującego
+		   (bootloadera)</li>
+	     <li><strong>/dev</strong> - Pliki urządzeń</li>
+	     <li><strong>/etc</strong>  - Pliki konfiguracji systemu.</li>
+	     <li><strong>/home</strong> - Katalogi domowe użytkowników</li>
+	     <li><strong>/lib</strong>  - Pliki bibliotek współdzielonych oraz
+	       moduły jądra</li>
+	     <li><strong>/media</strong> - Miejsce montowania dla dysków
+	       wymiennych</li>
+	     <li><strong>/mnt</strong> - Miejsce tymczasowego montowania
+	       systemów plików</li>
+	     <li><strong>/opt</strong>	- Dodatkowe pakiety oprogramowania</li>
+	     <li><strong>/proc</strong>	- Statystyki systemu, informacje o
+	       aktualnie dziających procesach oraz niektórych parametrach jądra.
+	     </li>
+	     <li><strong>/run</strong>	- Zmienne dane uruchomieniowe, nowsza
+	       wersja katalogu <em>/var/run</em></li>
+	     <li><strong>/sbin</strong>	- Narzędzia i programy systemowe</li>
+	     <li><strong>/srv</strong>	- Dane usług świadczonych przez ten
+	       system. Nie koniecznie wykorzystywany. Zawsze instnieje w
+	       systemie aby zachować zgodność z standardem hierarchii systemów
+	       plików.</li>
+	     <li><strong>/sys</strong> - Katalog podobny do <em>/proc</em>,
+	       tworzy interfejsy dla urządzeń oraz systemu.</li>
+	     <li><strong>/tmp</strong>	- Pliki tymczasowe</li>
+	     <li><strong>/usr</strong>	- Struktura katalogów zawierająca
+	       wszelkie dostępne w systemie oprogramowanie oraz różne związane z
+	       nim pliki, jak np. dokumentacja.</li>
+	     <li><strong>/var</strong> - Struktura katalgowa, zawierająca
+	       zmienne dane działających w systemie procesów. Przechowuje między
+	       innymi pliki dzienników systemowych oraz usług.</li>
+	   </ul>
+	   <p>
+	     Struktura katalogu <em>/usr</em>:
+	   </p>
+	   <ul>
+	     <li><strong>/usr/bin</strong> - Pliki binarne i programy
+	       wykorzystywane przez użytkowników podczas jakich kolwiek prac w
+	       systemie.</li>
+	     <li><strong>/usr/include</strong> - Pliki nagłówkowe
+	       wykorzystywane przez kompilator języka C.</li>
+	     <li><strong>/usr/lib</strong> - Biblioteki programistyczne, lub
+	       biblioteki współdzielone i modułu jądra. Wśród nie których
+	       dystrybucji ten katalog jest celem dowiązania symbolicznego
+	       <em>/lib.</em></li>
+	     <li><strong>/usr/local</strong> - Miejsce instalacji własnego
+	       oprogramowania przez administratorów systemu. Ten katalog jest
+	       również strukturą katalogową przypominającą katalog
+	       <em>/usr</em>.</li>
+	     <li><strong>/usr/sbin</strong> - Programy systemowe. Ten katalog,
+	       w nie których dystrybucjach bywa dowiązaniem symbolicznym do
+	       katalogu <em>/usr/bin</em>.</li>
+	     <li><strong>/usr/share</strong> - Dodatkowe pliki programów, często
+	       niebinarne, dokumentacja, pliki zawierające strony podręcznika.
+	     </li>
+	     <li><strong>/usr/src</strong> - Miejsce na przechowanie kodu
+	       źródłowego, nie powinno się kompilować kodu w tym katalogu.</li>
+	   </ul>
+	   <p>
+	     Struktura katalogu <em>/var</em>:
+	   </p>
+	   <ul>
+	     <li><strong>/var/cache</strong> - Pamięć podręczna aplikacji. Wiele
+	       aplikacji w szczególności uruchamianych przez zwykłego
+	       użytkownika wykorzystuje katalog <em>.cache</em> w katalogu
+	       domowym użytkownika.</li>
+	     <li><strong>/var/lib</strong> - Zmienne informacje o stanie typowe
+	       dla aplikacji lub systemu.</li>
+	     <li><strong>/var/local</strong> - Zmienne dane dla programów z
+	       katalogu <em>/usr/local</em>.</li>
+	     <li><strong>/var/lock</strong> - Przechowuje pliki .lock.</li>
+	     <li><strong>/var/log</strong> - Katalog przechowuje pliki
+	       dzienników systemowych.</li>
+	     <li><strong>/var/opt</strong> - Zmienne dane dla programów z
+	       katalogu <em>/opt</em>.</li>
+	     <li><strong>/var/run</strong> - Katalog o tym samym zastosowaniu co
+	       <em>/run</em> obecnie przez niego zastąpiony. W nie których
+	       dystrybucjach jest to dowiązanie symboliczne do katalogu
+	       <em>/run</em>.</li>
+	     <li><strong>/var/spool</strong> - Zawiera dane do poźniejszego
+	       przetworzenia, kolejki wydruku czy skrzynkę odbiorczą.</li>
+	     <li><strong>/var/tmp</strong> - Pliki tymczasowe zachowane przed
+	       skasowaniem podczas ponownego uruchomienia systemu.</li>
+	   </ul>
+	   <h3>Umiejscowienie jądra systemu</h3>
+	   <p>
+	     Plik jądra możemy łatwo namierzyć znajduje się on albo bezpośrednio
+	     w katalogu głównym (prawdopodobnie to tylko dowiązanie) lub w
+	     katalogu /boot wraz z plikami bootloadera.
+	   </p>
+	   <h2>Wykonywanie poleceń z uprawnieniami superużytkownika</h2>
+	   <p>
+	     Obecnie każdy instaluje sobie Linuxa, czy to na jakiejś fizycznym
+	     zalegającym w domu komputerze, albo wykorzystując techniki
+	     wirtualizacji, korzysta z maszyny wirtualnych. Samodzielnie
+	     instalując ten system mimochodem stajemy się jego administratorami.
+	     Podczas instalacji każdy założył swoje osobiste konto i na nim
+	     trzyma swoje pliki i na nim pracuje. Powiedzmy, że potrzebujemy
+	     zainstalować jakiś program. Musimy zalogować się jako root,
+	     następnie wydać odpowiednie polecenie i program zostaje
+	     zainstalowany.
+	     Czy za każdym razem będzie trzeba logować się jako root? Jest to
+	     zalecene, aby wykonywać działania administracyjne za pomocą
+	     użytkownika root, po zakończeniu prac przelogować się i wrócić do
+	     normalnego użytkowania systemu. Na początku będzie tym zirytowani a
+	     póżnie nam się z nudzi. Istnieje metoda chwilowego podniesienia
+	     uprawenień za pomocą polecenia
+	     <code class="code-inline">sudo</code>
+	   </p>
+	   <p>
+	     Jeśli nasza dystrybucja to typowy desktop, lub została
+	     zainstalowana z poziomu instalatora żeby była typowym desktopem. To
+	     polecenie <code class="code-inline">sudo</code> zostało już
+	     zainstalowane i skonfigurowane. Możemy to sprawdzić wydając
+	     polecenie odświerzające listę pakietów repozytorium. Jeśli program
+	     zapyta na o hasło, podajemy nasze hasło do konta.
+	   </p>
+<pre class="code-block">
+$ sudo pacman -Sy
+</pre>
+	   <p>
+	     Jeśli polecenie się powiedzie to tak naprawdę na tym będziemy mogli
+	     zakończyć, ponieważ wydawania poleceń administracyjnych z poziomu
+	     zwykłego użytkonika wymaga tylko poprzedzenia ich poleceniem
+	     <code class="code-inline">sudo</code> a następnie podaniu hasła.
+	   </p>
+	   <p>
+	     Inaczej sprawa ma się jeśli instalowaliśmy system z ręki, w ten
+	     czas polecenia <code class="code-inline">sudo</code> może w ogóle
+	     brakować w systemie. W tym celu musimy je sobie zainstalować za
+	     pomocą dostępnych dla naszej dystrybucji metod. Konfiguracja
+	     <code class="code-inline">sudo</code> wygląda w ten sposób,
+	     że należy ręcznie dopisać użytkownika do pliku. W pliku
+	     <em>/etc/sudoers</em> otwieramy jako root, odnajdujemy linię
+	   </p>
+<pre class="code-block">
+root ALL=(ALL) ALL
+</pre>
+	   <p>
+	     Możemy skopiować tą linię następnie zamienić tylko użytkownika root
+	     na swoją nazwę. Plik <em>/etc/sudoers</em> jest teoretycznie tylko
+	     do odczytu, i przekonamy się o tym probując go edytować, a później
+	     zapisać zmiany. Wszystko trzeba potwierdzać. Po zapisaniu pliku,
+	     możemy powrócić do naszego konta i ponownie wydać polecenie z
+	     <code class="code-inline">sudo</code>. Powinno się zadziałać.
+	   </p>
+	   <p>
+	     Przy dużej ilości poleceń wymgających podniesienia uprawnień, to
+	     jedno wpisanie hasła wystarcza na 5 min. Przez ten czas
+	     <code class="code-inline">sudo</code> nie zapyta o hasło. Jeśli
+	     zmęczymy się wpisywaniem haseł, to możemy tak skonfigurować
+	     <code class="code-inline">sudo</code>, aby nie prosił o hasło.
+	     W pliku <em>/etc/sudoers</em>, tam gdzie dodawaliśmy naszego
+	     użytkownika wpisujemy poniższe opcje.
+	   </p>
+<pre class="code-block">
+xf0r3m ALL=(ALL) NOPASSWD:ALL
+</pre>
+	   <p>
+	     Po zatwierdzeniu zmian, podczas wydawania polecenia
+	     <code class="code-inline">sudo</code> nie zostaniemy poproszeni o
+	     hasło.
+	   </p>
+	   <h2>Podsumowanie</h2>
+	   <p>
+	     Jeśli chodzi podstawy obsługi systemów z rodziny Linux, ale i nie
+	     tylko bo pod tę wiedzę również można wykorzystać w kilku
+	     współczesnych UNIX-ach to powiniśmy wiedzę zawartą w tym materiale
+	     mieć w małym placu. Nie chodzi o to aby kuć się tego na blachę bo
+	     to i tak nic nie da. Potrzebna jest praktyka, trzeba ćwiczyć te
+	     polecenia łącznie z przełącznikami. Jeśli miałbym wskazać to jest
+	     najważniejsze, to polecenia. Zrobić sobie ściągę i zapamiętać co
+	     które robi. Reszta wyjdzie w praniu.
+	   </p>
+	   <p>
+	     Źródła:
+	   </p>
+	   <ol>
+	     <li>Jak działa Linux Wyd. II, Brian Ward, Helion 2015</li>
+	     <li>Opisy pod katalogów FHS (nie które):
+	       <a href="https://www.pathname.com/fhs/pub/fhs-2.3.html">
+		 https://www.pathname.com/fhs/pub/fhs-2.3.html</a>
+	     </li>
+	   </ol>
+	   <p>
+	     ~xf0r3m
+	   </p>
+	</div>
+	<p style="margin: 15px; padding: 0; outline: 0;">
+	  2021; COPYLEFT; ALL RIGHTS REVERSED;
+	</p>
+	</body>
+</html>

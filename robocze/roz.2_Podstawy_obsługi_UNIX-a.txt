@@ -1,0 +1,1196 @@
+Jakiś czas temu dowiedzieliśmy z czego tak naprawdę składa się Linux,
+omówiliśmy jakie zadania ma jądro, dowiedzieliśmy co nie o co o przestrzeni
+użytkownika, teraz zajmiemy się obsługą tego systemu. Nie którzy mogą mieć
+pierwszy kontakt z tym systemem w ogole. Rzeczy przedstawione tutaj nie są
+trudne, warto też wspomnieć, że przedstawione tutaj polecenia oraz narzędzia
+sprawdzą się nie tylko na Linuxie ale i na innych systemach UNIX-opodobnych
+takich jak np. macOS.
+
+##Powłoka
+
+Powłoka jest potężnym narzędziem, programem uruchamiającym inne programy
+jednak pozostawienie bez rozwiniecią zasług powłoki było by sporą
+ujmą. Powłoka jest również małym IDE, pozwalającym programistom podzielić
+program na mniejsze zadania i sterować ich wykonaniem za pomocą skryptu
+powłoki. Wiele znanych narzędzi UNIX-owych to skrypty powłoki.
+
+W wszystkich UNIX-ach można spotkać powłokę Borna "/bin/sh", jest ona
+niezbędna do działania jakiegokolwiek z tych systemów. W dzisiejszych
+systemach raczej używa się BASH, powłoki (nie jedynej) która ma wiele
+zapożyczeń z oryginalnej powłoki SH. Jeśli sprawdzimy rozwinięcie
+akronimu BASH, będzie to  Bourne Again SHell przez co możemy wynioskować, że
+jest to
+odświerzona, usprawniona i zaktualizowana do wymagań dzisiejszego swiata
+wersja klasycznej powłoki. Innym przypadkiem jest ZSH (Z SHell), posiadająca
+jeszcze więcej usprawnień w pisaniu poleceń, jednak moim zdaniem jest
+zamało hackerska, aby poświecać jej więcej uwagi.
+
+Z powłoki można skorzystać albo konsoli komputera albo w oknie emulatora
+terminala. Terminale to urządzenia (fizyczne), które zajmowały się obsługą
+powłoki, teraz terminale to programy, które dają nam do niej dostęp. Z
+konsolą spotkamy się przeważniej na serwerach lub bardzo hackerskich
+instalacjach bez środowiska graficznego. Dlatego też powłoka jest tak ważna jest
+najważniejszy interfejs obsługi jakiego kolwiek UNIX-a.
+
+Wprowadzenia poleceń w powłoce zwykle rozpoczyna się od znaku zachęty - ciągu
+znaków zdradzających nam nieco informacji. Przeważniej z nazwy użytkownika,
+nazwy hosta (komputera), nazwy katalogu w którym się znajdujemy lub ścieżki na 
+której się znajdujemy oraz znaku $ (dolara) oznaczającego zwykłego użytkownika 
+czy też znaku # (krzyżyka) oznaczającego superużytkownika (root, administratora
+ systemu). W znaku zachęty kursor zawsze jest ustawiony za znakiem wyznaczającym
+ uprawnienia i to własnie za nim rozpoczynamy wpisywanie poleceń. Jak można 
+zauważyć wiele materiałów na tej stronie przedstawiających polecenia rozpoczyna
+ się od znaku $ lub #, dlatego aby wskazać z jakim uprawnieniamia należy 
+uruchamiać danych program. Teraz wyświetlimy sobie w powłoce
+napis "Hello, World!".
+
+$ echo "Hello, World!"
+
+##Polecenia
+
+###Polecenie cat
+
+Jednym z najprostszych do przyswojenia poleceń jest polecenie "cat", które
+wypisuje zawartość podanych plików. Składnia polecenia jest następująca
+
+$ cat plik1 plik2
+
+Uruchomienie tego polecenia wpisze zwartość podanych plików jeden po drugim, 
+tak jak byłby to jeden plik. Stąd też nazwa polecenia "cat" od angielskiego 
+słowa "concatenation" co w potocznym tłumaczeniu tłumaczy się jako połączenie. 
+
+Opis działania tego polecenie jak i samo polecenie posłuży nam do zobrazowania 
+działania strumieni danych w UNIX-ach.
+
+###Strumienie danych
+
+Każdy proces na UNIX-ie może wykorzystać strumienie danych do odczytu i zapisu 
+informacji. Strumienie są bardzo elastyczne ich źródłem może być plik, 
+urządzenie, terminal czy nawet strumień wyjściowy innego procesu.
+
+Aby zobrazować sobie jak działają strumienie, uruchommy polecenie "cat" bez 
+podawania żadnych plików. Zwróćmy uwagę na to, że program nie zakończył swojego
+ działania w przykładzie z plikami. Działa dalej, jeśli wpiszemy co kolwiek z to
+ po naciśnięciu klawisza "Enter" program powtórzy dokładnie to co wpisaliśmy. 
+Dzieje się tak dlatego iż program bez podania jakich kolwiek plikówwywołuje 
+takie interaktywne zachowanie i zaczyna współpracować ze strumieniami. Bez pliku
+ polecenie zaczęło odczytywać dane ze standardowego wejścia podanego przez jądro
+ Linuxa, które jest połączone z terminalem. Polecenie "cat" wypisuje swoje dane 
+na strumień wyjścia, który również jest połączony z terminalem, dzięki czemu 
+mogliśmy zobaczyć to co wpisaliśmy. Taką funkcję kiedy dane ze strumienia 
+wejściowego trafiją do strumienia wyjściowego nazywamy "echem". Dzieki nie mu 
+możemy zobaczyć co piszemy w oknie terminala lub konsoli. "Echo" można wyłączyć
+ i dzieje się to automatycznie kiedy będziemy wpisywać jakieś tajne dane jak 
+hasła. Istnieje jeszcze trzeci typ strumienia, jest to strumień błedów, którego 
+zdaniem jest wyświetlanie wszelkich komunikatów diagnostycznych wysłanych przez
+ proces. Strumienie można przekierować, tak aby ich dane zostały zapisane lub 
+odczytane z innych miejsc niż okno terminala, tak też robi polecenie "cat", 
+kiedy plik zostanie podany. Samo w sobie polecenie "cat" przekazuje dane tylko
+na 
+standarowe wyjscie dlatego też jego użycie często idzie w parze z 
+przekierowaniem strumieni.
+
+###Polecenia podstawowe
+
+Polecenie "ls" - wypisanie zawartości katalogu na standardowym wyjściu. Kilka 
+przłączników:
+  -l możemy wyświetlić bardziej szczegółową listę,
+  -a wyświetlamy wszystkie pliki i katalogi razem z ukrytymi, często używane w 
+     kombinacji przewłącznikiem -l (-al lub -la)
+  -h wyświetla rozmiary plików w przeskalowanych jednostkach.
+  -R rekurencyjne wyświetlanie zawartości pliku.
+  -F wyświetlenie typów plików
+    plik bez oznaczeń - zwykły plik
+    plik ze / na końcu - katalog
+    plik z * na końcu - plik wykonywalny
+
+Przyjrzymy się na chwilę wynikowi polecenia "ls -l", wyświetla ono zwartość
+katalogu w kilku kolumnach, jeden rząd jest przeznaczony dla jednego pliku.
+W pierszej kolumnie znajduje się tryb pliku oraz uprawnienia (będzie o tym 
+poźniej), w drugiej znajduje się liczba twardych dowiązań. Trzeci i czwarta 
+kolumna wskazują właściciela oraz grupę, do której dany plik należy, następna
+kolumna zawiera wielkość pliku podaną w bajtach (dlatego stosuje przełącznik 
+"-h"), w trzech kolumnach pomiędzy rozmiarem a nazwa pliku (ostatnia kolumna) 
+znajduje się czas ostatniej modyfikacji pliku.
+
+Polecenie "cp" - to polecenie utworzy kopię pliku źródłowego w podanym miejscu	
+Kilka przełączników:
+  -p - zachowaj uprawnienia kopiowanych plików,
+  -r - kopiowanie rekurencyjne, program skopiujej katalogi wraz z podfolderami,
+  -v - wyświetli informacje o tym co teraz robi program. Klasycznie program
+      nie zwraca żadnych informacji. Przydatna opcja jeśli chcemy zobaczyć
+      co się teraz kopiuje.
+
+$ cp tekst1.txt tekst1_kopia.txt
+
+Za pomocą "cp" możemy skopiować kilka plików do jednego folderu
+
+$ cp tekst1.txt teskt2.txt teksty/
+
+Gdzie pliki z rozszerzeniem .txt to pliki a "teksty" to katalog.
+
+Polecenie "mv" - polecenie to każdemu kojarzy się z przenoszeniem i dobrze,
+jednak, to polecenie w najprostrzej postaci zmienia nazwę.
+
+$ mv plik1 plik2
+
+Plik "plik1" zmieni nazwę na "plik2". Podanie jako drugi argument katalogu
+przenie plik doniego
+
+$ mv plik1.txt teskty/
+
+Podobnie jak w przypadku polecenia "cp", możemy przenosić wiele plików.
+
+$ mv plik1.txt plik2.txt plik3.txt teskty/
+
+Polecenie "touch" - tworzy pusty plik o nazwie podanej w argumencie, jeśli plik
+istnieje, aktualizuje jedynie ostatni czas modyfikacji. Polecenie
+użyteczne szczególnie, gdy program wymaga utworzenie pustego pliku.
+
+$ touch ssh
+
+Polecenie "rm" - służy do trwałego kasowania plików. Po skasowaniu plików za
+pomocą tego polecenia pliki są nie do odzyskania, chyba że uzyskamy fachową
+pomoc. Kilka przełączników:
+  -r - kasowanie rekurencyjne, przydatne do kasowania całych katalogów z
+       podkatalogami.
+  -f - wymusznie kasowania, bez pytania o to czy skasować plik. Jeśli chcemy
+       skasować plik katalog z 100-ma plikami, to bez opcji "-f", polecenie
+       zapyta o potwiedzenie kasowania każdego pliku.
+
+Polecnie "echo" - wypisuje na standardowe wyjście podane argumenty. Przydatnym
+przełącznikiem tutaj jest "-n", który niweluje przejście do nowej linii po
+wypisaniu argumentu. 
+
+###Polecenia działające na katalogach.
+
+Unixy korzystają z hierarchi katalogów, głownym katalogiem jest tak zwany 
+"root" lub poprostu "głównym katalogiem" oznaczany pojedyńczym slashem "/", w
+głownym katalogu znajduje się
+kilka podstawowych podkatalogów. Określenie drogi do katalogu nazywane jest
+ścieżką, a elementem separujacym katalogi jest "/" - slash. Po za slashami
+na ścieżce możemy spotkać ".." - dwie kropki, oznaczają one katalog nadrzędny;
+"." - jedną kropkę, oznaczającą katalog, w którym się znajdujemy. Często pomija
+się pojedyńcze kropki, bo programy uznają obecny katalog za początek ścieżki.
+Scieżki nie rozpoczynające się od ukośnika "/" nazywane są ścieżkami względnymi.
+
+Występować tutaj będzie termin katalog roboczy powłoki - jest to katalog
+w którym obecnie się znajdujemy.
+
+Polecenie "cd" - zmienia aktualny katalog roboczy powłoki, "przejście" do innego
+katalogu
+
+$ cd Dokumenty
+
+Jeśli pominiemy argument zostaniemy przeniesieni do naszego katalogu domowego.
+Warto również wspomnieć o "-" podanym jako argument, przejdziemy do
+poprzedniego katalogu w którym się znajdowaliśmy. 
+
+Polecenie "mkdir" - tworzy katalog
+
+$ mkdir Muzyka
+
+Polecenie "rmdir" - usuwa katalog, katalog aby operacja się powiodła musi być
+pusty inaczej katalog nie zostanie usunięty.
+
+$ rmdir Publiczny
+
+###Nazwy wieloznaczne
+
+Elementy na ścieżkach, w szególności plik możemy zapisywać za pomocą nazw
+wieloznacznych, takie nazwy tworzone są z fragmentów nazw plików i symboli
+wieloznacznych lub z samych znaków nazw wieloznacznych. Najprostszą nazwą
+wieloznaczną jest "*" - gwiazdka oznaczająca dowlną ilość dowolnych znaków.
+Gwiazdki są rozwijane jako wszystkie normalnie widoczne elementy w katalogu.
+Wzorce do poszukiwania możemy tworzyć z fragmentów nazw oraz symboli
+wieloznacznych. Na przykład:
+
+mv archive* archives/
+
+Wszystkie plik rozpoczynające od słowa "archive" zostaną przeniesione do
+katalogu "archives". Takie porównywanie prostych wzorców z nazwami plików
+dokonywane przez powłokę nazywane jest rozwiązywaniem nazw lub "globbingiem".
+
+Inny symbolem wieloznaczym jest "?" - znak zapytania, ozaczna on pojedyńczy
+dowolny znak. 
+
+Jeśli nie chcemy aby nazwy nie były rozwijane zapisujemy symbole nazw
+wieloznacznych w pojedyńczych cudzysłowach ('').
+
+###Polecenie pośredniczące 
+
+Polecenie "grep" - polecenie to wypisuje z pliku bądź strumienia wyjściowego
+tylko te wiersze pasujące do podanego wyrażenia.
+
+Jeśli szukalibyśmy słowa user w pliku /etc/passwd, to polecenie powinno wyglądać
+w następujący sposób:
+
+$ grep user /etc/passwd
+
+Polecenie "grep" świetnie sprawdza się również, gdy szukamy tego samego wzorca
+w wielu plikach, ponieważ przed każdym znalezionym wierszem wypisywana jest
+także nazwa pliku.
+
+Najważniejszymi przełącznikami dla polecenia grep, jest "-i" - wyłączenie
+rozróżniania wielkości liter oraz "-v" - odwrócenia działania programu,
+polecenie wypisze wszystkie wiersze niezgodne z wyrażeniem.
+
+Wyrażenia jakimi posługuje się polecenie grep, nazywane są wyrażeniami
+regularnymi i wywodzą się nie tylko z UNIX-a, ale ogólnych nauk komputerowych
+przez inną znacznie rozbudowaną składnie mają znacznie większe zastosowanie niż
+nazwy wieloznaczne. Opis posczególnych elementów wyrażeń regularnych znajduje
+się na stronie podręcznika polecenia "grep".
+
+$ man grep
+
+Tutaj przedstawie tylko dwa wyrażenia, które należy zapamiętać to:
+  - ".*" - dowolna liczba, dowolnych znaków
+  - "." - pojedyńczy dowolny znak
+
+Polecenie "less" służy do stronicowania wyjścia programów lub wyświetlenia
+zawartości dużych plików. Polecenie może przyjmować dane ze strumienia jak i
+plik może być podany jako argument. W UNIX-ach istnieje jeszcze jedno polecenie
+o podobnym zastosowaniu jest to polecenie "more". Jednak polecenie "less"
+możliwia cofniecie się do poprzedniej strony, gdzie "more" wyświetla kolejne
+strony do końca danych. 
+
+Tekstem wyświetlonym przez polecnie możemy sterować za pomocą strzałek. Możemy
+również wyszukiwać słowa naciskając klawisz slasha ("/") następnie po nim
+podajemy wyszukiwaną frazę. Przy użyciu "/" polecenie "less" będzie szukać frazy
+na następnych stronach. Słów możemy szukać również na stronach przez nas już
+odwiedzonych za pomocą "?" - znaku zapytania, po znaku podajemy słowo.
+
+Przeniesienia do następnego wystąpienia danej frazy dokonujemy za pomocą 
+naciśnięcia klawisza "n".
+
+Polecenie "pwd" - powoduje wyświetlenie aktualnego katalogu roboczego, jest ono
+przydatne kiedy przechodzimy przez dowiązania symboliczne (będzie o nich
+poźniej), mogą one zaciemniać prawdziwą ścieżke aktualnego katalogu jednak
+polecenie z przełącznikiem "-P" pokaże prawdziwią ścieżkę. Może mieć również
+zastosowanie w skryptach powłoki.
+
+Polecenie "diff" - pozwala wskakazanie różnić pomiędzy dwoma plikami tekstowymi.
+
+$ diff plik1 plik2
+
+Polecenie to posiada wiele opcji pozwalających na formatowanie informacji
+zwracanych przez polecenie, Programiści często użwają przełącznika "-u", przez
+co informacje zwracane przez polecenie mogą być przetworzone przez inne
+narzędzia lub skrypty, mimo tego jest on bardziej zrozumiały niż standardowe
+formatowanie. Przełącznik "-u" powoduje wyświetlenie dodatkowych linii
+(domyślnie: 3), które są takie same w celu zachowania kontekstu.
+
+Polecenie "file" - zwraca typ pliku przekazanego jako argument.
+
+$ files plik1.txt
+
+Mimo iż jest to niepozorne narzędzie, to jego możliwości mogą być zaskakujące.
+
+Polecenie "find" - pozwala na znalezienie pliku w podanym katalogu. Składnia
+polecenia jest dość charakterystyczna
+
+$ find /home/xf0r3m -name 'plik*' -print
+
+Przełącznik "-print", powoduje wypisane na standardowym wyjściu pełnych nazw
+plików (ścieżek) w pojedyńczych liniach.
+
+Korzystając z nazw wieloznacznych w wartości przełącznika "-name", należy je
+umieszczać w pojedynczych cudzysłowach.
+
+Innym sposobem na znajdowanie plików jest wykorzystanie polecenia "locate".
+Polecenie to działa nieco inaczej niż "find" ponieważ szuka plików po indeksach
+systemu plików. Jeśli plik jest w miarę nowy, to polecenie to może go
+nieznaleźć ponieważ nie został jeszcze stworzony dla niego indeks, jednak
+działa nieco szybciej od "find".
+
+Polecenia "head" i "tail" - służą do wypisywania na standardowym wyjściu
+początkowego ("head") lub koncowego ("tail") wycinka danych z pliku lub ze
+strumienia. Domyśnie wypisują 10 linii. Liczbę linii można zmienić podając ją
+jako przłącznik np "-5" - polecenia wypisą pięć linii. Poleceniu "tail" można
+również wskazać od którego momentu ma zaczać wypisywać dane za pomoca
+przełącznika "+n", gdzie za "n" podaje się numer linii.
+
+Bardzo użytecznym narzędziem jest przełącznik "-f" polecenia "tail", pozwala
+na wypisywanie na żywo, przydatne podczas obserwowania logów.
+
+Polecenie "sort" - układa wiersze pliku w kolejności alfabetycznej. Jeśli na
+początku wierszy znajdują się liczby to aby były posortowane wg wartości
+numerycznej to należy użyć przełącznika "-n". Sortowanie można odwrócić za
+pomocą przełącznika "-r".
+
+##Zmienianie hasła i powłoki
+
+Do zmiany powłoki służy polecenie "passwd", polecenie poprosi o obecne następnie
+dwukrotnie, w celach weryfikacji będzie pytać o nowe hasło. Metod na hasła jest
+bardzo wiele. Dobre hasło powinno składać z wielu różnorodnych znaków i nie być
+pojedyńczym słowem ze słownika oraz nie powinno się z nami kojarzyć. Przypadkowy
+ciąg znaków.
+
+Do zmiany powłoki służy polecnie "chsh", jednak osobiście w praktyce się z
+nim nie spotkałem. Jeśli muszę skorzystać z innej połoki niż BASH, wteczas
+poprostu uruchamiam ją jako podpowłokę wydając polecenie "sh" lub inne.
+
+##Pliki z kropką
+
+Jeśli rozejrzymy się po naszym katalogu domowym, najlepiej za pomocą polecenia
+"ls -al", w wyniku polecnie ujrzymy pliki i katalogi, których nazwa rozpoczyna
+się od kropki. Te pliki różnią się tym, nie które programy ich nie wyświetlają
+oszczędzająć długich list plików. Potocznie przyjeło się nazywać te pliki
+poprostu ukrytymi.
+
+Istotną rzeczą wsród plików z kropką jest wykorzystanie nazw wieloznacznych
+ponieważ do takiego wzoraca ".*" to zaliczają się do niego również "." - obecny
+katalog oraz ".." - katalog nadrzędny, przez co możemy sobie narobić bałaganu w
+folderze docelowym oraz niepotrzebnie przedłużyć plik czas operacji kopiowania.
+Przy kopiowaniu dot-files znacznie lepszym wzorcem wydaje ".??*".
+
+##Zmienne środowiskowe oraz zmienne powłoki.
+
+Zmienne powłoki służą do przechowywania liczby czy ciągów znaków, z których
+możemy skorzystać podczas korzystania z wiersza poleceń np. gdy chcemy zachować
+wynik wykonania jednego polecenia poźniej wykonać inne polecenie z użyciem tych
+danych. Przypisania wartości do zmiennych dokonujemy za pomocą znaku równości
+"="
+
+url=$(grep "url" file.html | cut -d "=" -f 2);
+
+Do zmiennej powłoki "url" trafi adres konkretnej strony internetowej. Zmienne
+powłoki są wykorzystywane w skryptach jak zmienne w każdym innym języku
+programownia. 
+
+Zmienne powłoki istnieją do momentu istnienia procesu powłoki, w której zostały
+zadeklarowane - do momentu zamknięcia powłoki. 
+
+Istnieje inny rodzaj zmiennych, a mianowicie zmienne środowiskowe, róznica
+między nimi jest taka, że zmienne powłoki wykorzystywane są przez powłokę. Jeśli
+skrypt jest uruchomiony to zadeklarowane w nim zmienne będą dostępne tylko dla
+niego. Zmienne środowiskowe są przekazywane przez system operacyjny do
+wszystkich uruchamianych programów UNIX-owych. Tutaj warto dodać, że
+zadeklarowane zmienne środowiskowego zadeklarowane w tej powłoce będą dostępne
+dopiero w kolejnej uruchomionej. Zmienne środowiskowego deklaruje się tak jak
+zmienne powłoki jednak poprzedza się nazwę zmiennej słowem "export".
+
+export url=$(grep "url" file.html | cut -d "=" -f 2);
+
+Zmienne środowiskowe są wykorzystywane do odgórnego ustalania przełączników i
+ich wartościd dla wielu programów, przeważnie na stronach podręcznika
+polecenia można znaleźć informacje jak można wykorzystać zmienne środowiskowe do
+pracy z programem.
+
+##Ścieżka poleceń.
+
+Zmienna "PATH" jest specjalnym rodzajem zmiennej środowiskowej ponieważ
+przechowuje ścieżkę poleceń - jest to lista katalogów, które przeszuka powłoka
+w celu odnależnia polecenia. Istoną cechą powłoki związaną ze ścieżką poleceń
+jest fakt, że na ścieżce może występować kilka poleceń o tej samej nazwie, a
+powłoka uruchomi pierwszy napotkany z nich. 
+
+Elementy na ścieżce poleceń są oddzielone od siebie znakiem ":" (dwukropka),
+możemy sobie wypisać zawartość zmiennej "PATH", aby bardziej zobrazować sobie
+jak wygląda ta ścieżka.
+
+$ echo $PATH
+
+Ścieżkę poleceń mozemy zmienić w każdej chwili. Dodając katalog do niej musimy
+pamiętać o wspomnianej wcześniej właściwości. Dlatego też najlepiej aby
+nasze własne narzędzia miały unikatowe nazwy i katalog je zwierający dodajemy
+na końcu ścieżki dzieki czemu nie nadpiszemy żadnego z istniejeących już
+poleceń. Oczywiście to nadpisanie nie jest szkodliwe wystarczy zamknąć powłokę i
+uruchomić ją ponownie, w razie pomyłki.
+
+$ PATH=${PATH}:/home/xf0r3m/bin
+
+Jeśli zmieniamy poleceń to należało by użyć tej zmiennej jako zmiennej
+środowiskowej aby każda uruchomiona powłoka posiada dostęp do dodanego katalogu.
+
+$ export PATH=${PATH}:/home/xf0r3m/bin
+
+##Znaki specjalne
+
+Poniżej znajduje się tabela z znakami specjalnymi, z którymi spotkamy się
+podczas pracy z połowką.
+
+* gwiazdka  Wyrażenia regularne, symbol nazwy wieloznacznej
+. kropka    Aktualny katalog, ogranicznik nazwy pliku lub hosta
+! wykrzyknik  Negacja, historia poleceń
+| potok     Potoki poleceń
+/ ukośnik   Ograniczniki katalogów, polecenie szukania
+\ lewy ukośnik  Literały, makra (nigdy katalogi)
+$ dolar     Ograniczenie zmiennych, koniec wiersza
+' pojedyńczy cudzysłów  Ciągi znaków literałów
+` lewy cudzysłów  Podmiana polecenia
+" podwójny cudzysłów  Ciągi znaków pseudoliterałów
+^ daszek    Negacja, początek wiersza
+~ tylda     Negacja, skrót katalogu
+# krzyżyk   Komentarze, dyrektywy preprocesora, podmiany
+[] nawiasy kwadratowe Zakresy
+{}  nawiasy klamrowe Bloki poleceń, zakresy
+_ pokreślenie Prosty zmiennika znaku spacji
+
+Znakiem daszka często zastępowany jest symbol klawisza kontrol dlatego też
+zapisowi ^C równoznaczne jest Ctrl+C.
+
+##Edycja wiersza poleceń.
+
+Jak mogliśmy zauważyć możemy dowlnie edytować wiersz polecenia używając strzałek
+w lewo oraz w prawo możemy również w prosty sposób przeszukiwać historię za
+pomocą strzałek w górę i w dół. Warto obok korzystania ze strzałek znać jeszcze
+jedną metodę i samemu uznać co jest dla nas wygodniejsze. Inną metodą jest
+używanie określonych skrótów klawiszowych, które wykorzystywane są nie tylko w
+edycji wiersza poleceń ale i obsłudze innych programów UNIX-owych. Oto lista
+kombinacji klawiszy wykorzystywanych podczas edycji wiersza
+polecenia.
+
+Ctrl+B      Przesunięcie kursora w lewo
+Ctrl+F      Przesunięcie kursora w prawo
+Ctrl+P      Powrót do poprzednie polecenia (lub przesunięcie kursora w górę)
+Ctrl+N	    Przjescie do następnego polecenia (lub przesunięcie kursora w dół
+Ctrl+A	    Przesunięcie kursora na początek wiersza
+Ctrl+E	    Przesunięcie kursora na koniec wiersza
+Ctrl+W	    Usunięcie słowa poprzedzającego kursor
+Ctrl+U	    Usunięcie tekstu od kursora do początku wiersza
+Ctrl+K	    Usunięcie tesktu od kursora do końca wiersza
+Ctrl+Y	    Wklejenie usuniętego tekstu (np. usuniętego poleceniem Ctrl+U)
+
+##Edytory tekstu
+
+W UNIX-ach edytuje się bardzo dużo plików podczas administracji systemem.
+Wiele ustawień systemowych to zwykły tekst w pliku zapisanym gdzieś w katalogu
+/etc. Dlatego dość istotny jest wybór odpowiedniego edytora. Spośród wielu
+dostępnych warto rozważyć dwa. Vim oraz Emacs. Vim jest preinstalowany w wielu
+systemach, Emacsa należy instalować. Oba edytory są specyficzne i ich obsługi
+należy się nauczyć. Emacs integruje w sobie wszystko edytor, terminal,
+kompilitor. Może warto poświęcić mu kilka
+
+Jeśli potrzebny nam jest edytor który może zrobić niemal wszystko, posiada
+rozbudowany system pomocy, a nie będzie przeszkadzać nam to, że dostęp do
+nie których funkcji wymaga wpisania kilku polceń, to należy się skłonić w
+kierunku Emacsa.
+
+Jeśli jednak cenimy sobie szybkość działania, to lepszym wyborem będzie
+Vim, obsługuje się go trochę jak grę.
+
+W emacs dostępny jest samouczek wciskając Ctrl+H następnie należy naciśnąć
+klawisz "t".
+
+Kuszące możę być wykorzystanie jakiegoś przyjaznego edytora, lepiej zrezygnować
+z tego rozwiązania. Poniważ przedstawione tutaj rozwiązania, albo dają ogromne
+możliwości albo są uniwersalne dla różnych UNIX-ów.
+
+##Uzyskiwanie pomocy
+
+UNIX-y są czesto dostarczane z ogromną ilością dokumentacji. Pomoc odnośnie
+poleceń możemy znaleźć na stronie podręcznika danego poleceń. Stronę
+podręcznika możemy wywołać za pomocą polecenia "man" podają jako argument
+polecenie do którego chcielibyśmy uzyskać pomoc.
+
+$ man ls
+
+Strony podręcznika skupiają się generalnie na podaniu suchej informacji na
+temat wywołania polecenia i jego opcji czy też przełączników. Nie liczne mogą
+zawierać jakieś przykłady, ale to wszystko. Nie można oczekiwać od stron
+podręcznika, samouczka czy literackiego stylu.
+
+Strony podręcznika możemy przeszukać pod kątem słów kluczowych, jest przydane
+gdy nie znamy nazwy polecenia.
+
+$ man -k słowo_kluczowe
+
+Przy wyszukiwaniu słów kluczowych warto pamietąć o tym, że wiele różnych słów
+może określać tą samą czynność. Wszukjąć słowo kluczowe 'delete' nie znajdziemy
+wśród wyników polecenia "rm", ale przy słowie 'remove' już tak.
+
+Jeśli przyjrzymy się wynikowi polecenia "man -k" to wyszukane polecenia obok
+nazwy mają cyfrę w nawiasie, jest to numer rozdziału. Strony podręcznika są
+podzielone na następujące rodziały.
+
+1	   Polecenia użytkownika
+2	   Niskopoziomowe wywołoanie systemowe
+3	   Dokumentacja wysokopoziomowych bibliotek UNIX-a
+4	   Informacje o interfejsach urządzeń i sterownikach
+5	   Opis plików (konfiguracji systemu)
+6	   Gry
+7	   Formaty plików, konwencje i kodowania (ASCII, przysrostki itd.)
+8	   Polecenia systemowe i serwery
+
+Aby uzupełnić ten wiedzę przyswojoną z tego materiału warto się zapoznać z
+rozdziałami 1, 5, 7, 8. Rozdział 6 mógłby być ciekawy gdy by nie to, że nie ma
+tam zbyt wielu informacji. Podczas korzystania z stron podręcznika warto wziąć
+pod uwagę numer rozdziału. Ponieważ polecenie otworzy nam pasującą stronę w
+pierwszym napodkanym rozdziale. Powiedzmy, że chcemy dowiedzieć się czegoś
+wiecej o pliku "/etc/passwd" (przechowuje informacje o użytkownikach, nazwa
+sugeruje, że może przechowywać hasła, jednak od bardzo dawna [1988 AT&T UNIX
+SVR3, żależy od UNIX-a] nie przechowuje zaszyfrowanych haseł.) jeśli wydamy
+polecenie:
+
+$ man /etc/passwd
+
+To nie dostaniemy nic, to może takie
+
+$ man passwd
+
+To polecenie uruchomi nam strone podręcznika polecenia passwd. Jedynym
+prawidłowym poleceniem jest to poniższe:
+
+$ man 5 passwd
+
+Czasami nie trzeba zaglądać na strony podręcznika aby poznać jakiś przełącznik
+lub opcje. Często wystarczające możebyć wydanie polecenia z przełącznikiem "-h"
+lub "--help".
+
+Inny źródłem informacji może być plik dokumentacji GNU zwany "info" lub
+"texinfo". Często te dokumenty zwierają znacznie więcej informacji niż strony
+podręcznika, choć ich format może być nieco bardziej skomplikowany.
+
+Niektóre pakiety dostaczają swoją dokumentacje do katalgu "/usr/share/doc" bez
+zwracania na to uwagi czy są strony podręcznika czy format texinfo. Warto
+tam zajrzeć jeśli informacje zawarte w powyższych źródłach będą
+niewystarczające.
+
+##Wejście i wyjście powłoki.
+
+Jeśli chcielibyśmy przesłać wynik działania polecenia bez oglądania jego wyniku
+na ekranie to moglibyśmy przekierować wyjście do pliku.
+
+$ ls -al /home/xf0r3m > my_home_listing.txt
+
+Jeśli plik nie istnieje to zostanie utworzony, jeśli jest inaczej to jego
+zawartość jest pierw wymazywana (nazwy się to "cobberling"), w nie których
+powłokach można zablokować wymazywanie, na przykład w BASH-u wystarczy wydać
+polecenie
+
+$ set -C
+
+Jeśli chcemy dopisać wynik działania od pliku to wtedy należy użyć dwóch
+symboli przekierowanie
+
+$ ls -al /home/xf0r3m >> systems_dirs_listings.txt
+
+Prawy ostry nawias jest symbolem który przekierowuje wyjście polecenia do pliku.
+Innym symbole jest potok zapisywany pionową kreską (|), potok łączy wyjście
+polecenia po lewej z wejściem polecenia po prawej. Dane trafiają z jednego
+polecenia do drugiego.
+
+$ ls -al /home/xf0r3m | grep 'Downloads'
+
+Jeśli wywołamy jakieś polecenie, którego wyjście przekierowaliśmy do pliku a
+mimo to widzimy jakieś dane to oznacza to, że te informacje są wypisywane przez
+program na standardowy strumień błedów. Ten strumień również możemy przekierować
+jednak nie tak łatwo jak standardowe wyjsćie. W UNIX-ach obok nazw standardowy
+strumień jakiś tam, są jeszcze numery, po których rozeznaje się sam system. Dla
+stdout (standardowego wyjścia) jest 1 (jedynka) dla strumienia błedów jest 2
+(dwójka) i chcąc przekierować zarówno stdout jak stderr (strumień błedów) należy
+wydać takie polecenie jak to poniżej:
+
+$ ls /ffffff > f 2>e
+
+Teraz każdy błąd wypisany przez to polecenie na stderr zostanie przekierowany do
+pliku o nazwie "e".
+
+Za pomocą znaków ">&" możliwe jest przekierowanie strumienia błedów w to samo
+miejsce co strumień wyjścia.
+
+$ ls /fffffff > f 2>&1
+
+Wyjście tego polecenia wraz z strumieniem błędów zostanie zapisane w pliku f.
+
+Istnieje możliwość jeszcze jednego przekierowania. Do omowienia pozostało
+przekierowanie pliku na standardowe wejście programu.
+
+$ head < /proc/cpuinfo
+
+Przekierowania dokonujemy za pomocą lewego ostrego nawiasu (<). Tego typu
+działania nie są powszechną praktyką poniważ większość programów UNIX-owych
+przyjmuje pliki, z których ma odczytać dane jako argument.
+
+##Prawidłowe odczytywanie komunikatów o błędach.
+
+Podczas pracy z Linuxem może zdażyć się, że program w ogóle się nie uruchomi
+zwróci jedynie lakoniczną odpowiedź co mogło pójść nie tak. Poniżej spróbujemy
+naświetlić nieco jak wyglądają błędy z którymi będziemy spotykać się na codzień
+podczas pracy z systemami tego typu.
+
+Z czego składa się błąd:
+  - Nazwa programu, choć wszystkie programy wyświetlają własną nazwę w błędach
+  - Nazwa pliku, w przypadku błedów dotyczących operacji na plikach oczywiście
+    nazwa pliku jest uogólnieniem równie dobrze może być to nazwa katalogu
+  - Komunikat błędu, opis przyczyny wystąpienia błędu.
+
+Opis typowych błędów:
+
+     - No such file or directory - (Nie ma takiego pliku lub katalogu)
+     odwołanie się do nie istniejącej ścieżki lub pliku.
+     
+     - File exist - (Plik istnieje) - Próba utworzenia pliku, który już istnieje
+     w tym katalogu. Czasami sam komunikat może pojawiać się jako ostrzeżenie.
+     
+     - Not a directory / Is a directory - (Nie jest katalogiem / Jest
+     katalogiem) - Użycie pliku w roli katalogu (np. na ścieżce) oraz na odwrót.
+     
+     - No left space on device - (Brak miejsca w urządzeniu) - Wyczerpanie
+     wolnego miejsca na urządzeniu do którego chcemy zapisać dane. Pojawia się
+     również w momencie zakończenia operacji zerowania dysku przy użyciu
+     klasycznych UNIX-owych narzędzi.
+     
+     - Permission denied - (Niewystarczające uprawnienia) - Próba wykonania
+     czynności, do której nie mamy uprawnień. Na przykład wykonywanie uprawnień
+     na plikach, które nie należą do nas oraz nie mamy do nich żadnych praw czy
+     wykonanie czynności, która potrzebuje uprawnień administratora.
+     
+     - Operation not permitted - (Brak zezwolenia na wykonanie operacji) - tę
+     rodzaj błędu najczęciej występuje w momencie gdy chcemy zakończyć proces,
+     do którego nie mamy uprawnień.
+     
+     - Segmentation fault / Bus Error - (Błąd segmentacji / Błąd magistrali) -
+     Błąd programisty, program próbował uzyskać dostęp do obszaru pamięci, do
+     którego nie miał żadnych uprawnień. Działanie takiego programu zostało
+     przerwane przez system operacyjny. Błąd magistrali jest podobny do błędu
+     sementacji z różnicą, że program, który zwrócił ten komunikat próbował
+     dostać się do pamięci w sposób nieprawidłowy. Te błędy są otrzymywane
+     przeważnie wtedy gdy przekażemy do programu dane, których on się nie
+     spodziewał.
+
+##Przeglądanie procesów i maniupulowanie nimi.
+
+Każdy z proces w systemie to jeden z działających w nim programów. Procesy mają
+przypisane numery identyfikacje PID (Process IDentifier), aby łatwiej nimi
+zarządzać lepiej wpisać krótki numer niż całą nazwę procesu. Dostęp to listy
+procesów możemy uzyskać za pomocą polecenia "ps". Jednak nie zwróci ono zbyt wielu
+informacji, wiele zależy od jego implementacji w systemie. Najbardziej
+uniwersalnym sposobem na uzyskanie informacji o procesach jest wydanie polecenia
+ps w raz trzema przełącznikami "-aux" (Wiele podstawowych narzędzi pozwala
+łączyć ze sobą przełączniki.
+
+$ ps -aux
+
+Polecenie to zwróci tabelę ze wszystkimi procesami aktualnie uruchomionymi w
+systemie Wydruk podzielony jest na 11 kolumn.
+
+	 - USER - użytkownik, z którego uprawnieniami działa proces. Proces
+	 został uruchomiony przez wskazanego przez kolumnę użytkownika.
+	 - PID - Identyfikator procesu.a
+	 - %CPU - Procentowe zużycie procesora przez proces
+	 - %MEM - Procentowe zużycie pamięci RAM przez proces
+	 - VSZ - Rozmiar pamięci wirtualnej procesu w KiB.
+	 - RSS - Rozmiar rzeczywistej pamięci wykorzystywanej przez proces
+	 bez pamięci SWAP w KB.
+	 - TTY - Terminal kontrolujący, powłoka w której proces został
+	 uruchomiony.
+	 - STAT - Wieloznakowy status procesu.
+	 - START - Czas startu procesu, jeśli proces wystartował mniej niż 24
+	 godziny temu wtedy format czasu jest następujący: "HH:MM".
+	 - TIME - Łączny czas pracy procesora poświęcony na wykonanie procesu
+	 wraz z przełączaniem kontekstu.
+	 - COMMAND - Polecenie/nazwa procesu.
+
+Status procesu:
+
+	 - D - Uninterruptible sleep (nieprzerywalny sen) - Proces oczekuje na
+	 operacje wejścia/wyjscia (dane z napędu lub dysku).
+	 - I - Idle kernel thread (Proces bezczynności jądra) - Stan
+	 bezczynności procesu.
+	 - R - Running or runnable (on run queue) - Proces działą obecnie lub
+	 oczekuje na działanie
+	 - S - Interruptible sleep (przerywalny sen) - Proces oczekuje na
+	 zdarzenie.
+	 - T - Stopped by job control signal - Proces zatrzymany za pomocą 
+	 sygnału kontroli procesów.
+	 - t - Stopped by debuger during the tracing - Proces zatrzymany przez
+	 debuger na czas śledzenia.
+	 - W - Paging (not valid since the 2.6.xx kernel) - Stronicowanie,
+	 stan niewłaściwy od kernela 2.6.xx.
+	 - X - Dead (Martwy) - Ten stan nigdy nie powinien mieć miejsca.
+	 - Z - defunct ("zombie") proces - Proces zombie, proces zakończył
+	 działanie jednak oczekuje na zamknięcie przez proces nadrzędny.
+	 
+
+Podczas pracy z poleceniem "ps", przydatny może okazać się przełącnik "-w",
+wyświetlający pełne polecenia zamiast pojedyńczej linii. Podając PID jako
+parametr polecenia "ps" możemy uzyskać więcej informacji na temat podanego
+procesu. Przykładowo możemy sprawdzić proces aktualnej powłki wydając
+poniższe polecenie:
+
+$ ps -u $$
+
+Symbol $$, to zmienna powłoki przechowująca PID obecnej powłoki.
+
+###Przerywanie działania procesów.
+
+Mając odpowiednie uprawnienia w systemie możemy przerwać działanie niemal,
+każdego procesu (niemal, ponieważ nigdy nie próbowałem przerwać działania
+procesu init (PID: 0)). Do przerywania działania procesów służy polecenie
+"kill",
+polecenie prosi jądro systemu o wysłanie odpowiedniego sygnału. Sygnał podaje
+użytkownik jako argument polecenia, poniżej znajdują się najważniejsze sygnały
+Pozostałe znajduje się na stronie podręcznika: "man 7 signals"
+
+	  - TERM(15) - Sygnał zakończenia.
+	    $ kill -TERM pid
+	  - STOP(19) - Sygnał zatrzymania.
+	    $ kill -STOP pid
+	  - CONT(18) - Sygnał wznowienia.
+	    $ kill -CONT pid
+	  - KILL(9) - Sygnał zabicia.
+
+Oba sygnały "TERM" oraz "KILL" zamykają proces. Jednak sygnał "TERM" jest
+bardziej
+polubowny, pozwala na procesowi na posprzątanie po sobie, zwolnienie pamięci.
+Sygnał "KILL", zamyka natychmiast proces, nie pozwalając na powyższe czynności.
+Proces zostaje siłą usunięty z pamięci. Nie powinno się przerywać działania
+dowlnych, jeśli nie wiemy co one teraz robia.
+
+Sygnałów można używać za pomocą wartości liczbowych przedstawionych w nawiasie
+obok nazwy np.
+
+$ kill -9 pid
+
+###Kontrola zadań
+
+Powłoki posiadają tak zwany mechanizm kontroli zadań, jest to inna metoda
+przesłania do procesu sygnały TSTP (podobny do "STOP" i "CONT") za pomocą
+konbinacji klawiszy lub poleceń. Wysłanie syganłu TSTP realizowane jest za
+pomocą kombinacji Ctrl+Z. Zatrzymany w ten sposób proces można wznowić przy
+użyciu polecenia fg (polecenie to wznowi działanie procesu na pierwszym planie
+[normalnie w terminalu]) lub bg (wzonowi działanie procesu w tle). Za pomocą
+polecenia jobs sprawdzimy czy terninalu nie oczekuje jakiś uśpiony proces.
+
+###Procesy działające w tle
+
+Podczas uruchomienia polecenia UNIX-owego w połoce, dostęp do znaku zachęty
+otrzymamy dopiero gdy ów polecenie zakończy działanie. Istnieje możliwość
+odłączenia procesu od terminala przekazania go tła. Przekazywaniu poleceń
+na tło służy ampersand ("&") na końcu wiersza polecenia. Działajace procesy
+możemy zatrzymać stosując Ctrl+Z znane z kontroli zadań a następnie wznowić je
+na tle. Przekazaniu procesu do tła, powłoka wypisze numer procesu i odrazu 
+uzyskamy dostęp do znaku zachęty. Proces uruchomiony w tle działać będzie
+nawet po naszym wylogowaniu, co może być przydatne gdy będzie on wykonywać
+długotrwałe operacje. Należy jednak pamiętać aby nie przekazywać do tła
+programów, które mogą potrzebować do działania danych od użytkownika. Takie
+program może zostać zamrożony lub zamknięty, inny czynnikiem na który należy
+zwróć uwagę są dane z stdout oraz stderr. Przed przekazaniem programu do tła
+należy wszystko przekierować. Ponieważ dane z strumieni wyjściowych będą
+wypisywane bezpośrednio w terminalu, którym przekazaliśmy program do tła.
+Dobrym sposobem na przekazaywanie procesów do tła (tak jakby) jest
+wykorzystanie takich programów jak GNU Screen czy TMUX. Te programy to
+multipleksery terminali, dzięki nim możemy np. odłączyć sesje (terminal)
+wylogować się i a program uruchomiony w odłączonym terminalu dalej będzie
+działać jakby był uruchomiony normalnie w oknie terminala.
+
+##Tryby plików i uprawnienia.
+
+Z racji tego iż wszystko na UNIX-ch jest plikiem, użytkownik musi rozróżniać
+co jest czym, i temu właśnie służy typ pliku. Pierwsza kolumna informacji
+wypisanych przez polecenie "ls -l" zwraca właśnie tryb pliku, w którego skład
+wchodzą pierwszy znak tej kolumny - typ pliku oraz uprawnienia. W systemie
+możemy wyróżnić kilka rodzajów plików:
+
+       - - (myślnik) - Zwykły plik.
+       - d - Katalog.
+       - l - Dowiązanie symboliczne.
+       - s - Gniazdo. Plik specjalny, dzięki nim procesy mogą się ze sobą
+       komunikować.
+
+W systemie możemy spotać się jeszcze z dwa rodzajami plików są to pliki
+urządzeń o których będzie kolejnym rozdziale.
+
+       - b - plik urządzenia blokowego.
+       - c - plik urządzenia znakowego.
+
+Każdy plik w UNIX-ie posiada zestaw uprawnień określających dostęp do niego.
+UNIX-y wyróżniają trzy prawa: odczyt, zapis i wykonanie. Prawa pliku są
+podzielone ma trzy grupy. Każdej z grup można przypisać wszystkie dostępne
+prawa. Dla zwięzłości zapisu, każde z praw określa jedna litera pochodząca z
+jego angielskiej nazwy.
+
+     - r - (read) - Odczyt, programy mogą czytać plik, pobierać z niego dane.
+     - w - (write) - Zapis, można zapisywać w nim dane lub go usunąć.
+     - x - (execute) - Wykonanie, nadawane plikom wykonywalnym programom i
+     skryptom pozwala na uruchomienie pliku.
+
+Grupy określają zakres uprawnień dla poszczególnych użytkowników. Możemy
+wydzielić zatem poszczególne uprawnienia dla:
+
+	  - u - (user) - Właściciel.
+	  - g - (group) - Grupa.
+	  - o - (others) - Pozostali użytkownicy systemu.
+
+Jeśli wyświetlimy sobie zawrtość katalogu za pomocą polecenia "ls -l", to
+w trzeciej kolumnie znajduje się właściciel a w czwartej znajduej grupa.
+Jeśli myślisz, że korzystając z Linuxa jest drugim i ostatnim obok root
+użytkownikiem systemu to się mylisz. W systemie jest oko 23 dodatkowych
+użytkowników. Służą oni głównie ograniczaniu uprawnień dużych programów
+działajacych w tle i swiadczących róznorakie usługi tzw. demonów. Te programy
+często świadczą różne usługi sieciowe przez co narzażone są na atak z zewnątrz.
+Stąd taka ilość użytkowników systemie. Tacy użytkownicy często nie mają
+możliwości nawet zalogowania się do systemu. Jednak warto usawić jak najbardziej
+restrykcyjne uprawnienia dla pozostałych bo kiedy uda się złamać jeden
+z takich programów i haker zaloguje się do serwera to bez odpowiednich
+uprawnień nie będzie mógł przeglądać naszych plików.
+
+Uprawnienia możemy nadać albo poszczególnej grupie albo odrazu zmodyfikować
+całe uprawnienia pliku. Do zmiany uprawnień służy polecenie "chmod". Uprawnienia
+nadawane są poprzez podanie grupy (u,g lub o) następnie za pomocą znaku plusa
+("+") lub minusa ("-") nadajemy lub odbieramy prawo i na końcu do czego (r,w lub
+x).
+
+$ chmod u+rwx test.sh
+$ chmod g+rx test.sh
+$ chmod o+rx test.sh
+
+Te trzy polecenia możemy zapisać za pomocą jednego:
+
+$ chmod u+rwx,g+rx,o+rx test.sh
+
+Tutaj każdej z grup nadaliśmy posczególne uprawnienia. Jednak wykorzystanie
+oznaczeń grup, w tym celu nie ma sensu bo zmieniamy wszystkie uprawnienia pliku
+w tym celu lepiej użyć wartości liczbowych. Każde prawo można zapisać za pomocą
+wartości liczbowych
+
+	 - r - 4 - (read) - Odczyt.
+	 - w - 2 - (write) - Zapis.
+	 - x - 1 - (execute) - Wykonanie
+
+Korzystając z wartości liczbowych, każdej z grup musimy przypisać sumę
+powyższych wartości. Pierwsza grupa to właściciel, następna to grupa i ostatnia
+to pozostali użytkownicy. Nadawania i odbierania uprawnień dokonujemy w głowie
+zmieniając wielkości tych sum. Jeśli chcemy odebrać wszystkie prawa to suma
+wynosi 0.
+
+$ chmod 755 test.sh
+
+Korzystając z wartości liczbowych, posługujemy tzw. bezwzględymi uprawnieniami.
+Ponieważ modyfikując jedną grupę musimy zmodyfikować całe uprawnienia.
+
+##Dowiązania symboliczne
+
+Dowiązania symboliczne w Linuxie, nie są niczym innym niż jak skrótami. Są to
+pliki, które wskazuje na inne pliki. Czasami
+za ich pomocą można wykonać kilka magicznych sztuczek. Oszukać programy systemu.
+Dowiązania mogą powodować pewne problemy z rozróżnieniem co kryje się za
+dowiązaniem czy jest plik czy katalog. W tym celu należy sprawdzić sam element
+wskazywany przez dowiązanie. Polecenie "ls -l" pokazuje naco wskazują
+dowiązania symboliczne.
+
+Dowiązania tworzy się za pomocą polecenia "ln" przełącznikiem "-s". BARDZO
+WAŻNE aby pamiętać o tym przełączniku, w przeciwnym razie możemy stworzyć
+tzw. hard link (dowiązanie twarde). Usunięcię twardego dowiązania, spowoduje
+usunięcie wskazywanego przez niego pliku.
+
+$ ln -s cel nazwa_dowiązania
+
+Archwizowanie i kompresowanie plików
+
+W większości UNIX-ów będziemy posiadać wbudowane narzędzia, które służą
+archwizacji oraz kompresji plików. Pierwszym narzędziem, z którym się za
+poznamy będzie polecenie "tar". To polecenie służy do tworzenia archiwów z
+plikami. Archiwum tworzy się za pomocą poniższego polecenia:
+
+Archiwa
+
+$ tar -cvf nazwa_archiwum.tar pliki*
+
+Opis przełączników:
+     - c - tworzy nowe archiwum
+     - v - tryb gadatliwy, normalnie tar nie wyświetla co robi, z tym
+     przełącznikiem wypisze na stdout nazwę/ścieżkę każdego dodanego do
+     archiwum pliku.
+     - f - tar utworzy archwiwum w pliku. Domyślnie korzysta z na napędu
+     taśmowego.
+
+W ten sposób tworzone jest archiwum, jeśli sprawdzimy zawartość katalogu, to
+będzie o jeden plik więcej zawierający w nazwie rozszerzenie .tar.
+
+Po utworzeniu archiwum, powiedzmy że przenieśliśmy je gdzieś i ptrzebujemy
+dostęp do zamkniętych w nim plików. W tym celu należy archiwum rozpakować.
+
+$ tar -xvf nazwa_archiwum.tar
+
+Program wypakuje wszystkie pliki do katalogu, w którym znajduje się archiwum.
+Polecenie różni się jednym przełącznikiem.
+
+	  - x - wypakuj archiwum
+
+Przed wypakowanie archiwum możemy podejrzeć jego zawartość ile nie jest
+skompresowany za pomocą innego programu niż "gzip" (o tym będzie poźniej).
+
+$ tar -tvf nazwa_archwum.tar
+
+Polecenie to zwróci zawartość archiwum w formacie podobnym do poleceniea
+"ls -l".
+
+	- t - wylistowuje zawartość archiwum
+
+Jeśli od plików wymaga się tych samych uprawnień jakie miały w archiwum (po
+rozpakowaniu, uprawnienia plików zostaną zmienione), należy użyć przełącznika
+"-p", podczas wypakowywania tar zachowa uprawnienia z archiwum. Warto dodać
+że jeśli wypakowujemy coś jako root, to opcja zachowania uprawnień jest
+domyślnie włączona.
+
+Archwa skompresowane
+
+Archiwum do jeden plik i może być on naprawdę duży. Dlatego też możemy wspomóc
+się algorytmami kompresji. Jednym z nich jest GNU zip. Skompresowane archiwum
+ma rozszerzenie .tar.gz lub .tgz. Oznacza to że operacje na nim musimy zacząc
+od prawej strony. Na początku należy jest zdekompresować. Do dekompresji plików
+skompresowanych przez wspomniany algorytm używa się polecenia "gunzip"
+
+$ gunzip nazwa_archiwum.tar.gz
+
+Nazwę pliku podajemy jak pierwszy argument, bez żadnych przełączników. Wynikiem
+polecenia jest usunięte rozszerzenie z nazwy pliku. To możemy zobaczyć. Tak
+naprawdę plik został zdekompresowany stąd usunięte rozszerzenie. Kolejną rzeczą
+będzie wypakowanie samego archiwum, tak jak wskazano to powyżej w sekcji
+odnośnie archwiwów.
+
+$ tar -xvf nazwa_archiwum.tar
+
+Cała powyszą operacje możemy przeprowadzić szybciej, ponieważ "tar" jest stanie
+kiedy podamy mu odpowiedni dla pliku algorytm kompresji zdekompresować a
+następnie wypakować archiwum. Dwa powyższe polecnia można zastąpić jednym tym
+poniżej
+
+$ tar -xzvf nazwa_archiwum.tar.gz
+
+Innym algorytmami do wykorzystania są bzip2 oraz xz (LZMA2).
+
+      - j - bzip2
+      - J - xz
+
+Tworzenie skompresowanych archiw, jest identyczne jak tworzenie zwykłych tylko
+dodaje odpowiedni dla wybranego przez nas algorytmu przełącznik oraz
+rozszerzenie dla stworzonego archiwum.
+
+$ tar -czvf nazwa_archiwum.tar.gz pliki*
+
+Wróćmy do podglądania zawartości skompresowanego archiwum. Jak możemy wylistować
+zawrtość skompresowanego archiwum. Możemy do zrobić na dwa sposoby, pierwszy
+znich sugeruje wykorzystanie potoku oraz skryptu "zcat" (tak "zcat" to skrypt,
+wywołuje "gzip" z odpowiednimi przełącznikami) wypisuje na standardowym wyjściu
+zdekompresowanego pliku. Za pomocą potoku przekażemy zdekompresowany plik do
+polecenia "tar"
+
+$ zcat nazwa_archiwum.tar.gz | tar -tvf -
+
+Warto zwrócić uwagę na to jak zostało przedstawione standardowe wejscie w
+momencie gdy program będzie oczekiwać na plik - myślnik ("-").
+
+Drugi sposób ze wskazaniem algorytmu poleceniu "tar", tutaj nie potrzeba potoków
+i innych rzeczy.
+
+$ tar -tzvf nazwa_archiwum.tgz
+
+Plik przeniesione z MS Windows .zip możemy rozpakować za pomocą programów
+"zip" oraz
+"unzip". Jeśli nie został preinstalowany w twoje dystrybucji to można go
+na pewno można go zainstalować z repozytorium dystrybucji. Innym popularnym
+archiwum, które możemy spotkać w naszych czasach są archiwa z rozszerzeniem .7z
+Te pliki zostaly przygotowane za pomocą programu "7-zip", każda większa lub
+mniejsza dystrybucja ma go w swoim repozytorium. "7-zip" jako jedyny na UNIX-y
+program zajmujący się archiwami umożliwia zaszyfrowanie archwium. Tworzerzenie
+zaszyfrowanych archwiwów z "7-zip" znajduje się na tej stronie po tym linkiem.
+
+https://morketsmerke.github.io/articles/faq/index.html
+
+Reliktem przeszłości z jakim możemy się spotkać, są archiwa skompresowane za
+pomocą starego UNIX-owego polecenia "compress", takie archiwa posiadają
+rozszerzenie .Z. Mimo iż program nie jest już dostępny na współczesne
+komputery to nadal możemy rozpakować takie archwum za pomocą polecenia
+"gunzip".
+
+Hierarchia katalogów
+
+Jak zapewne pamiętamy z wstępu poleceń działajacych na katalogach. UNIX-y
+wykorzystują hierachię katalogów. Najwyższym katalogiem jest katalog główny "/"
+ "root". Powyżej niego niema już żadnego innego katalogu czy pliku. Sam katalog
+ główny zawiera od kilku do kilkunastu podkatalogów, to w nich znajdują się
+ nasze dane, programy czy pliki konfiguracyjne systemu. Ilość podkatalogów
+ zależy od
+ dystrybucji i jej przeznaczenia. Omówimy sobie jakie
+ dane przechowuje podkatalogi katalogu głównego.:
+
+ /    katalog główny, zawiera wszystkie poniższe katalogi.
+
+      /bin - Niezbędne programy/pliki binarne wykorzystywane przez wszystkich
+      użytkowników. W nie których dystrybucjach jest to dowiązanie symboliczne
+      do katalogu /usr/bin
+
+      /boot - Statyczne pliki programu ładującego (bootloadera)
+
+      /dev  - Pliki urządzeń
+
+      /etc  - Pliki konfiguracji systemu.
+
+      /home - Katalogi domowe użytkowników
+
+      /lib  - Pliki bibliotek współdzielonych oraz moduły jądra
+
+      /media	- Miejsce montowania dla dysków wymiennych
+
+      /mnt	- Miejsce tymczasowego montowania systemów plików
+
+      /opt	- Dodatkowe pakiety oprogramowania
+
+      /proc	- Statystyki systemu, informacje o aktualnie dziających
+      		  procesach oraz niektórych parametrach jądra.
+
+      /run	- Zmienne dane uruchomieniowe, nowsza wersja katalogu
+      		  /var/run
+
+      /sbin	- Narzędzia i programy systemowe
+
+      /srv	- Dane usług świadczonych przez ten system. Nie konieczni
+      		  wykorzystywany. Zawsze instnieje w systemie aby zachować
+		  zgodność z standardem hierarchii systemów plików.
+
+      /sys	- Katalog podobny do /proc, tworzy interfejsy dla urządzeń
+      		  oraz systemu.
+
+      /tmp	- Pliki tymczasowe
+
+      /usr	- Struktura katalogów zawierająca wszelkie dostępne w systemie
+      		  oprogramowanie oraz różne związane z nim pliki, jak np.
+		  dokumentacja.
+
+      /var	- Struktura katalgowa, zawierająca zmienne dane działających
+      		  w systemie procesów. Przechowuje między innymi pliki
+		  dzienników systemowych oraz usług.
+
+Struktura katalogu /usr
+
+	  /usr/bin - Pliki binarne i programy wykorzystywane przez użytkowników
+	  	     podczas jakich kolwiek prac w systemie.
+
+	  /usr/include - Pliki nagłówkowe wykorzystywane przez kompilator
+	  	       	 języka C.
+
+	  /usr/lib - Biblioteki programistyczne, lub biblioteki współdzielone i
+	  	     modułu jądra. Wśród nie których dystrybucji ten katalog
+		     jest celem dowiązania symbolicznego /lib.
+
+	  /usr/local - Miejsce instalacji własnego oprogramowania
+	  	       przez administratorów systemu. Ten katalog jest również
+		       strukturą katalogową przypominającą katalog /usr.
+
+	  /usr/sbin - Programy systemowe. Ten katalog, w nie których
+	  	      dystrybucjach bywa dowiązaniem symbolicznym do katalogu
+		      /usr/bin.
+
+	  /usr/share - Dodatkowe pliki programów, często niebinarne,
+	  	       dokumentacja, pliki zawierające strony podręcznika.
+
+	  /usr/src - Miejsce na przechowanie kodu źródłowego, nie powinno się
+	  	     kodu kompilować w tym katalogu.
+
+Struktura katalogu /var
+
+	  /var/cache - Pamięć podręczna aplikacji. Wiele aplikacji w
+	  	       szczególności uruchamianych przez zwykłego użytkownika
+		       wykorzystuje katalog .cache w katalogu domowym
+		       użytkownika.
+
+	  /var/lib - Zmienne informacje o stanie typowe dla aplikacji lub
+	  	     systemu.
+
+	  /var/local - Zmienne dane dla programów z katalogu /usr/local
+
+	  /var/lock - Plik .lock - przechowują informacje o zablokowanych
+	  	      plikach przez procesy.
+
+	  /var/log - Katalog przechowuje pliki dzienników systemowych.
+
+	  /var/opt - Zmienne dane dla programów z katalogu /opt
+
+	  /var/run - Katalog obecnie zastąpiony przez /run. W nie których
+	  	     dystrybucjach jest to dowiązanie symboliczne do katalogu
+		     /run.
+
+	  /var/spool - Zawiera dane do poźniejszego przetworzenia, kolejki
+	  	       wydruku czy skrzynkę odbiorczą.
+
+	  /var/tmp - Pliki tymczasowe zachowane przed skasowaniem podczas
+	  	     ponownego uruchomienia systemu.
+
+Umiejscowienie jądra systemu
+
+Plik jądra możemy łatwo namierzyć znajduje się on albo bezpośrednio w katalogu
+głównym (prawdopodobnie to tylko dowiązanie) lub w katalogu /boot wraz z
+plikami bootloadera.
+
+
+Wykonywanie poleceń z uprawnieniami superużytkownika
+
+Obecnie każdy instaluje sobie Linuxa, czy to na jakiejś fizycznym zalegającym
+w domu komputerze, albo wykorzystując techniki wirtualizacji, korzysta z
+maszyny wirtualnych. Samodzielnie instalując ten system mimochodem stajemy się
+jego administratorami. Podczas instalacji każdy założył swoje osobiste konto
+i na nim trzyma swoje pliki i na nim pracuje. Powiedzmy że potrzebujemy
+zainstalować jakiś program. Musimy zalogować się jako root, następnie wydać
+odpowiednie polecenie i już program się instaluje. Czy za każdym razem będzie
+trzeba logować się jako root? Jest to zalecene, aby wykonywać działania
+administracyjne za pomocą użytkownika root, po zakończeniu prac przelogować
+się i wrócić do normalnego użytkowania systemu. Na początku będzie tym
+zirytowani a póżnie nam się z nudzi. Istnieje metoda chwilowego podniesienia
+uprawenień za pomocą polecenia "sudo".
+
+Jeśli nasza dystrybucja to typowy desktop, lub została zainstalowana z poziomu
+instalatora żeby była typowym desktopem. To polecenie sudo zostało już
+zainstalowane i skonfigurowane. Możemy to sprawdzić wydając polecenie
+odświerzające listę pakietów repozytorium. Jeśli program zapyta na o hasło,
+podajemy nasze hasło do konta.
+
+$ sudo pacman -Sy
+
+Jeśli polecenie się powiedzie to tak naprawdę na tym będziemy mogli zakończyć,
+ponieważ wydawania poleceń administracyjnych z poziomu zwykłego użytkonika
+wymaga tylko poprzedzenia ich poleceniem "sudo" a następnie podaniu hasła.
+
+Inaczej sprawa ma się jeśli instalowaliśmy system z ręki, w ten czas polecenia
+"sudo" może w ogóle brakować w systemie. W tym celu musimy je sobie zainstalować
+za pomocą dostępnych dla naszej dystrybucji metod. Konfiguracja "sudo" może
+wyglądać na dwa sposoby. Po zainstalowaniu programu pojawi się nowa grupa
+o nazwie "sudo", jeśli dodamy do niej naszego użytkownika już powinniśmy móc
+korzystać z "sudo".
+
+Jeśli podczas uruchomienia polecenia z "sudo", dostaniemy komunikat, że
+użytkownik niewystępuje w pliku sudoers. To konfiguracja z grupą nie przejdzie
+i musimy ręcznie dopisać użytkownika do pliku. Pliku "/etc/sudoers"
+otwieramy jako root, odnajdujemy linię
+
+root ALL=(ALL) ALL
+
+Możemy skopiować tą linię następnie zamienić tylko użytkownika root na swoją
+nazwę. Plik "/etc/sudoers" jest teoretycznie tylko do odczyty, i przekonamy
+się o
+tym probując go edytować, a później zapisać zmiany. Wszystko trzeba potwierdzać.
+Po zapisaniu pliku, możemy powrócić do naszego konta i ponownie wydać polecenie
+z "sudo". Teraz powinno się zadziałać.
+
+Przy dużej ilości poleceń wymgających podniesienia uprawnień, to jedno wpisanie
+hasła wystarcza na 5 min. Przez ten czas sudo nie zapyta o hasło. Jeśli
+zmęczymy się wpisywaniem haseł, to możemy tak skonfigurować "sudo", aby nie
+prosił
+o hasło. W pliku "/etc/sudoers", tam gdzie dodawaliśmy naszego użytkownika lub
+jeśli zadziałało wykorzystanie grupy sudo, to teraz należy do dodać z poniższymi
+opcjami
+
+xf0r3m ALL=(ALL) NOPASSWD:ALL
+
+Po zatwierdzeniu zmian, podczas wydawania polecenia "sudo" nie zostaniemy
+poproszeniu o hasło.
+
+Podsumowanie
+
+Jeśli chodzi podstawy obsługi systemów z rodziny Linux, ale i nie tylko bo
+pod tę wiedzę również można wykorzystać w kilku współczesnych UNIX-ach to
+powiniśmy wiedzę zawartą w tym materiale mieć w małym placu. Nie chodzi o to
+aby kuć się tego na blachę bo to i tak nic nie da. Potrzebna jest praktyka,
+trzeba ćwiczyć te polecenia łącznie z przełącznikami. Jeśli miałbym wskazać
+to jest najważniejsze, to polecenia. Zrobić sobie ściągę i zapamiętać co
+które robi. Reszta wyjdzie w praniu.
+
+Źródła:
+	- Jak działa Linux Wyd. II, Braian Ward, Helion 2015
+	- Opisy pod katalogów FHS (nie które):
+	  https://www.pathname.com/fhs/pub/fhs-2.3.html
+
+~xf0r3m

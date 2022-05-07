@@ -1,0 +1,2 @@
+prog "Terminal" /usr/share/artwork/terminal.png xterm -fg orange -bg black
+prog "Przeglądarka internetowa" ! x-www-browser

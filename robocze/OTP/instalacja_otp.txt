@@ -1,0 +1,177 @@
+Instalacja OTP:
+
+1. Tylko do odczytu:
+	
+	Z racji tego iż OTP ma służyć terminalom, które mają łaczyć się 
+	z odległmi systemami, system ten nie powinien być postrzegany jako
+	każdy inny Linux do codziennej pracy, system ten ma za zadanie
+	tylko i wyłącznie umożliwić Ci podłączenie sie do innego komputera.
+	Dlatego też ten system można postrzegać jako firmware, który cały
+	czas znajduje się w tym stanie, jakby by był świerzo zainstalowany
+	użytkownik nie pozostawia nic po sobie, cały system działa do momentu
+	działania terminalu, uruchomienie urządzenia ponownie ładuje ten sam
+	nie zmieniony system. Oczywiście to są tylko założenia. 
+	
+	Instalacje systemu w tym trybie rozpoczynamy od przygotowania
+	pendrive-a z obrazem systemu. Każdy obecnie operuje co najmniej 4GB
+	kością pamięci USB. System zajmuje niecałe 740MB. Nie sciągać pliku
+	obrazu, po załadowaniu ISO na pendrive utworzymy dodatkową partycję
+	sformatowaną na FAT, która będzie przechowywać pliku obrazu płyty.
+	
+	Wgrywanie ISO na pendrive:
+		$ sudo dd if=OTP-hybrid.iso bs=1M of=/dev/sdb status=progress
+		
+	Za pomocą fdisk, tworzymy dodatkową partycję:
+		$ sudo fdisk /dev/sdb
+		> n
+		> p
+		> 2
+		> [domyślnie]
+		> [domyślnie]
+		> t
+		> 2
+		> b
+		> w
+	
+	Formatujemy nowo utworzoną partycję na FAT32:
+		$ sudo mkfs.fat -F32 /dev/sdb2
+	
+	Montujemy partycję i kopiujemy na nią obraz płyty:
+		$ sudo mount /dev/sdb2 /mnt
+		$ cp ~/Downloads/OTP-hybrid.iso /mnt
+		
+	Po skopiowaniu obrazu na partycje, możemy ją odmontować podłaczyć
+	do terminala i rozpocząć właściwą instalacja, która sprowadza się do
+	trzech czynności:
+		- Uruchomienie terminala z pamięci USB.
+		- Zamontowanie dodatkowej partycji.
+			$ sudo mount /dev/sdb2 /mnt
+		- Wgraniu obrazu do pamięci flash terminala tak jak na pendrive.
+			$ sudo dd if=/mnt/OTP-hybrid bs=1M of=/dev/sda status=progress
+			
+	Minusem instalacji tego typu, jest ograniczona ilość pamięci RAM 
+	w cienkich klientach. To w nim będzie rezydować rootfs, w nim również
+	będą przechowywane rozszerzenia więc jej zasób może się szybko
+	wyczerpać.
+	
+2. Instalacja frugal
+
+	Instalacja w tym trybie spowoduje, że system będzie przypominać nieco
+	dotyczasowe Linux-y, ale względu na rozwiązania bazowe dalej system
+	będzie na nowo ładował ten sam stan przy każdym restarcie. Dane
+	będziemy mogli zachować na dwa sposoby:
+		- używając polecenia backup przed każdym zamknięciem systemu,
+		spowoduje to utworzenie archiwum w jednym z katalogów na dysku
+		i wypakowaywanie jego zawartości przy każdym kolejnym ładowaniu
+		systemu.
+		- Tworząc swój katalog bezpośrednio dysku, i zapisując wym
+		wszelkie informacje, warto dodać, że jako jedyny aktywny użytkownik
+		w tym systemie mamy uprawnienia administratora. Wariacją tego 
+		pomysłu może być oddzielna partycja czy oddzielna szyfrowana 
+		partycja, sam systemie nie zajmnie więcej niż 1GB.
+		
+	Poniżej znajduje się lista kroków, którą należy wykonać aby 
+	zainstalować system w ten sposób. Odnośnie tego sposób na moim 
+	osobistym koncie na github znajduje się skrypt, pozwalający
+	zaoszczędzić trochę czasu na przepisywaniu tych czynności do
+	teminala.
+		
+		- dC-install.sh - (https://github.com/xf0r3m/dC-install.git)
+	
+	W zależności od tego czy używamy pendrive'a czy płyty punkt montowania
+	obrazu instalacyjnego może być inny.
+
+		- /mnt/sr0 = dla płyt
+		- /mnt/sdX = dla dysków USB.
+
+
+	1. Wybranie odpowiedniego dysku przeznaczonego do instalacji systemu
+		$ sudo fdisk -l
+	
+	2. Partycjonowanie dysku, w przypadku OTP możemy zrobić jedną partycję
+	obejmującą cały obszar dysku.
+		$ sudo fdisk /dev/sdX
+		> n
+		> p
+		> [domyślnie]
+		> [domyślnie]
+		> [domyślnie]
+		> a 	#Ustawienie flagi rozruchowej
+		> w
+	gdzie X - to litera oznaczająca dysk.
+	
+	3. Formatowanie dysku, domyślnie OTP instaluje się na partycji z system
+	plików EXT4, wybór innego systemu plików może wymagać użycia innego
+	programu rozruchowego (w tym materiale jest extlinux).
+		$ sudo mkfs.ext4 /dev/sdX1
+	
+	4. Utworzenie nowej zawartości pliku /etc/fstab systemu tymczasowego
+	w celu łatwiejszego montowania dysku.
+		$ sudo rebuildfstab
+	
+	5. Montowanie dysku przeznaczonego na system.
+		$ mount /mnt/sdX1 
+	Podany tutaj punkt montowania można znaleźć w pliku /etc/fstab.
+
+	6. Tworzenie katalogów dla plików systemowych oraz programu rozruchoweggo
+		$ sudo mkdir -p /mnt/sdX1/boot/extlinux
+	
+	7. Skopiowanie plików jądra oraz początkowego systemu plików w pamięci
+	RAM na dysk
+		$ sudo cp -p /mnt/sdb/boot/* /mnt/sdX1/boot
+	Ignorujemy komunikat o tym, że katalog isolinux został pominięty, tak
+	właśnie miało być.
+
+	8. Importujemy pakiet e2fsprogs
+		$ sce-import e2fsprogs
+	Pakiet ten zawiera program e2label, pozwalający na ustawienie etykiet
+	system plików rodziny EXT, dzięki ustawieniu etykiety nie będziemy
+	musieli posługiwać się UUID w pliku konfiguracyjnym programu rozruchowego
+
+	9. Załadowanie pakietu e2fsprogs
+		$ sce-load e2fsprogs
+	Pakiety na dCore (dystrybucja bazowa OTP) wymagają importowania (pobrania
+	z serwerów, [w tym przypadku Ubuntu] paczki .deb i konwersji jej do pliku
+	zgodnego z tym portem TinyCore - .sce, A następnie załadowania w systemie
+	(instalacji). Więcej o tym na stronie głównej projektu.
+
+	10. Ustawienie etykiety dla systemu plików
+		$ sudo e2label /dev/sdX1 "OTP"
+	
+	11. Importowanie pakietu programu rozruchowego
+		$ sce-import extlinux
+	
+	12. Załadowanie pakietu z programem rozruchowym
+		$ sce-load extlinux
+	
+	13. Instalacja plików niezbędnych do rozruchu systemu przy użyciu
+	programu rozruchowego tego typu:
+		$ sudo extlinux --install /mnt/sdX1/boot/extlinux
+	
+	14. Instalacja rekordu rozruchowego (MBR) na dysku
+		$ sudo dd if=/usr/lib/EXTLINUX/mbr.bin of=/dev/sdX
+	
+	15. Utworzenie pliku konfiguracyjnego programu rozruchowego:
+		$ sudo vi /mnt/sdX1/boot/extlinux/extlinux.conf
+		default OTP
+		label OTP
+		kernel /boot/vmlinuzbionic
+		append initrd=/boot/OTP.gz tce=sdX1 quiet desktop=icewm host=otp
+	
+	16. Wybranie dysku docelowego dla rozszerzeń dCore, wykonanie tej
+	czynności spowoduje utworzenie struktury katalogowej w systemie plików.
+	Tę czynność należy wykonać przed skopiowaniem rozszerzeń z obrazu
+	instalacyjnego
+		$ tce-setdrive
+	Z wyświetlonej listy należy wybrać docelowy punkt montowania.
+
+	17. Skopiowanie rozszerzeń z obrazu instalacyjnego
+		$ sudo cp -rvv /mnt/sdb/cde/* /mnt/sdX1/tce
+	
+	Po skopiowaniu rozszerzeń instalacja jest zakończona można uruchomić
+	komputer ponownie.
+	
+Za pomocą powyższych sposobów, możemy zainstalować OTP w pamięci
+flash naszego terminala.
+	
+	

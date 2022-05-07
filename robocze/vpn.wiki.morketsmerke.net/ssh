@@ -1,0 +1,50 @@
+<strong>SSH</strong> - protokół sieciowy umożliwiający bezpieczne (szyfrowane) połączenie z terminalem (interfejsem tekstowym komputera.
+
+Generalnie SSH, służy nie tylko do zdalnej pracy terminalowej na odległych serwerach, za pomocą poleceń możemy wygenerować klucze RSA, których później możemy użyć do logowania bez hasła, lub jednego odrębnego hasła dla wszystkich innych serwerów czy bezpiecznego transferu plików jak i również zestawić szyfrowany tunel. Jedyne czego potrzebujemy to konta na serwerze.
+
+W niniejszym punkcie zostanie przedstawionych kilka praktycznych przykładów dla tunelowania SSH. 
+
+== Przykład 1 ==
+Podstawowym przykładem będzie zestawieniu tunelu SSH pomiędzy lokalnym portem <code>12345</code> a portem 445 odległej maszyny. Przy użyciu unixowego klienta ssh składnia polecenia będzie następująca:
+<pre>
+jkowalski@srv10:~$ ssh admin@123.10.12.11 -L 12345:127.0.0.1:445
+</pre>
+Liczba podana po <code>-L</code> określa, który port lokalny klienta ma zostać użyty dla potrzeb tunelu.
+
+<code>127.0.0.1:445</code>mówi nam, że zdalna strona - serwer SSH - ma połączyć się z adresem <code>127.0.0.1</code> na port <code>445</code>. Czyli w tym przypadku koniec tunelu stanowić będzie lokalny interfejs zdalnego serwera i działająca tam SAMBA.
+
+Po podaniu hasła użytkownika zdalnego tunel zostanie utworzony. W systemach unixowych uruchomienie usługi na porcie poniżej 1024 wymaga uprawnień administrator (<em>root</em>) o czym warto pamiętać. Nie ma to miejsca natomiast w systemach Windows.
+
+Czasami może się zdarzyć, że chcemy zestawić tunel na określony czas, a także żeby proces przeszedł w tło. Dla przykładu możemy zestawić tunel trwający 10 minut.
+
+<pre>
+$ ssh -f -n -L 12345:127.0.0.1:445 admin@123.10.12.11 sleep 600
+</pre>
+
+Opcja <code>-f</code> powoduje przeniesienie na tło wykonania polecenia <em>/bin/sleep</em>, z kolei opcja <code>-n</code> jest często używana z opcją <code>-f</code>, powoduje ona przekierowanie standardowego wejścia dla procesu w uruchomionego w tle z <em>/dev/null</em>, opcja <code>-n</code> zostanie zignorowana gdy SSH będzie prosił o hasło.
+
+<strong>Utworzenie tunelu z portami 1:1</strong><br />
+Przydatne wtedy, gdy aplikacja ma już zdefiniowane od górnie porty.
+*Program PuTTY - system Windows.<br />[[File:Putty_-_Tunel_SSH.jpg]]
+*SSH - UNIX-y.<br /><pre>xf0r3m@KAT2:~$ ssh xf0r3m@dl.morketsmerke.net -L 445:127.0.0.1:445</pre>
+<br />
+== Przykład 2 - SSH jako Socks Proxy ==
+
+Tunele ssh można wykorzystać do zestawiania końców tunelu różnym hostami, do tej porty host na końcu tunelu był stały. Można użyć tej techniki do omijania blokad portów. Twórcy SSH zaimplementowali tunele dynamiczne. Jeśli pakiet zostanie przekazany na przykład przez jakieś ustawienie proxy na port, na którym jest uruchomiony tunel dynamiczny, serwer zdalny zestawi koniec tunelu pomiędzy sobą a hostem docelowym na danym porcie zwartym w pakiecie.
+
+*Socks Proxy w PuTTY - system Windows.<br />[[File:Putty_-_Socks_Proxy.jpg]]
+*Socks Proxy SSH - UNIX-y.<br /><pre>xf0r3m@KAT2:~$ ssh xf0r3m@dl.morketsmerke.net -D 8080</pre>
+<br />
+== Przykład 3 - tunele z przekazywaniem zdalnym ==
+
+SSH pozwala na jeszcze jeden rodzaj tuneli. Mianowicie tunel z przekazywaniem zdalnym. Polega on na tym że nasz serwer, który z jakiś powodów nie może być normalnie wypuszczony do internetu, tworzy specjalny rodzaj tunelu, który otwiera port na serwerze otwarcie tego portu pozwoli na połączenie się potencjalnego klienta z problematycznym serwerem, po tunelu który zestawił sam klient, warunkiem jest zestawienie kolejnego tunelu, tym razem takie jak wcześniej (lokalnego), który przekieruje dane z aplikcji na port otwarty na serwerze, a ten z kolei na nasz serwer. Jeśli jesteśmy administratorem serwera SSH, możemy ustawić go tak aby zdalny port nasłuchiwał na wszystkich adresach na serwerze, co analogicznie uwidacznia go z poziomu internetu, służy do tego opcja <code>GatewayPorts</code>, która domyślnie ustawiona jest na <code>no</code> ze względów bezpieczeństwa, niweluje nam potrzebę zestawiania lokalnego przekazywania (klasycznego tunelu SSH). Warunek jest prosty. Czy otwarty przez zdalne przekazywanie serwera ma być ogólnodostępny w internecie. Jeśli tak to (i oczywiście mamy do tego odpowiednie uprawnienia) możemy przestawić tę opcję na <code>yes</code>. Jeśli nie to pozostaje nam zestawić tylko tunel pomiędzy lokalnym portem a otwartym zdalnym portem. 
+
+*Przekazywanie zdalne PuTTY (port zdalny) - system Windows.<br />[[File:Putty_-_remote_port.jpg]]
+*Przekazywanie zdalne SSH (port zdalnym) - UNIX-y.<br /><pre>xf0r3m@KAT2:~$ ssh xf0r3m@dl.morketsmerke.net -R 11111:127.0.0.1:3389</pre>
+*Przekazywanie zdalne PuTTY (port lokalny) - system Windows.<br />[[File:Putty_-_local_port.jpg]]
+*Przekazywanie zdalne SSH (port lokalny) - UNIX-y.<br /><pre>xf0r3m@KAT2:~$ ssh xf0r3m@dl.morketsmerke.net -L 13389:127.0.0.1:11111</pre>
+
+Podobno jeśli używamy XP wersji Professional to nie powinniśmy przekierowywać lokalnego tunelu na 3389, ponieważ może na nim działać lokalny serwer usług terminalowych (sic!).
+
+Po zestawieniu tych tuneli powinniśmy móc się połączyć, za pomocą klienta RDP, lokalnie przekierowanym porcie czyli <em>13389</em>.
+

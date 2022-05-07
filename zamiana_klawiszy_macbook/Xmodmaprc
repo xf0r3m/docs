@@ -1,0 +1,6 @@
+remove mod5 = ISO_Level3_Shift
+remove mod4 = Super_R
+keycode 108 = Super_R
+keycode 134 = ISO_Level3_Shift
+add mod5 = Super_R
+add mod4 = ISO_Level3_Shift

@@ -1,0 +1,392 @@
+1) Introduction
+
+Why another Rasperry Pi Bluetooth Speaker tutorial ?
+
+Because I could not find a reliable and up-to-date source to tell me how to proceed.
+Because Bluez is real pain to configure.
+
+My purpose here is hence to present a step-by-step consistent procedure to help anybody to turn its Raspberry Pi into a headless bluetooth speaker.
+
+What follows has been tested on a Raspberry Pi 3 Model B Rev 1.2 running Raspbian Stretch Lite at the time of writing, i.e. March 9th, 2019.
+
+Note : I choose pulseaudio and not alsa as I need to run and mix several applications in my project.
+
+2) Configuring Bluetooth as an A2DP Sink
+
+We'll be needing pulseaudio and it's bluetooth module.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo apt-get install pulseaudio pulseaudio-module-bluetooth
+
+
+We need to add our user to group bluetooth. And reboot.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo usermod -a -G bluetooth pi
+pi@raspberrypi:~ $ sudo reboot
+
+
+Let's make our Pi permanently discoverable as an A2DP Sink.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo nano /etc/bluetooth/main.conf
+
+
+And add / uncomment / change
+
+Code: Select all
+
+...
+Class = 0x41C
+...
+DiscoverableTimeout = 0
+...
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo systemctl restart bluetooth
+
+Code: Select all
+
+pi@raspberrypi:~ $ bluetoothctl
+[NEW] Controller XX:XX:XX:XX:XX:XX raspberrypi [default]
+[bluetooth]# power on
+Changing power on succeeded
+[bluetooth]# discoverable on
+Changing discoverable on succeeded
+[CHG] Controller XX:XX:XX:XX:XX:XX Discoverable: yes
+[bluetooth]# pairable on
+Changing pairable on succeeded
+[bluetooth]# agent on
+Agent registered
+[bluetooth]# default-agent
+Default agent request successful
+[bluetooth]# quit
+Agent unregistered
+[DEL] Controller XX:XX:XX:XX:XX:XX raspberrypi [default]
+
+
+We need to start pulseausio manually now.
+
+Code: Select all
+
+pi@raspberrypi:~ $ pulseaudio --start
+
+
+And now let's check if everything is OK.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo systemctl status bluetooth
+● bluetooth.service - Bluetooth service
+   Loaded: loaded (/lib/systemd/system/bluetooth.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sat 2019-03-09 21:55:45 CET; 31s ago
+     Docs: man:bluetoothd(8)
+ Main PID: 2296 (bluetoothd)
+   Status: "Running"
+   CGroup: /system.slice/bluetooth.service
+           └─2296 /usr/lib/bluetooth/bluetoothd
+
+Mar 09 21:55:45 raspberrypi systemd[1]: Starting Bluetooth service...
+Mar 09 21:55:45 raspberrypi bluetoothd[2296]: Bluetooth daemon 5.43
+Mar 09 21:55:45 raspberrypi systemd[1]: Started Bluetooth service.
+Mar 09 21:55:45 raspberrypi bluetoothd[2296]: Starting SDP server
+Mar 09 21:55:45 raspberrypi bluetoothd[2296]: Bluetooth management interface 1.14 initialized
+Mar 09 21:55:45 raspberrypi bluetoothd[2296]: Failed to obtain handles for "Service Changed" characteristic
+Mar 09 21:55:45 raspberrypi bluetoothd[2296]: Sap driver initialization failed.
+Mar 09 21:55:45 raspberrypi bluetoothd[2296]: sap-server: Operation not permitted (1)
+Mar 09 21:56:14 raspberrypi bluetoothd[2296]: Endpoint registered: sender=:1.30 path=/MediaEndpoint/A2DPSource
+Mar 09 21:56:14 raspberrypi bluetoothd[2296]: Endpoint registered: sender=:1.30 path=/MediaEndpoint/A2DPSink
+
+
+And it is ! Bluetooth is up and running and A2DP is registered.
+
+At this stage, you should be able to see you Pi as an A2DP Source/Sink from your mobile bluetooth menu.
+
+Let's go for a quick test. Try to connect to your Pi. You should be able to pair but you can't connect. Your device must be trusted first. Let's do it manually for the purpose of a quick test.
+
+Code: Select all
+
+pi@raspberrypi:~ $ bluetoothctl
+[NEW] Controller XX:XX:XX:XX:XX:XX raspberrypi [default]
+[NEW] Device YY:YY:YY:YY:YY:YY <your smartphone>
+[bluetooth]# trust YY:YY:YY:YY:YY:YY
+Changing YY:YY:YY:YY:YY:YY trust succeeded
+[bluetooth]# quit
+[DEL] Controller XX:XX:XX:XX:XX:XX raspberrypi [default]
+
+
+Now you should be able to connect. And play Music !!!
+
+3) Starting pulseaudio on boot
+
+Your system won't be seen as an A2DP capable device until pulseaudio is launched. Let's start pulseaudio on boot.
+
+Code: Select all
+
+pi@raspberrypi:~ $ systemctl --user enable pulseaudio
+Created symlink /home/pi/.config/systemd/user/default.target.wants/pulseaudio.service → /usr/lib/systemd/user/pulseaudio.service.
+Created symlink /home/pi/.config/systemd/user/sockets.target.wants/pulseaudio.socket → /usr/lib/systemd/user/pulseaudio.socket.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo raspi-config
+
+
+And activate autologin for user "pi".
+
+Code: Select all
+
+┌─────────┤ Raspberry Pi Software Configuration Tool (raspi-config) ├──────────┐
+│                                                                              │
+│    1 Change User Password           Change password for the current u        │
+│    2 Network Options                Configure network settings               │
+│    3 Boot Options                   Configure options for start-up           │
+│    4 Localisation Options           Set up language and regional sett        │
+│    5 Interfacing Options            Configure connections to peripher        │
+│    6 Overclock                      Configure overclocking for your P        │
+│    7 Advanced Options               Configure advanced settings              │
+│    8 Update                         Update this tool to the latest ve        │
+│    9 About raspi-config             Information about this configurat        │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                     <Select>                     <Finish>                    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+Select 3 Boot Options.
+
+Code: Select all
+
+┌─────────┤ Raspberry Pi Software Configuration Tool (raspi-config) ├──────────┐
+│                                                                              │
+│    B1 Desktop / CLI                 Choose whether to boot into a des        │
+│    B2 Wait for Network at Boot      Choose whether to wait for networ        │
+│    B3 Splash Screen                 Choose graphical splash screen or        │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                     <Select>                     <Back>                      │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+Select B1 Desktop / CLI.
+
+Code: Select all
+
+┌─────────┤ Raspberry Pi Software Configuration Tool (raspi-config) ├──────────┐
+│                                                                              │
+│    B1 Console           Text console, requiring user to login                │
+│    B2 Console Autologin Text console, automatically logged in as 'pi' user   │
+│    B3 Desktop           Desktop GUI, requiring user to login                 │
+│    B4 Desktop Autologin Desktop GUI, automatically logged in as 'pi' user    │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                     <Ok>                         <Cancel>                    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+
+And choose B2 Console Autologin.
+
+Close raspi-config and reboot.
+
+At this stage, on your mobile, you can pair your Pi as a bluetooth audio speaker BUT you cannot connect if your mobile hasn't been trusted first.
+
+4) Auto pairing / trusting / no PIN
+
+Let's configure our Pi for bluetooth autopairing / trusting.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo apt-get install bluez-tools
+
+
+The bluez-tools package comes with the bt-agent, bt-device, bt-adapter and bt-network commands, which are quite handy. I would recommend to have a look at their respective man pages.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo nano /etc/systemd/system/bt-agent.service
+
+Code: Select all
+
+[Unit]
+Description=Bluetooth Auth Agent
+After=bluetooth.service
+PartOf=bluetooth.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bt-agent -c NoInputNoOutput
+
+[Install]
+WantedBy=bluetooth.target
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo systemctl enable bt-agent
+Created symlink /etc/systemd/system/bluetooth.target.wants/bt-agent.service → /etc/systemd/system/bt-agent.service.
+
+pi@raspberrypi:~ $ sudo systemctl start bt-agent
+pi@raspberrypi:~ $ sudo systemctl status bt-agent
+● bt-agent.service - Bluetooth Auth Agent
+   Loaded: loaded (/etc/systemd/system/bt-agent.service; enabled; vendor preset:
+   Active: active (running) since Sat 2019-02-23 11:36:23 CET; 5s ago
+ Main PID: 503 (bt-agent)
+   CGroup: /system.slice/bt-agent.service
+           └─503 /usr/bin/bt-agent -c NoInputNoOutput
+
+févr. 23 11:36:24 raspberrypi systemd[1]: Started Bluetooth Auth Agent.
+févr. 23 11:36:24 raspberrypi bt-agent[503]: Agent registered
+févr. 23 11:36:24 raspberrypi bt-agent[503]: Default agent requested
+
+
+And now we're done ! Our Pi is a headless bluetooth speaker any mobile can connect, pair and play music with.
+
+5) Not secure enough ? Let's add a (fixed) PIN
+
+The bt-agent command allows you to add a PIN configuration file. Note that SSP must be deactivated.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo nano /etc/bluetooth/pin.conf
+
+Code: Select all
+
+*	123456
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo chmod 600 /etc/bluetooth/pin.conf
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo nano /etc/systemd/system/bt-agent.service
+
+Code: Select all
+
+[Unit]
+Description=Bluetooth Auth Agent
+After=bluetooth.service
+PartOf=bluetooth.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/bt-agent -c NoInputNoOutput -p /etc/bluetooth/pin.conf
+ExecStartPost=/bin/sleep 1
+ExecStartPost=/bin/hciconfig hci0 sspmode 0
+
+[Install]
+WantedBy=bluetooth.target
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo systemctl daemon-reload
+pi@raspberrypi:~ $ sudo systemctl restart bt-agent
+pi@raspberrypi:~ $ sudo systemctl status bt-agent
+● bt-agent.service - Bluetooth Auth Agent
+   Loaded: loaded (/etc/systemd/system/bt-agent.service; enabled; vendor preset: enabled)
+   Active: active (running) since Sun 2019-02-24 09:34:42 UTC; 1min 26s ago
+  Process: 604 ExecStartPost=/bin/hciconfig hci0 sspmode 0 (code=exited, status=0/SUCCESS)
+  Process: 590 ExecStartPost=/bin/sleep 1 (code=exited, status=0/SUCCESS)
+ Main PID: 589 (bt-agent)
+   CGroup: /system.slice/bt-agent.service
+           └─589 /usr/bin/bt-agent -c NoInputNoOutput -p /etc/bluetooth/pin.conf
+
+févr. 24 09:34:41 raspberrypi systemd[1]: Starting Bluetooth Auth Agent...
+févr. 24 09:34:41 raspberrypi bt-agent[589]: Agent registered
+févr. 24 09:34:41 raspberrypi bt-agent[589]: Default agent requested
+févr. 24 09:34:42 raspberrypi systemd[1]: Started Bluetooth Auth Agent.
+
+
+Done.
+
+6) Using an external USB dongle
+
+As the onboard bluetooth module is not so good, especially when used in conjunction with the Wi-Fi onboard module, one may want to use an external dongle instead. I would definitely recommend it.
+
+In that case, we need to disable the onboard bluetooth module
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo nano /etc/modprobe.d/blacklist-bluetooth.conf
+
+Code: Select all
+
+blacklist btbcm
+blacklist hci_uart
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo reboot
+
+
+Note: as an alternative, you can also edit /boot/config.txt and add dtoverlay=disable-bt at the end of the file.
+
+7) Controlling Volume
+
+By default, AVRCP is enabled but not bound by any way to volume control. To sort this out, you can choose the easy way or the hard way.
+
+7.1) The easy way - disabling avrcp
+
+The easy way consists in just disabling AVRCP. By doing so, your mobile will handle volume control on its own.
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo nano /etc/systemd/system/bluetooth.target.wants/bluetooth.service
+
+Code: Select all
+
+[Unit]
+...
+[Service]
+...
+ExecStart=/usr/lib/bluetooth/bluetoothd --noplugin=avrcp
+...
+[Install]
+...
+
+Code: Select all
+
+pi@raspberrypi:~ $ sudo systemctl daemon-reload
+pi@raspberrypi:~ $ sudo systemctl restart bluetooth
+pi@raspberrypi:~ $ sudo systemctl status bluetooth
+
+● bluetooth.service - Bluetooth service
+   Loaded: loaded (/lib/systemd/system/bluetooth.service; enabled; vendor preset: enabled)
+   Active: active (running) since Mon 2020-03-23 21:30:35 GMT; 1min 32s ago
+     Docs: man:bluetoothd(8)
+ Main PID: 331 (bluetoothd)
+   Status: "Running"
+    Tasks: 1 (limit: 2200)
+   Memory: 3.3M
+   CGroup: /system.slice/bluetooth.service
+           └─331 /usr/lib/bluetooth/bluetoothd --noplugin=avrcp
+
+mars 23 21:30:35 raspberrypi bluetoothd[331]: Bluetooth daemon 5.50
+mars 23 21:30:35 raspberrypi bluetoothd[331]: Starting SDP server
+mars 23 21:30:35 raspberrypi bluetoothd[331]: Excluding (cli) avrcp
+mars 23 21:30:35 raspberrypi systemd[1]: Started Bluetooth service.
+mars 23 21:30:35 raspberrypi bluetoothd[331]: Bluetooth management interface 1.14 initialized
+mars 23 21:30:35 raspberrypi bluetoothd[331]: Sap driver initialization failed.
+mars 23 21:30:35 raspberrypi bluetoothd[331]: sap-server: Operation not permitted (1)
+mars 23 21:30:43 raspberrypi bluetoothd[331]: Endpoint registered: sender=:1.15 path=/MediaEndpoint/A2DPSource
+mars 23 21:30:43 raspberrypi bluetoothd[331]: Endpoint registered: sender=:1.15 path=/MediaEndpoint/A2DPSink

@@ -1,0 +1,94 @@
+Old Terminal Project GNU/Linux 1 "Wise choice"
+
+OTP/OTP Linux a właśc. Old Termina Project GNU/Linux jest lekka
+dystrybucja oparta na dCore (port TinyCore-a) w wersji opartej na
+Ubuntu 18.04. Jej zadaniem jest przywrócenie świetności starym
+terminalom, czy cienkim klientom produkowanym do 2010. System jest 
+32-bitowy i nie wspiera UEFI, dlatego nie jest ondedykowany dla
+wszystkich cienkich terminali. Dołączone do dystrybucji oprogramowanie
+pozwala wykorzystać te urządzenia do celu w jakim zostały stworzone 
+zarazem odnajdując się wśród wpółczesnych maszyn. 
+
+Oprogramowanie dołączone do OTP:
+	- Środowisko graficzne icedesk (on boot)
+	(Xorg, Xprogs, icewm, aterm, adwaita-icon-theme, hicolor-icon-theme)
+	- Przeglądarka internetowa Arora (https://github.com/Arora/arora) (on boot)
+	- Klient OpenSSH (on boot)
+	- Remmina + RDP plugin + VNC plugin (on demmand)
+	- virt-manager (on demmand)
+	
+Dystrybucja została oparta o jeden z portów TinyCore, przyczym port dCore
+wykorzystuje pakiety .deb do konwersji ich na własne pakiety zachowując
+przy tym rozwiązania z TinyCore. W przypadku dCore pakiety mają rozszerzenie
+.sce i działaja na dokładnie takiej samej zasadzie co pakiety TCZ. Są
+to małe odwzorowanie rootfs zamknięte w formacie squashfs. Pakiety mogą
+być ładowane na żądanie (on demmand) lub pod czas uruchamiania systemu
+(on boot), ze względu na małą wydajność tych starszych cienkich klientów
+podczas ładowania systemu ładowane są najczęściej używane rozszerzenia.
+Rozszerzenia ładowane są zapomocą polecenia:
+
+	$ sce-load
+	
+Polecenie to musi zostać wydane przez zwykłego użytkownika bez uprawnień
+administratora. Wyświetli ono menu z którego należy wybrać pakiet do 
+załadowania.
+
+Użytkownik może sam pobierać i ładować pakiety z Ubuntu 18.04. Do tej
+czynności wymagana jest nazwa pakietu z Ubuntu. Pakiet pobierany i 
+konwertowany jest za pomocą polecenia:
+
+	$ sce-import nazwa_pakietu
+	
+Ładowanie może następować tak jak we wcześniej wyjaśniony sposób lub 
+"mniej interaktywny" podajac poleceniu nazwę pakietu:
+
+	$ sce-load nazwa_pakietu
+	
+Po instalacji pakiety, warto oczyścić katalog na dysku z pobranych
+paczek .deb. Dokonuje się tego za pomocą rozszerzeia sce-debpurge. Jest
+ono dostarczane w raz z dystrybucją, trzeba je tylko załadować.
+
+	$ sce-load sce-debpurge
+	
+Usunięcie wszystkich pakietów .deb
+	
+	$ sce-debpurge -a
+	
+Jeśli nie będziemy już potrzebować jakiegoś rozszerzenia możemy je usunąć
+za pomocą polecenia sce-remove, które również jest dołączane do pakietów
+dystrybucji, wymaga załadowania
+
+	$ sce-load sce-remove
+	$ sce-remove nazwa_pakietu
+	
+Pakiet zostanie usunięty przy zamykaniu systemu.
+	
+Jeśli chodzi o działanie samej dystrybucji to jest ono takie trochę
+thin-clientowe. Ponieważ położono nacisk na to aby użytkownik logował
+się do zdalnego systemu i to na nim pracował i nie pozostawiał po sobie
+śladu na terminalu. System automatycznie loguje się na użytkownika poczym
+uruchamiane jest środowisko graficzne. Wszelkie zamiany w systemie oraz
+dane zapisane przez użytkownika nie zostaną zachowane po restarcie systemu.
+
+System zainstalować można na dwa sposoby:
+	- tylko do odczytu
+	- instalacja typu frugal
+
+Pierwszy z nich polega na wgraniu obrazu płyty do pamięci flash terminala.
+Drugi przypomina normalną instalację jednak różni się od typowej
+instalacji. Polega on na skopiowaniu na dysk zawartości płyty. Obie metody
+są opisane w poradniku instalacjacji 
+(https://morketsmerke.github.io/OTP/instalacja.html). A link do obrazu
+LiveCD znajduje się poniżej:
+
+	- OTP.iso (http://ftp.morketsmerke.net/OTP/OTP-hybrid.iso)
+	
+Dostęp do przygotowanych pakietów z poziomu LiveCD wymaga specjalnego 
+montowania:
+
+	$ sudo mount -B /mnt/sr0/cde/sce /tmp/tce/sce
+
+Należy pamiętać, że Old Terminal Project GNU/Linux jest dystrybuowany
+bez gwarancji przydatność. Oznacza to że system może w ogóle się nie
+uruchomić Twoim sprzęcie. Autor nie ponosi odpowiedzialności za szkody
+wyrządzone instalacją OTP. Miłej zabawy.

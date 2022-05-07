@@ -1,0 +1,407 @@
+W niniejszym artykule zostanie omówione przygotowanie systemu do działania z protokołem IPSec.
+
+== IPSec - przygotowanie środowiska w systemie Linux ==
+
+Z punktu wiedzenia systemu operacyjnego połączenia IPSec można podzielić na dwie części:
+<ol>
+<li>Część odpowiedzialną za zarządzanie pakietami (protokół AH/ESP) - tj. enkapsulację pakietów IP w pakiety IPSec, zabezpieczenie sum kontrolnych itd. Z racji tego, że operacje te muszą być wydajne, ich obsługą zajmuj się jądro systemu.</li>
+<li>Część odpowiedzialną za zestawienie połączenia i późniejszą wymianę kluczy (protokół IKE). Obsługę tych funkcji zajmuje się program (daemon) działający w warstwie użytkownika - w systemie Linux to demon Pluto (wchodzący w skład OpenSWAN).</li>
+</ol>
+
+Obecnie każde współczesne jądro Linuxa ma już wbudowane moduły dla protokołu IPSec. Nie potrzeby przeprowadzania żadnych modyfikacji. 
+
+== Instalacja programu OpenSWAN ==
+
+OpenSWAN to implementacja protokołu IPSec w systemie Linux rozwijana przez grupę developerów, którzy wcześniej pracowali nad projektem FreeSWAN. W trakcie prac do szło do konfliktu i część deweloperów rozpoczęła pracę na OpenSWAN.
+
+Jeżeli używana przez nas dystrybucja wspiera autotematyczną instalację pakietów, możesz zainstalować program OpenSWAN z gotowych paczek. W przypadku Debian możesz zastosować pakiet używając programu <code>apt</code>.
+
+Opcjonalnym składnikiem, który należałoby zainstalować jest serwer L2TP - najlepiej xl2tpd. Dlaczego opcjonalnym? Gdyż nie wszystkie rozwiązania IPSec używają tunelowania L2TP. Niemniej implementacja IPSec firmy Microsoft wbudowana w każdy z systemów Windows wymaga do działania właśnie protokołu L2TP. Jeśli zamierzamy łączyć z bramą VPN, używając wbudowanych w Windows mechanizmów IPSec, musimy zainstalować demon L2TP.
+
+Protokół L2TP umożliwia przesłanie ramek połączenia PPP przez przez protokół IP (internet), które to połączenie normalnie realizowane jest tylko w bezpośrednim połączeniu punkt-punkt (modemy, linie szeregowe itd.). Samo połączenie PPP operuje w warstwie drugiej modelu OSI i służy do enkapsulacji protokołów warstwy wyższej (IP, IPX itd.), zapewniając jednocześnie uwierzytelnienie oraz kompresję. Połączenie protokołu L2TP z PPP umożliwia tunelowanie protokołu IP w ramach innego połączenia IP, dlatego często wykorzystywane jest w sieciach VPN. Wykorzystanie protokołu PPP daje także dodatkowe możliwości, jak np. przydzielanie adresów IP tunelowi, przekazywanie parametrów sieciowych, takich jak DNS, WINS itp.
+
+Naturalnie aby tunelowanie połączenia PPP przez protokół L2TP mogło działać, potrzebny jest także demon PPP. Jako że nie jest już instalowany domyślnie w popularnych dystrybucjach możemy go zainstalować z repozytorium dystrybucji, dla Debiana możemy skorzystać z polecenia <code>apt</code>
+
+== Praktyczny przykład - brama IPSec/VPN dla użytkowników mobilnych ==
+
+W tej sekcji stworzymy bramę VPN dla użytkowników mobilnych łączących się zdalnie z siedzibą firmy. Użytkownicy używają na laptopach systemu Microsoft Windows i wbudowanego weń "klienta" IPSec. Analogicznie jak dla przykładu z bramą OpenVPN, użytkownicy powinni mieć dostęp do kilku serwerów w sieci LAN. Adresy IP użytkowników mobilnych nie są znane i mogą oni się łączyć z różnych miejsc, także zza maskarady (połączenia GPRS, hotspot itd.). Po stronie bramy VPN wykorzystamy system Linux oraz oprogramowanie OpenSWAN.
+
+<strong>Konfiguracja bramy IPSec (Linux)</strong>
+
+Konfigurację zaczniemy od przygotowania demona L2TP. Tworzymy plik konfiguracyjny <code>/etc/l2tp/l2tpd.conf</code>. Zawartość pliku konfiguracyjnego <em>l2tpd.conf</em> powinna wyglądać następująco:
+
+<pre>
+[global]
+ listen-addr = 85.98.29.251                   ;adres internetowy bramy
+ port = 1701                                  ;port — zostawiamy domyślny
+[lns default]
+ip range = 192.168.10.198-192.168.10.250      ;pula IP dla klientów
+local ip = 85.98.29.251                       ;IP lokalny połączenia PPP
+require chap = yes                            ;wymagamy uwierzytelniania CHAP
+;refuse pap = yes
+require authentication = yes
+name = ipsec
+ppp debug = yes
+pppoptfile = /etc/ppp/options.l2tpd           ;pozostały
+length bit = yes
+</pre>
+
+Zwrócić należy uwagę na wymóg uwierzytelniania dotyczy tutaj połączenia PPP a nie L2TP. Demon L2TP nie możliwości przeprowadzenia swojego uwierzytelniania, ale nie jest to w tym przypadku potrzebne. 
+
+Teraz tworzymy plik z opcjami programu <code>pppd</code> - <code>/etc/ppp/options.l2tpd</code>. Przykładową konfigurację przedstawiono poniżej.
+
+<pre>
+ipcp-accept-local             ; pppd zaakceptuje lokalny adres połączenia
+ipcp-accept-remote            ; jw. dla adresu drugiej strony
+require-mschap-v2             ; wymagamy uwierzytelniania MSCHAP wersji drugiej
+auth
+proxyarp
+idle 1800
+mtu 500
+mru 500
+# eof
+</pre>
+
+Następnie konfigurujemy plik z danymi uwierzytelniającymi dla PPP - <code>/etc/ppp/chap-secrets</code>
+
+<pre>
+# Secrets for authentication using CHAP
+# client        server  secret                  IP addresses
+user      *    "test"
+</pre>
+
+gdzie <code>user</code> to nazwa użytkownika a <code>"test"</code> - hasło.
+
+W sytuacji gdyby PPP było jedynym uwierzytelnieniem, moglibyśmy wpisać do pliku <code>chap-secrets</code> wszystkich użytkowników. Nie ma to jednak sensu, gdyż podstawowym uwierzytelnieniem będą certyfikaty X.509. Niemniej konfiguracje PPP można wykorzystać do przypisywania stałych adresów IP dla poszczególnych klientów, np.:
+
+<pre>
+jacek * "test12" 192.168.10.220
+michal * "test13" 192.168.10.221
+</pre>
+
+Ostatni element przygotowania bramy IPSec to właściwa konfiguracja programu OpenSWAN, która sprowadza się w najprostszym przypadku do edycji dwóch plików - <em>ipsec.conf</em> oraz <em>ipsec.secrets</em>. Poniżej został przedstawiony plik <em>ipsec.conf</em> W tym przypadku metodą uwierzytelnienia jest klucz współdzielony a klientami mogą być użytkownicy Windowsa znajdujący się za NAT-em.
+
+<pre>
+version 2.0
+config setup
+        interfaces=%defaultroute
+        plutodebug=none
+        forwardcontrol=yes
+        nat_traversal=yes
+virtual_private=%v4:10.0.0.0/8,%v4:172.16.0.0/12,%v4:192.168.0.0/16,%v4:!192.168.10.0/24
+conn roadwarrior-l2tp
+        leftprotoport=17/1701
+        rightprotoport=17/1701
+        also=roadwarrior
+conn roadwarrior
+        auth=esp
+        authby=secret
+        compress=yes
+        keyexchange=ike
+        keyingtries=3
+        pfs=no
+        rekey=yes
+        left=%defaultroute
+        right=%any
+        rightsubnet=vhost:%no,%priv
+        auto=add
+#Disable Opportunistic Encryption
+include /etc/ipsec.d/examples/no_oe.conf
+</pre>
+
+Twórcy programu OpenSWAN przyjęli konwencję, aby stron połączenia nie nazywać w klasyczny sposób: "serwer" i "klient" (lub też "źródło" i "cel"), tylko "strona lewa" (ang. <em>left</em>) i "strona prawa" (ang. <em>right</em>). Ma to swoje uzasadnieniem, ponieważ tak naprawdę i tak zestawiane są dwa nie zależne skojarzenia SA - dla każdego z kierunków transmisji. Poza tym nie zawsze jest jasne, która strona jest bardziej serwerem, a która bardziej (przykład łączenia oddziałów firm). Przez "left" rozumie się lokalną konfigurację, a przez "right" odległą stronę. Zauważyć warto, że w przypadku połączenia typu użytkownik mobilny-brama IPSec, patrząc od strony bramy IPSec, strona "right" najczęściej nie jest znana (nie znamy adresu IP, z którego będzie łączyć się użytkownik). W przypadku łączenia dwóch bram IPSec (łączenie oddziałów firmy) strony "left" i "right"są na ogół ściśle określone. W anglojęzycznej terminologii pracowników mobilnych, który łączą się z rożnych miejsc kraju i świata, przyjęło nazwywać się <em>roadwarrior</em>.
+
+Poniżej znajduje się analiza najważniejszych wpisów z pliku konfiguracyjnego:
+
+<code>version 2.0</code> - informuje program OpenSWAN, że składnia pliku będzie zgodna z OpenSWAN, a nie z przestarzałym FreeSWAN(poprzednik FreeSWAN).
+
+Plik jest podzielony na kilka sekcji. Podstawowe opcje - tzw. globalne - są zwarte w sekcji <code>config setup</code>.
+
+<code>interfaces=%defaultroute</code> - oznacza interfejs, na którym ma działać IPSec. Wartość domyślna to <code>%defaultroute</code>, co oznacza, że zostanie użyty adres IP bramy domyślnej komputera. Na ogół <code>%defaultroute</code> jest poprawną wartością.
+
+<code>plutodebug=none</code> - definiuje poziom szczegółowości logów demona <code>pluto</code>.  Inne możliwe wartości to: <code>all, raw, krypt, parsing, emitting, control</code>. Najbardziej optymalną jest opcja <code>control</code>, gdy logi nie będą nam już potrzebne, to przełączamy na <code>none</code>.
+
+<code>forwardcontrol=yes|no</code> - sprawdza, czy załączone jest przekazywanie pakietów IP (ang. <em>IP forwarding</em>). Jeżeli nie, to je załącza. Po zakończeniu działania tunelu przywraca poprzednią wartość.
+
+<code>nat_traversal=yes|no</code> - domyślnie: <code>no</code>. Ważna opcja, jeżeli spodziewasz się połączeń zza NAT-a (maskarady). Złączenie jej sprawi że  OpenSWAN będzie oczekiwał także połączeń na porcie UDP 4500, po którym przenoszone są pakiety IPSec.
+
+<code>virtual_private</code> - określa podsieci (z zakresu "prywatnych" klas IP), z których mogą łączyć się klienci. Na ogół podaje się tutaj wszystkie pule IP zdefiniowane do użytku prywatnego, z wyjątkiem puli używanej w sieci firmowej, do której użytkownicy chcą mieć dostęp przez VPN. 
+
+Sekcja <code>conn roadwarrior-l2tp</code> - odpowiedzialna za połączenia L2TP (port UDP 1701). Jest ona potrzebna, jeśli oczekujemy połączeń od klientów wbudowanych w systemy Windows. Ważne jest, aby sekcja L2TP umieszczona była w pliku przed właściwą sekcją odpowiedzialną za połączenia klientów. (<code>conn roadwarrior</code>).
+
+<code>conn roadwarrior</code> - właściwa sekcja połączeń dla pracowników zdalnych.
+
+<code>auth=esp</code> - określa protokół IPSec. Możliwe opcje to <code>ah</code> lub <code>esp</code>. Zalecaną metodą jest ESP, ponieważ obsługuje uwierzytelnienie i szyfrowanie.
+
+<code>authby=secret</code> - określa sposób uwierzytelnienia stron. Wartość <code>secret</code> oznacza współdzielony klucz (PSK). W przypadku uwierzytelnienia z wykorzystaniem certyfikatów opcja powinna mieć wartość <code>rsasig</code>.
+
+<code>compress=yes</code> - możliwa kompresja danych.
+
+<code>keyexchange=ike</code> - wartość <code>ike</code> oznacza, że do uzgodnienia kluczy zostanie użyty protokół IKE (Internet Key Exchange). Użycie IKE jest zalecane, także przez twórców OpenSWAN.
+
+<code>keyingtries=3</code> - określa, ile prób negocjacji SA może nastąpić (maksymalnie).
+
+<code>pfs=yes|no</code> - włącza (<code>yes</code>) lub wyłącza (<code>no</code>) PFS.
+
+<code>rekey=yes</code> - określa, czy połączenie po wygaśnięciu powinno być renegocjowane. Możliwe wartości to <code>yes</code> lub <code>no</code>. Domyślnie <code>yes</code>.
+
+<code>right=%any</code> - określa adres drugiej strony. Słowo kluczowe <code>%any</code> oznacza, że adres IP nie jest znany (przypadek mobilnych pracowników).
+
+<code>rightsubnet=vhost:%no,%priv</code> - opcja <code>rightsubnet</code> określa podsieć drugiej strony. W przypadku połączeń typu <code>roadwarriors</code> z możliwym NAT-em oraz "nie NAT-em" powinna mieć wartość <code>vhost:%no,%priv</code> Przez NAT oraz "nie NAT" należy rozumieć że użytkownicy mogą łączyć się zza NAT-u lub też mieć "zewnętrzny" adres IP i obie konfiguracje będą działać jednocześnie. 
+
+<code>auto=add</code> - opcja przyjmuje wartości: <code>start, add, ignore</code>(domyślna!) oraz <code>manual</code>. Znaczenie poszczególnych opcji jest następujące: 
+<ul>
+</li><code>start</code> - załaduj konfigurację i inicjuj połączenie z druga stroną. Wartość najczęściej używana w przypadku połączeń dwóch routerów lub jeśli strona jest klientem (ma inicjować połączenie z drugą stroną).</li>
+<li><code>add</code> - załaduj konfiguracje i odpowiadaj na przychodzące połączenia (czekaj na połączenia od drugiej strony). Wartość używana dla konfiguracji typu <em>roadwarriors</em> - nie znamy ani czasu, ani adresu IP, z jakiego połączy się mobilny pracownik. Jedyne, co możemy zrobić odpowiedzieć na jego połączenia.</li>
+<li>ignore - ignoruje sekcję tego połączenia. Uwaga: jest to wartość domyślna, dlatego musisz przypisać jakąś wartość sekcjom, które mają działać.</li>
+<li>manual - opcja używana przy ręcznej konfiguracji wymiany kluczy (zamiast użycia IKE). Opcja niepolecana.</li>
+</ul>
+
+W ostatniej linijce pliku konfiguracyjnego widzimy dołączony plik:
+<pre>
+#Disable Opportunistic Encryption
+include /etc/ipsec.d/examples/no_oe.conf
+</pre>
+
+Dołączenie powyższego pliku wyłącza tzw. szyfrowanie oportunistyczne, które w tym przypadku nie jest potrzebne (strony uwierzytelniają się w inny sposób), a pozostawienie go załączonego skutkowałoby serią komunikatów w logach systemowych, mówiących o nie możliwości sprawdzenia informacji w DNS-ie. Idea szyfrowania oportunistycznego polega na możliwości uwierzytelnienia dowolnych hostów w internecie bez wcześniejszej wymiany tajnego klucza, (lub kluczy publicznych), Uwierzytelnienia hosta odbywa się tutaj na podstawie informacji pobranych z bezpiecznych serwerów DNS (ang. <em>Secure DNS</em>).
+
+Ogólna uwaga odnośnie składni pliku <em>ipsec.conf</em>. Należy pamiętać aby pomiędzy sekcjami połączeń była jedna linijka przerwy. Nazwa sekcji nie powinna się zaczynać od spacji czy tabulacji. Opcje w ramach sekcji mogą zaczynać się od tabulacji.
+
+Pozostał nam jeszcze do konfiguracji plik <em>/etc/ipsec.secrets</em>. W przypadku współdzielonego klucza oraz połączeń z nie znanych adresów IP składnia pliku jest następująca:
+<pre>
+&lt;adres_ip_odpowiednik_%defaultroute&gt; %any: PSK "&lt;klucz_współdzielony&gt;"
+</pre>
+Po zapisaniu pliku, należy zmienić uprawnienia, tak aby możliwość odczytu pliku miał tylko użytkownik <em>root</em> (<code>chmod 600</code>).
+
+<strong>Uruchomienie tunelu</strong>
+
+Aby uruchomić tunel (proces nasłuchiwania), wpisujemy poniższe polecenie:
+<pre>
+ipsec setup start
+</pre>
+
+== Konfiguracja klienta Windows ==
+
+W tej sekcji zajmiemy się konfiguracją połączenia IPSec w systemach Windows, tak aby ich użytkownicy mogli się połączyć z naszą bramą linuksową. Metodą uwierzytelnienia będzie klucz współdzielony oraz dodatkowe uwierzytelnianie w połączeniu PPP (MS-CHAP v2). Do połączenia będziemy używać wbudowanego w Windows klienta IPSec.
+
+W nowszych systemach Windows konfiguracja sprowadza się dodania nowego połączenia przy użyciu kreatora. Aby dodać nowe połączenie, wykonujemy poniższe czynności:
+<ol>
+<li>Wchodzimy do <em>Panelu sterowania</em> i wybieramy <em>Połączenia sieciowe</em>.</li>
+<li>Uruchom <em>Kreatora nowego połączenia</em>. Kreator zapyta o rodzaj połączenia - wybieramy opcje "Połącz z siecią w miejscu pracy". Następnie klikamy przycisk <em>Dalej</em></li>
+<li>W następnym kroku wybieramy opcje <em>Połączenie wirtualnej sieci prywatnej</em>, następnie klikamy przycisk <em>Dalej</em>.</li>
+<li>Wpisujemy nazwę połączenia np. <code>ipsec1</code>.</li>
+<li>Podaj adres IP lub nazwę DNS bramy VPN</li>
+<li>Zakończ pracę kreatora, klikając przycisk <em>Zakończ</em>.
+Przed uruchomieniem naszego połączenia trzeba zmodyfikować dwie opcje. Wchodzimy we właściwości nowego połączenia - klikamy prawym przyciskiem myszy ikonę nowego połączenia i wybieramy z menu opcje <em>Właściwości</em>. Postępujemy wg. poniższych punktów.</li>
+<li>Przechodzimy do zakładki <em>Zabezpieczenia</em> i wybieramy opcje <em>Ustawienia protokołu IPSec</em></li>
+<li>Zaznaczamy opcje <em>Użyj klucza wstępnego do uwierzytelniania</em> oraz wpisujemy w polu <em>Klucz:</em> hasło podane w pliku <em>/etc/ipsec.secrets</em> na Linuksie. Zatwierdzamy przyciskiem <em>OK</em>.</li>
+<li>Następnie przechodzimy do zakładki <em>Sieć</em> i zmieniamy wartość pola <em>Typ wirtualnej sieci prywatnej (VPN)</em> z <em>Automatyczny</em> na <em>Sieć VPN a protokołem L2TP IPSec</em></li>
+<li>Zapisujemy zmiany</li>
+</ol>
+
+W tej chwili możemy połączyć się z bramą IPSec. Klikamy dwukrotnie myszką na ikonę połączenia VPN. W oknie dialogowym podajemy nazwę użytkownika i hasło, a następnie klikamy przycisk <em>Połącz</em>. Nazwa użytkownika i hasło to oczywiście dane uwierzytelniające połączenie PPP (patrz plik <em>/etc/ppp/chap-secrets</em> na Linuksie).
+
+== Debugowanie połączenia ==
+
+Jeśli wykonaliśmy wszystkie kroki z poprzednich punktów połączenie powinno zadziałać od razu. W praktyce pewnie pojawią się jakieś komplikacje. W tej sekcji zostanie podanych kilka porad dotyczących tego, jak znaleźć błąd.
+
+W przypadku połączeń Windows-Linux (OpenSWAN) opartych na PSK błąd wystąpi prawdopodobnie gdzieś po stronie Linuksa. Konfiguracja Windowsa jest bowiem tak prosta że trudno byłoby w niej coś zrobić źle.
+
+Zaczynamy od przekierowania wszystkich logów systemowych do jednego pliku, aby łatwiej było podglądać na bieżąco, co się dzieje. Dlaczego wszystkie do jednego pliku? Otóż dlatego że IPSec nie składa się z jednego demona, jest ich wiele, wiec wygodniej jest przeglądać jeden plik niż wiele. Aby przekierować wszystkie logi do jednego pliku wpisujemy do pliku <em>/etc/syslog.conf</em> poniższą linijkę:
+<pre>
+*.*    /var/log/all
+</pre>
+Następnie przeładowujemy konfiguracje demona Syslog. Wpisujemy polecenie:
+<pre>
+killall -HUP syslogd
+</pre>
+W środowisku produkcyjnym plik na serwerze może szybko przyrastać. Należy pamiętać, aby po zakończonych testach usunąć wpis z konfiguracji Sysloga. Łączymy sie z serwerem z innej konsoli, lub jeśli pracujemy lokalnie, przełączamy się na drugą konsolę). Wpisujemy polecenie:
+<pre>
+tail -f /var/log/all
+</pre>
+Na tej konsoli będziesz miał stały podgląd logów systemowych. Jeśli na serwerze działają inne usługi, które chcemy wyłączyć (np. poczta, czy dhcp), zróbmy to - im mniej logów, tym łatwiej je przeglądać. Przełączamy się na pierwszą konsolę i sprawdzamy następujące rzeczy:
+<ol>
+<li>Czy działa demon L2TP - wpisujemy polecenie: <code>ps -aux | grep "l2tp"</code>
+Powinniśmy zobaczyć proces. Jeśli nie działa - uruchamiamy go wpisując polecenie: <code>xl2tpd</code>. Sprawdzamy ponownie, czy widnieje na liście procesów. Jeżeli nie - sprawdzamy co mówią logi na drugiej konsoli.</li>
+<li>Sprawdzamy poleceniem <code>netstat</code>, czy serwer nasłuchuje na portach 4500 (NAT Traversal), 500 (Pluto - IKE) oraz 1701 (L2TP). W tym celu wpisujemy polecenie: 
+<pre>
+netstat -anp | grep udp
+</pre>
+Powinniśmy zobaczyć nasłuchujące procesy powiązane z danymi portami.</li>
+<li>Upewniamy się, czy firewall nie blokuje potrzebnych portów UDP oraz protokołu ESP. Najlepiej na czas testów w ogóle wyłączyć firewall, tzn. ustawiamy domyślną politykę zapory na <code>ACCEPT</code>.</li>
+<li>Sprawdzamy, czy w systemie na pewno jest zainstalowany program <code>pppd</code> - wpisujemy polecenie: 
+<pre>
+which pppd
+</pre>
+</li>
+<li>Upewnijmy się, że w pliku <em>ipsec.conf</em> widnieje wpis <code>pfs=no</code>, który oznacza, że PFS nie jest konieczne (możliwe gdy druga strona obsługuje). Implementacja Microsoftu nie obsługuje PFS, dlatego nie możemy go wymuszać</li>
+</ol>
+
+Po stronie Windowsa debugowanie jest utrudnione z racji braku "sysloga". Można jedna zainstalować program Wireshark - bardzo dobry sniffer sieciowy - i analizować nim fazy połączenia. W przypadku Windows, należy upewnić się że żaden program typu firewall nie blokuje połączenia zwłaszcza takie kombajny jak różne pakiety "Internet Security".
+
+== Konfiguracja z uwierzytelnianiem przez certyfikat ==
+
+W tej sekcji utworzymy bramę IPSec dla mobilnych użytkowników, z tą tylko różnicą, że do uwierzytelnienia użyjemy certyfikatów X.509, a nie klucza współdzielonego. Konfiguracja taka jest zdecydowanie zalecana przy zdalnym dostępie pracowników, gdyż umożliwia w razie potrzeby unieważnienie certyfikatu użytkownikowi.
+
+Zakładamy tutaj że mamy już wygenerowane klucze i certyfikaty dla serwera i użytkownika (na razie jeden użytkownik wystarczy).
+
+Konfiguracja po stronie Linuksa (bramy VPN) znacząco się nie różni -  więcej pracy będzie w systemie Windows.
+
+<strong>Konfiguracja OpenSWAN z wykorzystaniem certyfikatów.</strong>
+
+Po stronie Linuksa - w stosunku do konfiguracji z użyciem PSK - zmianie ulegają tylko pliki <em>ipsec.conf</em> oraz <em>ipsec.secrets</em>, pozostałe konfiguracje pozostają identyczne (demon L2TP, konfiguracja <code>pppd</code>).
+
+Konfiguracje wykonujemy wg. następujących punktów:
+<ol>
+<li>Zapisujemy klucz prywatny serwera jako: <em>/etc/ipsec.d/private/serverkey.pem</em></li>
+<li>Zapisujemy certyfikat serwera jako <em>/etc/ipsec.d/certs/servercrt.pem</em></li>
+<li>Zapisujemy certyfikat CA jako <em>/etc/ipsec.d/cacerts/cacert.pem</em></li>
+<li>Plik z listą unieważnionych certyfikatów (poźniejszy etap) powinien znajdować się w katalogu <em>/etc/ipsec.d/crls/</em>.</li>
+<li>Dokonujemy zmian w pliku /etc/ipsec.secrets, tak aby miał następującą składnię:
+<pre>
+: RSA serverkey.pem "<hasło_klucza_prywatnego>"
+</pre>
+gdzie:
+* <code>serverkey.pem</code> - to nazwa pliku z kluczem prywatnym, którego program OpenSWAN oczekuje w katalogu <code>/etc/ipsec.d/private/</code>,
+* <code>hasło_klucz_prywatnego</code> - to hasło do klucza prywatnego serwera. W przypadku gdy klucz nie jest zabezpieczony hasłem, można je pominąć. Wstawienie wartości <code>%prompt</code> spowoduje, że program OpenSWAN przy starcie będzie pytał o hasło do klucza.</li>
+<li>Tworzymy plik konfiguracyjny <code>/etc/ipsec.conf</code>
+<pre>
+version 2.0
+config setup
+        interfaces=%defaultroute
+        plutodebug=none
+        forwardcontrol=yes
+        nat_traversal=yes
+        virtual_private=%v4:10.0.0.0/8,%v4:172.16.0.0/12,%v4:192.168.0.0/16,%v4:!192.168.10.0/24
+conn roadwarrior-l2tp
+        leftprotoport=17/1701
+        rightprotoport=17/1701        
+        also=roadwarrior
+conn roadwarrior
+        auth=esp
+        authby=rsasig
+        compress=yes
+        keyexchange=ike
+        keyingtries=3
+        pfs=no
+        left=%defaultroute
+        leftcert=/etc/ipsec.d/certs/servercrt.pem
+        right=%any
+        rightrsasigkey=%cert
+        rightsubnet=vhost:%no,%priv
+        rightca=%same
+        auto=add
+#Disable Opportunistic Encryption
+include /etc/ipsec.d/examples/no_oe.conf
+</pre>
+Opcja <code>rightrsasigkey=%cert</code> oznacza, że druga strona uwierzytelni się, przedstawiając swój certyfikat.
+
+Opcja <code>rightca=%same</code> oznacza, że certyfikat drugiej strony (klienta) musi być wystawiony przez to samo CA co certyfikat serwera, czyli przez CA, którego certyfikat znajduje się na serwerze w pliku <em>/etc/ipsec.d/cacert/cacert.pem</em>.</li>
+<li>Uruchamiamy usługę IPSec, wpisując polecenie:
+<pre>
+ipsec setup start
+</pre></li>
+</ol>
+
+== Import certyfikatów w systemie Windows ==
+
+Zakładając, że wygenerowaliśmy już użytkownikom klucz oraz wystawiliśmy certyfikaty podpisane przez nasze CA. Powinniśmy mieć już pliki <em>user.key</em> i <em>user.crt</em>. Będziemy musieli przekonwertować nasze klucze i certyfikaty na format PKCS#12 używanego w systemach Windows. Konwersje zostały przedstawione na stronie poświęconej SSL.
+
+Przy imporcie certyfikatów należy powstrzymać się instalowania certyfikatów w systemie Windows przez kliknięcie na plik. Ta metoda nie działa prawidłowo. Zamiast tego będziemy używać przystawki MMC.
+
+Utworzymy przystawkę MMC, dzięki której będziemy mogli importować nasze klucze i certyfikaty. Naciskamy kombinację klawiszy (Win + r), w okienku uruchom pisujemy polecenie: <code>mmc</code> - uruchomi się konsola MMC.
+
+Z menu <em>Plik</em> konsoli MMC wybieramy opcję <em>Dodaj/Usuń przystawkę...</em>. Pojawi się okno <em>Dodaj/Usuń przystawkę</em> - klikamy przycisk <em>Dodaj</em>.
+
+Na liście dostępnych przystawek zaznaczamy <em>Certyfikaty</em>, a następnie klikamy <em>Dodaj</em> - uruchomi się kreator konfiguracji przystawki. Wybieramy <em>Konto komputera</em>, następnie klikamy <em>Dalej</em>. W następnym kroku wybieramy opcję <em>Komputer lokalny</em> oraz klikamy przycisk <em>Zakończ</em>.
+
+Z menu <em>Plik</em> wybieramy opcję <em>Zapisz</em>, aby zapisać gotową przystawkę na dysku. Możemy ją nazwać dowolnie - np. <code>ipsec.mmc</code>.
+
+Mając gotową przystawkę, możemy zaimportować certyfikat. W tym celu rozwiń przystawkę <em>Certyfikaty</em>, a następnie kliknij prawym przyciskiem myszy folder <em>Osobisty</em>. Z menu wybieramy <em>Wszystkie zadania</em> a następnie <em>Importuj...</em> - uruchomi się kreator importu certyfikatów.
+
+W kreatorze dodawania certyfikatów wskazujemy przygotowany wcześniej plik certyfikatu użytkownika. Kreator zapyta o hasło klucza prywatnego - podajemy je.
+Klikamy przycisk <em>Dalej</em>, następnie wybieramy opcje <em>Automatycznie wybierz magazyn certyfikatów na podstawie typu certyfikatu</em> (<strong>WAŻNE!</strong>) oraz ponownie klikamy <em>Dalej</em>.
+
+Musimy jeszcze zainstalować certyfikat swojego CA w katalogu zaufanych urzędów certyfikacji. W tym celu klikamy prawym przyciskiem myszy katalog <em>Zaufane główne urzędy certyfikacji</em>, a następnie z menu wybieramy opcję <em>Wszystkie zadania/Importuj</em>.
+
+Po wybraniu opcji <em>Importuj</em> uruchomi się kolejny kreator importu certyfikatów. Musimy wskazać plik z certyfikatem CA (<em>ca.crt</em>). Kreator importu certyfikatów oczekuje pliku z rozszerzeniem <em>*.crt</em>, a nie <em>*.pem</em>, dlatego przed importem musimy się upewnić czy plik ma takie rozszerzenie.
+
+Klikamy przycisk <em>Dalej</em>, a następnie wybierz opcję <em>Umieść wszystkie certyfikaty w następującym magazynie - Zaufane główne urzędy certyfikacji</em>. Wychodzimy z konsoli zapisując zmiany.
+
+<strong>Konfiguracja połączenia</strong>
+
+Konfiguracja połączenia przeprowadzamy dokładnie w taki sam sposób, jak w przykładzie z kluczem współdzielonym. Jedyna różnica polega na tym, aby w zakładce <em>Zabezpieczenia</em> nie zaznaczać opcji <em>Ustawienia protokołu IPSec/Użyj klucza wstępnego do uwierzytelniania</em>. Zapisujemy zmiany i próbujemy się połączyć.
+
+Jeśli pojawi się błąd odnośnie certyfikatu, to należy upewnić się że poprawnie zaimportowaliśmy certyfikat CA w magazynie <em>Zaufane główne urzędy certyfikacji</em>. Najlepiej zrobić to jeszcze raz. 
+
+Jeśli połączenie się zestawiło, spróbujmy spingować drugą stronę wtedy będzie mieli pewność.
+
+== Łączenie oddziałów firmy tunelem IPSec ==
+
+W tej sekcji stworzymy tunel łączący siedzibę firmy A z oddziałem B. W obu lokalizacjach routery działają pod kontrolą Linuksa z instalowanym programem OpenSWAN. Celem tunelu jest zapewnienie bezpiecznej komunikacji w oddziałach.
+
+Do uwierzytelnienia obu stron użyjemy tym razem kluczy RSA (klucz prywatny i publiczny). Jeżeli routery mają stałe IP, możesz użyć nawet klucza współdzielonego (hasło), ale pamiętajmy, aby zablokować na firewallu możliwość łączenia się z protokołem IPSec ze wszystkich hostów wyjątkiem adresu IP "drugiej strony" (w przeciwnym razie ktoś będzie mógł próbować odgadnąć hasło, np. przez atak typu <em>brute force</em>).
+
+Ponieważ implementacja IPSec w Linuksie nie wymaga użycia protokołu PPP oraz L2TP, konfiguracja tutaj jest znacznie prostsza niż w przypadku połączenia z użytkownikami mobilnymi.
+
+Tworzymy plik konfiguracyjny podany w na listingu poniżej będzie to plik siedziby firmy A.
+<pre>
+version 2.0
+config setup
+        interfaces=%defaultroute        
+        forwardcontrol=yes        
+        rp_filter=0        
+        nat_traversal=noconn
+linux-to-linux
+        auth=esp        
+        authby=rsasig        
+        pfs=yes        
+        left=91.192.0.186        
+        leftsubnet=192.168.20.0/24
+        leftrsasigkey=0sAQPuvae6KEw/yHijDjqHomCyLo8oO3H8wl3UExuTArCXtzc1DO5X2E8QFIu0grLofzIzgoCy8AkoFthFPJIyDF3zKVH9ppMS8XQQL2naWp+YOm2cROstRlAfyvC/jF7GvWlRIjxzHzCLCIJXihZmFZGN1ku/DExLx5TjzqG/bXQ9DQ==
+        right=91.192.0.185        
+        rightsubnet=192.168.30.0/24
+        rightrsasigkey=0sAQODH/CRwexspJ6mu/bThfQzs84IpaHBYNs5MeDpxbiLdacZjM22PqOvbVIqeQlYg4zHMAnB2EyUIgYHskJqyRmtmg6S5ELxnNHqvTE92KI5Bdicn458CowdqR2Jtc4tvD7OWHv/RFzmt6W1kIHPiILAOkR2mSvATgI/QhZtNN4oaw==        
+        auto=start
+include /etc/ipsec.d/examples/no_oe.conf
+</pre>
+
+Znaczenie ważniejszych opcji jest następujące:
+* <code>authby=rsasig</code> - uwierzytelnianie przez klucze RSA,
+* <code>left=91.192.0.186</code> - adres IP routera w siedzibie firmy A ("lewa strona" - lokalna routera),
+* <code>leftsubnet=192.168.20.0/24</code> - sieć LAN za routerem w siedzibie firmy A,
+* <code>leftrsasigkey=0sAQPuvae6KE...</code> - klucz publiczny "lewej strony" (routera w siedzibie A),
+* <code>right=91.192.0.185</code> - adres IP bramy odległej lokalizacji (oddziału B),
+* <code>rightsubnet=192.168.30.0/24</code> - sieć LAN za routerem w Bytomiu,
+* <code>rightrsasigkey=0sAQODH/CRw...</code> - klucz publiczny prawej strony. 
+
+Warto zauważyć że PFS zostało włączone, nie trzeba tego robić jawnie, jest to opcja domyślna dla połączeń linux-linux. Ponieważ jest ona obsługiwana nie należy jej wyłączać.
+
+Ze względu na to iż powyższy listing jest gotowcem pobranym z plików załączonych do pakietu OpenSWAN, aby użyć go w swoim przypadku należy zmienić wyżej wymienione opcje, prócz <code>authby</code>. Aby zmienić klucze musimy je wygenerować poleceniem pakietu OpenSWAN. Poniżej znajduje się lista czynności do wykonania, aby uruchomić tunel IPSec łączący oddziały firmy.
+<ol>
+<li>Na obu routerach wydajemy poniższe polecenie:
+<pre>
+ipsec rsasigkey 1024 > /root/key.rsa
+</pre>
+</li>
+<li>Na obu routerach kopiujemy ciąg znaków zaczynający się od <code>#pubkey=...</code> i umieszczamy go w pliku <em>ipsec.conf</em> przy parametrze <code>leftrsasigkey=</code>, po czym usuwamy ze skopiowany ciąg znaków z pliku klucza.</li>
+<li>Przekopiuj ciąg umieszczony w <code>leftrsasigkey</code> do pliku konfiguracyjnego w oddziale B, umieszczając go przy parametrze <code>rightrsasigkey=</code></li>
+<li>W sposób analogiczny wygeneruj klucz (na routerze w oddziale B) i skopiuj ciąg przypisany do <code>#pubkey=...</code> do pliku konfiguracyjnego <em>ipsec.conf</em> routera w oddziale B, umieść klucz przy parametrze <code>leftrsasigkey=</code> następnie w pliku konfiguracyjnym routera w siedzibie firmy A umieść, ten klucz przy parametrze <code>rightrsasigkey=</code></li>
+<li>Otwórz do edycji plik <em>/etc/ipsec.secrets</em> i umieszczamy w nim następujący wpis:
+<pre>
+91.192.0.186 91.192.0.185: RSA {
+
+//część klucz prywatnego pobrana z pliku /root/key.rsa
+//począwszy od linii: Modulus do końca pliku
+
+}
+</pre>
+* gdzie 91.192.0.186 to w powyższym przykładzie adres ip "lewej strony" (IP lokalnego routera), a 91.192.0.185 to IP odległego routera. Na drugim routerze wpis wygląda odwrotnie. W sekcji pomiędzy nawiasami klamrowymi (<code>{...}</code>) powinien znaleźć się klucz prywatny RSA.
+</li>
+<li>Uruchamiamy tunel po obu stronach, wpisując poniższe polecenie:
+<pre>
+ipsec setup start
+</pre></li>
+<li>Sprawdzamy czy połączenie IPsec zostało zestawione. Wpisujemy polecenie: <code>ip xfrm state</code>.</li>
+</ol>
+

@@ -1,0 +1,26 @@
+<ul>
+	<li><strong>System operacyjny: </strong>Linux Manjaro</li>
+	<li><strong>Wersja: </strong>20.2</li>
+	<li><span class="aCOpRe"><span><strong>Rodzaj systemu: </strong>Desktop</span></span></li>
+	<li><span class="aCOpRe"><span><strong>Architektura: </strong>amd64</span></span></li>
+	<li><span class="aCOpRe"><span><strong>Domyślne SSH: </strong>Nie</span></span></li>
+	<li><strong>Rozmiar: </strong>2.4G</li>
+	<li><strong>Data utworzenia: </strong>2020-12-10 21:09</li>
+	<li><strong>VTMPc:</strong> manjaro/20.2/amd64</li>
+</ul>
+
+<table border="1" cellpadding="1" cellspacing="1" style="width: 299px;">
+	<tbody>
+		<tr>
+			<td style="width: 34px;"><img alt="archlinux_64" data-entity-type="file" data-entity-uuid="6c6432a7-0283-4e09-b4b4-62b2974731c1" src="/sites/default/files/inline-images/os_archlinux_64_0.png" /></td>
+			<td style="width: 225px;"><a href="https://vtmp.morketsmerke.net/sites/default/files/vms/manjaro/20.2/amd64/manjaro_202_amd64.ova">Manjaro 20.2 amd64</a></td>
+		</tr>
+		<tr>
+			<td style="width: 34px;"><img alt="vmdk_file" data-entity-type="file" data-entity-uuid="9f9f2cb0-7a93-447a-9640-1bbec7f06971" height="35" src="/sites/default/files/inline-images/VMDK_File_Format_icon.png" width="35" /></td>
+			<td style="width: 225px;">Dysk: <a href="https://vtmp.morketsmerke.net/sites/default/files/vms/manjaro/20.2/amd64/manjaro_202_amd64-disk001.vmdk">Manjaro 20.2 amd64</a></td>
+		</tr>
+	</tbody>
+</table>
+
+<p>&nbsp;</p>
+

@@ -1,0 +1,4 @@
+Następującym plikom należy nadać odpowiednie uprawnienia.
+
+chmod +s /sbin/halt
+chmod +s /usr/bin/xinit

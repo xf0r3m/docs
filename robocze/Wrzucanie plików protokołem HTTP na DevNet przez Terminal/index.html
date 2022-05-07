@@ -1,0 +1,12 @@
+Wrzucanie plików protokołem HTTP na DevNet przez Terminal
+
+1. Logowanie
+curl -c cookies_devnet -F "username=<nazwa_użytkownika>" -F "passwd=<hasło>" -k https://devnet.morketsmerke.net/login.php
+2. Sprawdzenie poprawności logowania
+curl -b cookies_devnet -k devnet.morketsmerke.net/index.php?page=<nazwa_projektu>
+3. Upload pliku
+curl -b cookies_devnet -F "pliki[]=@<bezwzględna_ścieżka_do_pliku>" -k https://devnet.morketsmerke.net/index.php?page=<nazwa_projektu>
+4. Wylogowanie 
+curl -b cookies_devnet -k https://devnet.morketsmerke.net/wyloguj.php
+5. Plik cookies można usunąć.
+rm cookies_devnet

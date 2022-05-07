@@ -1,0 +1,140 @@
+<h1> OpenBSD jako bramka</h1>
+
+<em>UWAGA! Wszystkie polecenia tutaj są uruchamiane z poziomu użytkownika `root`</em>
+
+1. Instalacja systemu
+
+    Instalacja systemu OpenBSD została przedstawiona <a href="https://morketsmerke.net/instalacja-openbsd/">tutaj</a>. Jedyne co w tym wypadku można zmienić to ustawić interfejsy, czy dhpc czy static na interfejsie zewnętrznym oraz wybrać klasę prywatną dla interfejsu wewnętrznego.
+    <code>
+    #Interfejs zewnętrzny
+
+    IPv4 address for em0 ? (or 'dhcp' or 'none') [dhcp] 157.190.112.10
+
+    Netmask for em0 [255.255.255.0]
+
+    </code>
+
+
+    <code>
+    #Interfejs wewnętrzny
+
+    IPv4 address for em1 ? (or 'dhcp' or 'none') [none] 192.168.0.1
+
+    Netmask for em0 [255.255.255.0]
+
+    </code>
+
+
+    Pamiętajmy że musimy ustawić, adres bramy domyślnej oraz serwery DNS, połączenie z Internetem jest konieczne aby móc zainstalować niezbędne oprogramowanie.
+    <code>
+    Default IPv4 route ? (IPv4 address or none) [none] 157.190.112.1
+
+    DNS domain name (e.g. 'example.com') [my.domain] morketsmerke.net
+
+    DNS nameservers? (IP address list or none) 157.190.112.1
+
+    </code>
+
+
+2. Instalacja dnsmasq
+
+    W przypadku OpenBSD większość niezbędnego oprogramowania nie jest dołączona do systemu. Aby zainstalować cokolwiek w OpenBSD musimy dodać repozytorium żeby to zrobić wydajemy polecenie:
+    <code>
+    export PKG_PATH="ftp://ftp.icm.edu.pl/pub/OpenBSD/6.5/packages/amd64"
+
+    </code>
+
+
+    Możemy sprawdzić dostępność repozytorium wydając polecenie i podając jako argument jakikolwiek pakiet np. nano
+    <code>
+    pkg_info -Q nano
+
+    </code>
+
+    Po uzyskaniu odpowiedzi od programu, możemy teraz wydać odpowiednie polecenie aby zainstalować niezbędny program:
+    <code>
+    pkg_add -a dnsmasq
+
+    </code>
+
+    Po zainstalowaniu warto włączyć daemona do auto-startu.
+    <code>
+    rcctl enable dnsmasq
+
+    </code>
+
+
+3. Konfiguracja protokołu DHCP
+
+    W OpenBSD plik konfiguracji dhcpd znajduje się bezpośrednio w katalogu<code>/etc</code>pod nazwą <code>dhcpd.conf</code>. Do zwykłej bramki nie potrzebujemy zbyt wielu opcji, nie licząc deklaracji podsieci, 3 lub 4. Cztery jeśli zdecydujemy się na lokalną domenę, klasycznie potrzebujemy zakresu, adresu bramy domyślnej i serwerów DNS:
+    <code>
+    subnet 10.0.0.0 netmask 255.255.255.0 {
+
+        range 10.0.0.100 10.0.0.250;
+
+        option routers 10.0.0.1;
+
+        option domain-name "morketsmerke.net";
+
+        option domain-name-servers 10.0.0.1;
+
+    }
+
+    </code>
+
+    Deklaracje powtarzamy dla kolejnych interfejsów, jeśli są obecne i<br />
+    wykorzystywane.
+
+4. Ustawienie interfejsu dla dhcpd
+
+    Konfiguracja daemona dhcpd polega głównie na wskazaniu interfejsu, na którym ma nasłuchiwać, dokonuje się tego w pliku <code>rc.conf.local</code> w <code>/etc</code> dopisując do niego opcję z wartość <code>dhcpd_flags="interfejs"</code>
+    wpisanie w ten plik tej opcji, jest równoznaczne z dodaniem do auto-startu dhcpd, więc nie musimy wydawać polecenia <code>rcctl enabled</code> dla dhcpd.
+
+5. Ustawienie interfejsu dla dnsmasq<br />
+
+    W tym systemie robi się to podobnie jak w systemie Linux. Plik konfiguracyjny znajduje się w <code>/etc/dnsmasq.conf</code>. Odszukujemy w nim opcji <code>interface=</code>, odkomentowuje i wpisujemy interfejs na jakim ma nasłuchiwać. Opcje ewentualnie powtarzamy dla pozostałych interfejsów wewnętrznych.
+
+6. Ewentualne wpisy do <code>/etc/hosts</code>
+
+    Format: <code>IP FQDN SHORT_NAME</code>. Na przykład:
+    <code>
+    192.168.0.10    serwer.morketsmerke.net serwer
+
+    </code>
+
+
+7. Reguły firewall oraz NAT
+
+    Za firewall w systemie OpenBSD odpowiada PF (PacketFilter), jego reguły są przechowywane w pliku <code>/etc/pf.conf</code>, prawdopodobnie znajdują się tam już jakieś reguły. Wszystkie je należy usunąć. Pierwszą czynnością będzie definicja makr (takie jakby zmienne).
+    <code>
+    red="interfejs_zewnętrzny"
+
+    green="interfejs_wewnętrzny"
+
+    greennet="interfejs_wewnętrzny:network"
+
+    </code>
+
+    Ponieważ PF działa z zasadą ostatni wygrywa, na pakietach pasujących do ostatniej z reguł zostanie podjęta zapisana w niej akcja (pass lub block). Możemy odciąć dostęp z sieci i do sieci podając regułę <code>block all</code> na początku zbioru zaraz po makrach. Przez to kolejne reguły z akcją <code>pass</code> będą dopuszcza/wypuszczać tylko ruch wybiórczo (tylko ten pasujący do reguły, reszta zostanie zablokowana) Teraz możemy dodać kolejno następne reguły już umożliwiające komunikację:
+    * z sieci do bramki: <code>pass in on $green from $greennet to any</code>
+    * Bramki z siecią zewnętrzną: <code>pass out on $red from $red to any</code>
+    * NAT: <code>pass out on $red from $greennet to any nat-to ($red)</code>
+    Ten nawias przy ostatniej regule oznacza to że PF będzie na bieżąco monitorować interfejs po względem zamian, maskarada tylko że na BSD.
+
+8. Przekazywanie pakietów
+
+    Na koniec wystarczy uruchomić przekazywanie pakietów, a także ustawić uruchamianie przekazywania na autostarcie. Uruchomienie przekazywania:
+    <code>
+    sysctl net.inet.ip.forwarding=1
+
+    </code>
+
+    Zapisanie do pliku <code>/etc/sysctl.conf</code> przekazywania:
+    <code>
+    echo 'net.inet.ip.forwarding=1' >> /etc/sysctl.conf
+
+    </code>
+
+
+Teraz możemy cieszyć się bramką opartą o system OpenBSD.
+

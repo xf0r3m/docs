@@ -1,0 +1,1 @@
+Zgrywanie tracków z AudioCD: doas cdio -f /dev/cd0a cdrip

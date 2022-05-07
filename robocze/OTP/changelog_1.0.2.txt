@@ -1,0 +1,6 @@
+-- Wersja: 1.0.2
+  * Dodanie pliku "version" do katalogu boot z wersją dystrybucji.
+  * Dodanie pakietów: git, bash, sce-update, fdisk, e2fsprogs oraz extlinux
+  * Dodanie instalatora dC-install
+  * Naprawienie możliwości ładowania rozszerzeń na LiveCD, nie potrzeba już
+    dodatkowo montować katalogu. 

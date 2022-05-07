@@ -1,0 +1,26 @@
+menu_główne:
+	1. Dyski
+		1.1. Lista dysków
+		1.2. Inicjuj dysk
+		1.3. Montuj dysk
+	2. Udziały
+		2.1. Lista udziałów
+		2.2. Utworz udział
+		2.3. Zmień udział
+		2.4. Usuń udział
+	3. Użytkownicy
+		3.1. Lista użytkowników
+		3.2. Dodaj użytkownika
+		3.3. Modyfikuj użytkownika
+		3.4. Grupy
+			3.4.1 Lista grup
+			3.4.2 Dodaj grupę
+			3.4.3 Dopisz użytkowników do grupy
+			3.4.5 Usuń grupę
+	4. Usługi
+		4.1. Lista zainstalanych usług
+		4.2. Lista dostępnych usług
+			4.2.1 Instaluj usługi
+	5. Sieć
+		5.1. Konfugiracja TCP/IPs
+	0. Exit

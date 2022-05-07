@@ -1,0 +1,87 @@
+Minimalny rozmiar dysku: 3GB
+
+1. Instalacja dCore jak OTP na dysku. Poradnik znajduje się w pliku
+	Instalacja_OTP_na_dysku.txt.
+	
+2. Instalacja środowiska graficznego:
+	2.1. Tworzymy plik "icedesk" w katalogu /tmp w nim zapisujemu 
+	niezbędne rozszerzenia.
+		$ vi /tmp/icedesk
+		xorg-all
+		Xprogs
+		icewm
+		hicolor-icon-theme
+		adwaita-icon-theme
+		aterm
+	
+	2.2. Na podstawie pliku tworzymy rozszerzenie pobieramy i instalujemy
+	pakiety rozszerzenia.
+		$ sce-import -lb /tmp/icedesk
+	
+	2.3. Zapisujemy w pliku /mnt/sda1/tce/sceboot.lst nazwę tego 
+	utworzonego rozszerzenia po to aby było ładowane wraz systemem.
+		$ sudo vi /mnt/sda1/tce/sceboot.lst
+		icedesk
+		
+	2.4. Wraz z xorg-all został zainstalowany fvwm, dlatego musimy
+	wskazać za pomocą parametrów jądra w pliku 
+	/mnt/sda1/boot/extlinux/extlinux.conf
+		$ sudo vi /mnt/sda1/boot/extlinux/extlinux.conf
+		default dCore
+		label dCore
+		kernel /boot/vmlinuzbionic
+		append initrd=/boot/dCorebionic.gz tce=sdX1 quiet desktop=icewm
+		
+3. Załadowanie plików bazowych dystrybucji.
+	3.1. Rozpakowanie initrd.
+		$ sudo cp /mnt/sda1/boot/dCorebionic.gz /tmp
+		$ sudo mkdir /tmp/extract
+		$ cd /tmp/extract
+		$ zcat /tmp/dCoreBionic.gz | sudo cpio -i -H newc -d
+	3.2. Załadowanie plików bazowych.
+		$ sudo wget http://ftp.morketsmerke.net/OTP/OTP_base-files.tgz
+		$ sudo tar -xzvf OTP_base-files
+		$ sudo rm OTP_base-files
+	3.3. Zapakowanie nowego initrd. Tutaj będzie potrzebne rozszerzenie
+		advancecomp
+		$ sce-import advancecomp
+		$ sce-load advancecomp
+		$ sudo find | sudo cpio -o -H newc | gzip -2 > ../OTP.gz
+		$ cd ..
+		$ advdef -z4 OTP.gz #<- To może trochę potrwać...
+	3.4. Włączenie nowego initrd do rozruchu
+		$ sudo mv OTP.gz /mnt/sda1/boot
+		$ sudo sed -i 's/dCorebionic.gz/OTP.gz/' /mnt/sda1/boot/extlinux/extlinux.conf
+	#Tutaj możemy wykonać ponowny rozruch jeśli wszystko się udało możemy
+	#usunąc stary initrd.
+
+4. Instalacja oprogramowania
+	Instalowane oprogramowanie: sce-remove, sce-debpurge, remmina, arora
+	remmina-plugin-rdp, remmina-plugin-vnc, openssh-client, virt-manager
+	
+	4.1. Instalacja oprogramowanie sce:
+		$ sce-import sce-remove
+		$ sce-import sce-debpurge
+	4.2. Usuniecie pakietu advancecomp (o ile mamy gotowy initrd)
+		$ sce-load sce-remove
+		$ sce-remove advancecomp
+	4.3. Instalacja pozostałego oprogramowania
+		$ sce-import remmina
+		$ sce-import arora
+		$ sce-load arora
+		$ sce-import remmina-plugin-rdp
+		$ sce-import remmina-plugin-vnc
+		$ sce-import openssh-client
+		$ sce-import virt-manager
+	4.4. Dopisujemy do pliku /mnt/sda1/tce/sceboot.lst pakiet arora
+		$ sudo vi /mnt/sda1/tce/sceboot.lst
+		icedesk
+		arora
+		
+5. Zmiana nazwy hosta. W pliku konfiguracyjnym programu rozruchowego
+dopisujemy dodatkowy parametr jądra.
+	$ sudo vi /mnt/sda1/boot/extlinux/extlinux.conf
+	default dCore
+	label dCore
+	kernel /boot/vmlinuzbionic
+	append initrd=/boot/OTP.gz tce=sdX1 quiet desktop=icewm host=otp

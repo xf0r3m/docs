@@ -1,0 +1,23 @@
+<h1>Mailutils jako program mailowy</h1>
+<ol>
+  <li>Instalacja oprogramowania: mailutils, fetchmail, procmail, postfix</li>
+  <li>Uworzenie pliku skrzynki pocztowej na /var/mail i nadanie mu
+      odpowienich uprawnieniń (user:mail).</li>
+  <li>Konfiguracja fetchmaila - plik ~/.fetchmailrc</li>
+  <li>Wyamgana zamiana uprawnienień na 700, dla ~/.fetchmail</li>
+  <li>Testowe pobranie maili fetchmailem, za pierwszym razem może się
+      nie powieść i nie będzie zwracać żadnych informacji dlaczego się
+      nie powiodło, wtenczas warto zabić proces fetchmaila i uruchomić
+      go ponownie, jeśli to nie przyniesie skutku, należy wyłączyć SSL
+      z pliku konfiguracyjnego, spróbować pobrać pocztę, następnie
+      włączyć SSL, teraz powinien działać. Kind a tricky.</li>
+  <li>Konfiguracja postfixa aby wysyłać maile z SMTP przez mailutils</li>
+  <li>Utworznie pliku z danymi uwierzytelniający na serwerze SMTP 
+      /etc/postfix/sasl_passwd i nadanie im odpowienich uprawnień (400)</li>
+
+  <li>Utworznie bazy z pliku z danymi uwierzytelniającym polecenie: postmap
+    </li>
+  <li>Ustalenie domyślnego adresu pola "From", ze względu na niezgodności
+      z zabezpieczeniami serwera maile nie będą wysłane</li>
+</ol>
+    

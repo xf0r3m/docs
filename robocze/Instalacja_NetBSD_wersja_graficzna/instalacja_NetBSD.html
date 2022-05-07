@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="resources/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				p { text-align: justify; }
+				.images{ text-align: center; }
+			</style>
+		</head>
+
+
+		<body style="font-family: monospace;" >
+<pre>
+88                             88
+88                             88
+88                             88
+88,dPPYba,  ,adPPYba,  ,adPPYb,88
+88P'    "8a I8[    "" a8"    `Y88
+88       d8  `"Y8ba,  8b       88
+88b,   ,a8" aa    ]8I "8a,   ,d88
+8Y"Ybbd8"'  `"YbbdP"'  `"8bbdP"Y8
+</pre>
+
+		<p style="margin: 15px; padding: 0; outline: 0; font-size: 18pt;">
+			&#9760;&nbsp;<a href="https://morketsmerke.net/">morketsmerke</a>&nbsp;&#9760;
+		</p>
+
+		<div style="margin-left: auto; margin-right: auto; width: 80%;">
+			<h1 style="text-align: center;">Instalacja NetBSD</h1>
+			<p>
+			System <strong>NetBSD</strong> ma jedną bardzo ważną cechę, został przygotowany i jest nadal utrzymywany dla bardzo wielu platform. 
+			To sprawiło, że 
+			zainteresowałem się nim przy chęci wykorzystania go na starym serwerze Sun Microsystems. Jako jedyny z wiodącej trójki systemów
+			BSD poprawnie zainstalował się i uruchomił na wspomnianym serwerze. Obecnie zapewnia dostęp do usług poczty elektronicznej.
+			Jedną z jego wad jest dość długa i mająca tendencje do niepowdzenia instalacja, przynajmniej w 
+			przypadku platformy Sparc64. Poniżej za pomocą zrzutów ekranu oraz krótkich opisów postaram się przybliżyć instalację. Instalowałem 
+			większość dystrybucji BSD i nie wliczając GhostBSD oraz nomadBSD, ten system ma chyba najbardzie user-friendly instalator, 
+			pasujący bardziej do GNU/Linux-ów.
+			</p>
+			<p>
+			Płytka w napędzie? No to jadziem!
+			</p>
+			<p>
+			Instalację rozpoczynamy od wyboru języka instalatora. Chyba jedyna dystrybucja BSD z polskim językiem instalatora (potrzebne źródło).
+			<p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/01_inb_wybor_jezyka.png" alt="01_inb_wybor_jezyka.png" />
+			</p>
+			<p>
+			Z poziomu instalatora możemy np. zaktualizować zainstalowany już system. Póki co to nie mamy nawet tego, więc wybieramy 
+			<code class="code-inline">a: Zainstaluj NetBSD na twardym dysku</code>. Fun fact o tym instalatorze: możemy poruszać po nim znacznie
+			szybciej naciskając na klawiaturze te literki po lewej stronie opcji. Wybierane opcje są zaznaczone na zrzutach.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/02_inb_tryb_instalacji.png" alt="02_inb_tryb_instalacji.png" />
+			</p>
+			<p>
+			Standardowe pytanie o to czy rzeczywiście chcemy instalować ten system.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/03_inb_potwierdzenie_instalacji.png" alt="03_inb_potwierdzenie_instalacji.png" />
+			</p>
+			<p>
+			Wybieramy docelowy dysk dla systemu.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/04_inb_wybor_dysku.png" alt="04_inb_wybor_dysku.png" />
+			</p>
+			<p>
+			Następnie ustalamy sposób partycjonowania, możemy wyczyścić dysk i ustawić partycje ręcznie lub automatycznie. Póki co 
+			wybierzemy partycjonowanie automatyczne (B).
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/05_inb_partycjonowanie_1.png" alt="05_inb_partycjonowanie_1.png" />
+			</p>
+			<p>
+			Zatwierdzamy ustawione przez instalator partycje.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/06_inb_partycjonowanie_2.png" alt="06_inb_partycjonowanie_2.png" />
+			</p>
+			<p>
+			Póki co nie zostały wprowadzane żadne zmiany na dysku, dopiero wybranie opcji <code class="code-inline">b: Tak</code>, spowoduje
+			ustawienie partycji i sformatowanie pod określony system plików.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/07_inb_potwierdzenie_formatowania_dysku.png" alt="07_inb_potwierdzenie_formatowania_dysku.png" />
+			</p>
+			<p>
+			Formatowanie dysku...
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/08_inb_formatowanie_dysku.png" alt="08_inb_formatowanie_dysku.png" />
+			</p>
+			<p>
+			Instalacja NetBSD jest podzielona na trzy główne kolekcje. Dla serwera wystarczy 
+			<code class="code-inline">b: Instalacja bez X11</code>
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/09_inb_wybor_rozmiaru_instalacji.png" alt="09_inb_wybor_rozmiaru_instalacji.png" />
+			</p>
+			<p>
+			NetBSD można zainstalować z wielu źródeł. Na serwerze, na którym próbowałem zainstalować NetBSD z płyty to był wielki problem,
+			bo system nie mógł dobrać poziomu <em>DMA</em> dla napędu więc użyłem <em>HTTP</em>.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/10_inb_wybor_nosnika_pakietow_instalacyjnych.png" alt="10_inb_wybor_nosnika_pakietow_instalacyjnych" />
+			</p>
+			<p>
+			Teraz mamy możliwość ustawienia mirror-u. Metoda <em>HTTP</em> wymaga skonfigurowania sieci.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/11_inb_pobieranie_dystrybucji.png" alt="11_inb_pobieranie_dystrybucji.png" />
+			</p>
+			<p>
+			Wybieramy kartę sieciową.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/12_inb_konfiguracja_sieciowa_1.png" alt="12_inb_konfiguracja_sieciowa1.png" />
+			</p>
+			<p>
+			Typ interfejsu sieciowego pozostawiamy domyślnie czyli <code class="code-inline">autoselect</code>, następnie decydujemy czy wybrać 
+			autokonfigurację - pobrać z dhcp.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/13_inb_konfiguracja_sieciowa_2.png" alt="13_inb_konfiguracja_sieciowa_2.png" />
+			</p>
+			<p>
+			Po pobraniu konfiguracji zostaniem zapytani o nazwę domeny, jeśli serwer nie będzie dostępny pod żadną możemy wpisać cokolwiek
+			po zatwierdzeniu pokaże nam się podsumowanie konfiguracji i zapytanie czy te dane są poprawne.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/14_inb_konfiguracja_sieciowa_3.png" alt="14_inb_konfiguracja_sieciowa_3.png" />
+			</p>
+			<p>
+			Po potwierdzeniu konfiguracji, wracamy do ustawień źródła pakietów dystrybucji. Teraz wybieramy opcje 
+			<code class="code-inline">x: Ściągnij dystrybucje</code>.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/15_inb_konfiguracja_sieciowa_4.png" alt="15_inb_konfiguracja_sieciowa_4.png" />
+			</p>
+			<p>
+			Pobieranie dystrybucji może trochę potrwać...
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/16_inb_pobieranie_dystrybucji_1.png" alt="16_inb_pobieranie_dystrybucji_1.png" />
+			</p>
+			<p>
+			Konfiguracja sieci z pobierania dystrybucji może zostać zapisana jako stała konfiguracja sieciowa systemu, teraz możemy o tym 
+			zdecydować, tak czy nie.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/17_inb_zapytanie_o_zapisanie_konfiguracji_sieciowej.png" alt="17_inb_zapytanie_o_zapisanie_konfiguracji_sieciowej.png" />
+			</p>
+			<p>
+			Teoretycznie to system jest już zainstalowany jednak nie uruchomi się bez konfiguracji w plikach <em>rc</em>. 
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/18_inb_konfiguracja_poinstalacyjna_1.png" alt="18_inb_konfiguracja_poinstalacyna_1.png" />
+			<p>
+			<p>
+			Wybieramy strefę czasową.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/19_inb_konfiguracja_poinstalacyjna_2.png" alt="19_inb_konfiguracja_poinstalacyjna_2.png" />
+			</p>
+			<p>
+			Polska sterfa została odrębnie zdefiniowana nie potrzeby jej wybierać poprzez <em>Europe/Warsaw</em>.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/20_inb_kpoi_strefa_czasowa.png" alt="20_inb_kpoi_strefa_czasowa.png" />
+			</p>
+			<p>
+			Generalnie to jestem przyzwyczajony do wygód <strong>powłoki Korna</strong>, więc taką też ustawiam dla <em>root-a</em>.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/21_inb_konfiguracja_poinstalacyjna_3.png" alt="21_inb_konfiguracja_poinstalacyjna_3.png" />
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/22_inb_kpoi_powloka_roota.png" alt="22_inb_kpoi_powloka_roota.png" />
+			</p>
+			<p>
+			Ustawienie uruchamiania <em>sshd</em> podczas bootowania systemu.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/23_inb_konfiguracja_poinstalacyjna_5.png" alt="23_inb_konfiguracja_poinstalacyjna_5.png" />
+			</p>
+			<p>
+			Ustawienie uruchamiania <em>ntpdate</em> podczas bootowania systemu. Samo ustawienie może nie wystarczać, potrzebne jest również 
+			wskazanie działającego serwera, ale to już wykonuje się po pierwszym załadowaniu systemu.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/24_inb_konfiguracja_poinstalacyjna_6.png" alt="24_inb_konfiguracja_poinstalacyjna_6.png" />
+			</p>
+			<p>
+			Aby móc zalogować się przez SSH będzie potrzebny nam zwykły użytkownik, najlepiej w grupie <em>wheel</em>. Grupa 
+			<strong>wheel</strong> daje możliwość wykonania polecenia <code class="code-inline">su root</code>, dzięki temu uzyskamy dostęp do 
+			administratora.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/25_inb_konfiguracja_poinstalacyjna_7.png" alt="25_inb_konfiguracja_poinstalacyjna_7.png" />
+			</p>
+			<p>
+			Pierwsze pytanie, prawie zawsze jest o jego nazwę.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/26_inb_kpoi_dodawanie_uzytkownika_1.png" alt="26_inb_kpoi_dodawanie_uzytkownika_1.png" />
+			</p>
+			<p>
+			Następne pytanie jest o to czy dodać tego użytkownika do grupy, która będzie mogłą podnieść swoje uprawnienia.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/27_inb_kpoi_dodawanie_uzytkownika_2.png" alt="27_inb_kpoi_dodawanie_uzytkownika_2.png" />
+			</p>
+			<p>
+			Jedną z niezbędnych informacji potrzebnych do utworzenia użytkownika jest wskazanie powłoki dla niego.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/28_inb_kpoi_dodawanie_uzytkownika_3.png" alt="28_inb_kpoi_dodawanie_uzytkownika_3.png" />
+			</p>
+			<p>
+			Na sam koniec program zapyta o hasło dla nowego użytkownika.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/29_inb_kpoi_dodawanie_uzytkownika_4.png" alt="29_inb_kpoi_dodawanie_uzytkownika_4.png" />
+			</p>
+			<p>
+			Mogliśmy to zrobić zaraz po ustaleniu strefy czasowej ja mało o tym nie zapomniałem - Ustawieniu hasła dla użytkownika <em>root</em>.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/30_inb_konfiguracja_poinstalacyjna_4.png" alt="30_inb_kpoi_konfiguracja_poinstalacyjna.png" />
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/31_inb_haslo_roota_1.png" alt="31_inb_haslo_roota_1.png" />
+			<p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/32_inb_haslo_roota_2.png" alt="32_inb_haslo_roota_2.png" />
+			</p>
+			<p>
+			Teraz możemy zakończyć naszą konfiguracji poinstalacyjną wybierając opcje <code class="code-inline">x: zakończ konfigurację</code>.
+			Następnie wyświetli nam się taki komunikat, klikamy enter:
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/33_inb_zakonczenie_instalacji.png" alt="33_inb_zakonczenie_instalacji.png" />
+			</p>
+			<p>
+			Teraz możemy uruchomić ponownie nasz serwer, czy tam ewentualnie stację roboczą.
+			</p>
+			<p class="images">
+			<img src="../../resources/instalacja_NetBSD/34_inb_restart_maszyny.png" alt="34_inb_restart_maszyny.png" />
+			</p>
+
+
+		</div>
+
+		<p style="margin: 15px; padding: 0; outline: 0;">
+			2021; COPYLEFT; ALL RIGHT REVERSED;
+		</p>
+
+		</body>
+	</html>

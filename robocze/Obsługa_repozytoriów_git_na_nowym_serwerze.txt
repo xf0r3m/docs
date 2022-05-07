@@ -1,0 +1,44 @@
+Tworzenie repozytorium zdalnego:
+
+1. Logujemy się na serwer przez SSH.
+  $ ssh xf0r3m@morketsmerke.net
+
+2. Przełączamy się na konto użytkownika git z powłoką BASH.
+  $ sudo su -s /bin/bash - git
+
+3. Jako użytkownik git, tworzymy katalog repozytorium, inicjujemy je oraz
+   opcjonalenie możemy dodać opis projektu:
+  git@greenServer:~$ mkdir example.git && cd example.git
+  git@greenServer:~/example.git$ git --bare init
+  git@greenServer:~/example.git$ echo "Repozytorium testowe. Pierwsze na serwerze" > .git/description
+
+Tworzenie repozytorium lokalnego oraz przesłane danych na serwer:
+
+1. W katalogu z kodem wykonujemy polecenia:
+  $ git init
+  $ git add --all
+  $ git config user.name xf0r3m
+  $ git config user.email morketsmerke@gmail.com
+  $ git commit -m "Przesłanie plików do repozytorium"
+  $ git remote add origin ssh://git@192.168.122.2/~/example.git
+  $ git push origin master
+
+
+Udostępnienie repozytorium do klonowania.
+
+1. Logujemy się jako xf0r3m na serwer
+  $ ssh xf0r3m@morketsmerke.net
+ 
+2. Przechodzimy do katalogu /var/www/pubgit, następnie klonujemy repozytorium
+  $ cd /var/www/pubgit 
+  $ git clone --bare /home/git/example.git example.git
+
+3. Zmieniamy nazwę pliku w plikach git repozytorium oraz nadajemy mu
+   odpowiednie uprawnienia
+  $ mv hooks/post-update.sample hooks/post-update
+  $ chmod a+x hooks/post-update
+
+4. Aktualizujemy informacje o serwerze na repozytorium
+  $ git update-server-info
+
+  

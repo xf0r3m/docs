@@ -1,0 +1,6 @@
+-- Wersja: 1.1
+	* Dodanie pakietów: cryptsetup, ntfs-3g
+	* Aktualizacja pakietów
+	* Usunięcie pakietów: spotify-client
+	* Usunięcie programu Discord
+	* Wyczyszczenie historii poleceń

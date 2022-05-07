@@ -1,0 +1,16 @@
+1. Instalacja
+	1.1 Użycie szyfrowanego voluminu do instalacji systemu.
+2. Serwery lustrzane - /etc/installurl oraz $PKG_PATH
+3. Instalacja środowiska graficznego - FVWM, FluxBox, XFCE
+	3.1 Ustawienie tapety pulpitu dla środowiska FluxBox
+4. Język polski w systemie OpenBSD
+5. Zmiana znaku zachęty
+6. Zmiany poziomu głośności - mixerctl outputs.master = 255,255
+7. Ustawienia dla gniazda słuchawkowego - mixerctl output.hp.master = 190,190, mixerctl output.hp.mute = off
+8. Ustawienia sieciowe 
+	8.1 dhcp dla LAN, 
+	8.2 skanowanie WLAN - ifconfig athn0 up, ifconfig athn0 scan
+	8.3 Podłaczanie się sieci WLAN - ifconfig athn0 nwid SSID wpakey PSK
+	8.4 Zapisanie profili sieciowych w /etc/hostname.athn0 (jest na FAQ https://www.openbsd.org/faq/faq6.html#Wireless)
+9. Dodatkowe oprogramowanie - mc, htop, vlc, moc, firefox, feh, QEMU
+10. Ustawienie dostępu do systemu dla Firefox.

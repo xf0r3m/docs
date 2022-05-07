@@ -1,0 +1,2 @@
+lxc profile device set default eth0 nictype macvlan
+lxc profile device set default eth0 parent <interface>

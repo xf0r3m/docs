@@ -1,0 +1,8 @@
+vboxmanage controlvm "Arch Linux 2020.12.01 amd64" poweroff
+VBoxManage setproperty vrdeauthlibrary "VBoxAuthSimple"
+vboxmanage modifyvm "Arch Linux 2020.12.01 amd64" --vrdeauthtype external
+vboxmanage internalcommands passwordhash ""
+vboxmanage setextradata "Arch Linux 2020.12.01 amd64" "VBoxAuthSimple/users/xf0r3m" 12019ccd4710dbed089
+c6f6f08876775ba2def240b6ef2cdaeee2f0152f1e8b0
+vboxmanage showvminfo "Arch Linux 2020.12.01 amd64" |less
+vboxmanage startvm "Arch Linux 2020.12.01 amd64" --type headless

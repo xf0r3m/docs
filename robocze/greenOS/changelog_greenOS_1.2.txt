@@ -1,0 +1,17 @@
+-- Wersja: 1.2
+    * Instalacja pakietu sudo: Wszystkie wersje
+    * Instalacja pakietu ranger: LiveCD, Main
+    * Instalacja pakietu neofetch: Main, greenServer
+    * Aktualizacja oprogramowania: Wszystkie wersje 
+    * Ustawienie uruchamiania programu neofetch wraz ze startem powłoki: Wszystkie wersje
+    * Plik konfiguracji xscreensaver (.xscreensaver) ustawia domyślny
+      wygaszacz na FuzzyFlakes bezzwłoczną blokade oraz uruchomienie
+      wygaszacza po 10 min: LiveCD, Main, Ratpoison
+    * Naprawa uprawnień dla katalogu oraz podkatlogów /usr: LiveCD, Main
+    * Usunięcie z plików menu icewm wpisów programów "Discord" oraz "Spotify": Main
+    * Skrót klawiszowy 'Ctrl+Alt+t' otwiera xterm w kolorystyce
+      wykorzystywanej w przez greenOS: LiveCD, Main
+    * Skrót klawiszowy 'Super + l' uruchamia polecenie 'xscreensaver-command --lock': LiveCD, Main
+    * Wymiary terminala uruchamianego z menu lub paska zadań ustawione na
+      100x30: Main
+    * Usunięcie startu xscreensaver dla superużytkownika: LiveCD

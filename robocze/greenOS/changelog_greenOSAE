@@ -1,0 +1,4 @@
+-- Wersja: 2.0.1
+  * Usunięcie użytkownika xf0r3m
+  * Przeniesienie konfiguracji użytkownika xf0r3m do katalogu /etc/skel
+  * Aktualizacja pakietów

@@ -1,0 +1,181 @@
+<strong>Stunnel</strong> - rozprowadzany na licencji GNU/GPL program do tworzenia szyfrowanych połączeń TCP. Program do uwierzytelnienia wykorzystuje certyfikaty SSL/TLS X.509.
+
+<strong>Dostępność programu w różnych systemach operacyjnych: </strong>
+* Linux : REPOzytorium(Alpine, Arch, Cent OS, Debian, Fedora, Mageia, OpenMandriva, OpenSUSE(leap), Ubuntu, Slackware)
+* BSD : FreeBSD(REPO), NetBSD(REPO), OpenBSD(PORTS)
+* Mac OS X : brew install stunnel
+* Windows : https://www.stunnel.org/downloads/stunnel-5.56-win64-installer.exe
+
+Oczywiście program można skompilować samodzielnie potrzebne biblioteki: libssl, libssl-dev, zlib. Podczas <code>./configure</code> podajemy <code>--prefix=/usr/local/stunnel</code>, z docelowym miejscem instalacji. Jeśli <code>./configure</code> nie zgłosi błędu wykonujemy kolejno: <code>make</code> oraz <code>make install</code>.
+
+Konfiguracja składa się z jednego pliku konfiguracyjnego oraz plików certyfikatów. Do jego działania potrzebujemy CA (urząd certyfikacji) oraz klucz i certyfikat dla serwera (najlepiej bez hasła).
+
+Program Stunnel oczekuje klucza prywatnego oraz certyfikatu w jednym pliku - podawanym w dyrektywie <code>cert</code> pliku konfiguracyjnego. Musimy przygotować taki plik, uważając na jego format. Na początku umieszczamy klucz serwera, następnie pustą linijkę odstępu, a po niej certyfikat.<br />
+<pre>
+root@ca:/etc/ssl# cat private/serverkey_bezhasla.pem > private/server.pem
+root@ca:/etc/ssl# echo " " >> private/server.pem
+root@ca:/etc/ssl# cat servercert.pem >> private/server.pem
+</pre>
+Bardzo ważna jest pusta linijka przerwy pomiędzy kluczem a certyfikatem.
+
+Tak przygotowane pliki <em>server.pem</em> wraz z certyfikatem wystawcy CA (plik <em>cacert.pem</em>) musimy przegrać na właściwy serwer używając bezpiecznego połączenia, np. program SCP lub fizycznego nośnika np. pendrive'a. Pliki zapisujemy na serwerze w katalogu <em>/etc/stunnel</em>.
+
+Należy pamiętać o aby na docelowej maszynie nadać odpowiednie uprawnienia do pliku <em>server.pem</em> tak, aby tylko <em>root</em> mógł go przeczytać. Do tego posłużą dwa poniższe polecenia:
+<pre>
+root@srv:~# chown root:root /etc/stunnel/server.pem
+root@srv:~# chmod 600 /etc/stunnel/server.pem
+</pre>
+
+Czy będą na potrzebne certyfikaty dla klientów ? To zależy od aplikacji, czy posiada ona wewnętrzne metody uwierzytelniania użytkowników. Jeśli usługa jest ogólnodostępna tak jak np. IRC, warto rozważyć wdrożenie certyfikatów dla klientów, o ile chcemy utajnić nasz serwer IRC. Wystawianie dla tuneli certyfikatów klienta ma sens w jeszcze jednym przypadku, mianowicie chodzi o ograniczenie dostępu do konkretnych rzeczy - tylko konkretne osoby mogą korzystać z konkretnych zasobów. Jeśli już decydujemy się na uwierzytelnianie użytkowników, to należy pamiętać aby w <em>Common Name</em> podać nazwę jednoznacznie identyfikująca np. login korporacyjny. Decyzje o  uwierzytelnieniu użytkowników, należy podjąć samodzielnie, warto pod jedno za lub przeciw wziąć liczbę użytkowników.
+
+== stunnel.conf ==
+
+Plik konfiguracyjny składa się  z sekcji globalnej oraz przynajmniej jednej dotyczącej danego tunelu (instancji/usługi). Puste linie są ignorowane, podobnie jak komentarze zaczynające się od średnika lub znaku <code>#</code>. 
+
+<strong>Wykaz najważniejszych opcji globalnych</strong>
+
+<code>chroot = katalog</code> (tylko Unix) - określa katalog w którym uwięziony  zostanie proces programu po inicjalizacji. Ścieżki podane w opcjach <code>CApath</code>, <code>CRLpath</code>, <code>pid</code>, <code>exec</code> muszą być określone względem tego katalogu. Owo uwięzienie sprawia, że nawet w przypadku znalezienia poważnego błędu w aplikacji, umożliwiającego wywołanie powłoki systemy Unix, haker zostanie "uwięziony" wewnątrz katalogu /var/run/stunnel. Nie będzie mógł po za ten katalog wyjść, a więc nie będzie miał dostępu do żadnych innych plików serwera. <code>chroot</code> jest typową metodą zabezpieczania programów w środowisku uniksowym.
+
+<code>compression = zlib | rle</code> -  wybór algorytmu kompresji przesyłanych danych. Domyślna opcja to brak kompresji. Możemy skorzystać z prostego algorytmu <em>RLE</em> lub z bardziej wydajnej biblioteki <em>zlib</em>. W tym drugim przypadku biblioteka <em>openssl</em> musi być skompilowana z obsługą kompresji <code>zlib</code>.
+
+<code>debug = wartość</code> - określa poziom szczegółowości logowania w skali do 1 do 7, odpowiadający poziomom daemona <code>syslog</code>
+
+<code>output = plik</code> - użycie tej opcji spowoduje logowanie informacji do wskazanego pliku zamiast do daemona <code>syslog</code>.
+
+<code>setuid = uid</code> (tylko Unix) - identyfikator użytkownika, na którego prawach będzie działa Stunnel. Program po uruchomieniu zrzuca uprawnienia administratora i działa jako użytkowniki wskazany tutaj.
+
+<code>setgid = gid</code> (tylko Unix) - opcja jak powyżej tylko dotycząca grupy.
+
+<strong>Opcje dotyczące sekcji usług</strong>
+
+<code>accept = [adres:]port</code> - nasłuchuje na podanym adresie i porcie. Jeśli nie zostanie jawnie podany adres IP, Stunnel będzie nasłuchiwał na wszystkich adresach IP dostępnych w systemie.
+
+<code>connect = [adres:]port</code> - połacz się ze zdalnym serwerem na podany port. Domyślnie <code>localhost</code>.
+
+<code>cert = server.pem</code> - plik z kluczem prywatnym i certyfikatem. 
+
+<code>ciphers = lista_algorytmów</code> - zawiera listę dozwolonych algorytmów SSL. Przydatna jeśli druga strona nie wspiera jakiegoś szyfru.
+
+<code>client = yes | no </code>  - ustala, czy sekcja jest klientem czy serwerem. Domyślna wartość: <code>no</code> - tryb serwerowy.
+
+<code>CRLfile = plik_CRL</code> - plik z listą odwołanych certyfikatów (CRL). Używana, gdy załączona jest opcja <code>verify</code>.
+
+<code>ident = nazwa_użytkownika</code> - weryfikuj nazwę zdalnego użytkownika korzystając z protokołu IDENT.
+
+<code>verify = poziom</code> - domyślnie <code>0</code> - nie weryfikuj certyfikatu (klienta). Dyrektywa ta może przyjmować następujące wartości:
+
+* poziom <code>1</code> -  weryfikuj, jeżeli został przedstawiony, 
+* poziom <code>2</code> - weryfikuj certyfikat przez lokalne CA,
+* poziom <code>3</code> - weryfikuj z lokalnie zainstalowanym certyfikatem drugiej strony.
+
+Załączenie opcji <code>verify</code> po stronie serwera jest koniecznie jeśli dostęp do tunelu mają mieć wyłącznie uwierzytelnieni użytkownicy ( z wystawionymi certyfikatami przez nasze CA ). 
+
+<code>retry = yes | no (tylko Unix)</code> - połącz ponownie sekcję <code>connect+exec</code> po rozłączeniu.
+
+== Przykład 1 == 
+
+Przykład opisuje stworzenie tunelu TCP umożliwiającego bezpieczne ściąganie poczty przez protokół  POP3. 
+
+Jak wiadomo protokół POP3 w swej pierwotnej postaci przesyła wszystkie dane, łącznie z hasłem, jawnym tekstem. Naszym celem będzie przepuszczenie sesji połączenia POP3 przez szyfrowany tunel SSL, tak aby nikt nie był w stanie odczytać ani treści poczty ani hasła.
+
+Ze względu na to że POP3 uwierzytelnia klientów, certyfikaty dla użytkowników tunelu nie będą potrzebne.  Podstawowym celem tunelu jest zapewnienie szyfrowania transmisji. Uwierzytelnienie serwera będzie dobrym pomysłem, bo daje pewność, że łączą się z właściwym serwerem, a nie z podstawionym przez intruza w wyniku zmiany routingu.  Przykład można wykonać wg. poniższych punktów.
+<ol>
+<li>Instalujemy najwygodniejszym dla nas sposobem Stunnel w naszym systemie</li>
+<li>Generujemy na CA klucz i certyfikat dla serwera, po czym łączymy ze sobą oba pliku w plik <em>server.pem</em>, pamiętając o pustej linijce przerwy.</li>
+<li>Przegrywamy na serwer docelowy przygotowany plik server.pem oraz cacert.pem - certyfikat CA. Pamiętaj o zmianie uprawnień dla pliku server.pem.</li>
+<li>Tworzymy plik /etc/stunnel/stunnel.conf z zawartością pokazaną w poniżej
+<pre>
+# stunnel.conf po stronie serwera
+# opcje globalne
+chroot = /var/run/stunnel ; ścieżka do chroota
+pid = /stunnel.pid
+setuid = stunnel   ; zrzuć uprawnienia do użytkownika stunnel
+setgid = stunnel   ; jw. dla grupy
+debug = 3
+output = /var/log/stunnel.log
+
+# sekcja związana z sekcją pop3
+[pop3s]            ; początek sekcji pop3
+accept  = 995      ; oczekuj połączeń na porcie 995
+connect = 110      ; przekazuj dane do portu 110 localhosta
+cert = /etc/stunnel/server.pem   ; plik PEM z kluczem prywatnym i certyfikatem
+CAfile = /etc/stunnel/cacert.pem ; certyfikat CA
+verify = 0         ; nie sprawdzamy certyfikatów użytkowników
+</pre>
+Czytając ten plik konfiguracyjny wraz z komentarzami można zrozumieć jak będzie działał program Stunnel.  Najważniejszą rzeczą jak trzeba by zaznaczyć tutaj, jest że POP3 nasłuchuje na pętli zwrotnej (<code>127.0.0.1</code>) na portcie 110. Jeśli instalując jakąś usługę już wiemy że będziemy używać tunelu do realizowania połączenia między jej daemonem a klient, to w konfiguracji należy ustawić jako adres nasłuchiwania <code>127.0.0.1</code>. Klienci łączą się na standardowym porcie 995 (standardowy port pop3s) z tunelem, ten przekazuje dane wewnątrz serwera na port 110 pętli zwrotnej do daemona POP3.</li>
+<li>Uruchom tunel na serwerze: <code>stunnel /etc/stunnel/stunnel.conf</code></li>
+<li>Zainstaluj na komputerze klienta Stunnel.</li>
+<li>Przegraj plik z certyfikatem CA - cacert.pem - na komputer klienta.</li>
+<li>Tworzy plik konfiguracyjny klienta pokazany  poniżej:
+<pre>
+debug = 3
+output = stunnel.txt ; loguj do pliku
+[pop3s] ; początek sekcji połączenia POP3S
+accept = 127.0.0.1:110 ; słuchaj na porcie 110 interfejsu pętli zwrotnej
+connect = 85.198.209.251:995 ; połącz się ze zdalnym serwerem na port 995
+client = yes ; jestem klientem
+CAfile = certs.pem ; certyfikat CA potrzebny do uwierzytelnienia serwera
+verify = 2 ; weryfikuj certyfikat serwera
+</pre>
+Warto zaznaczyć że współczesne programy pocztowe obsługują SSL/TLS same w sobie, dlatego punkty 6-8 są zbędne. Jednak aby program nie zgłaszał błedu w połączeniu należy dodać certyfikat naszego CA do zaufanych wystawców, a po stronie serwera natomiast należy wyłączyć opcje weryfikacji klienta. (<code>verify = 0</code>), ponieważ programy pocztowe nie przedstawiają swojego certyfikatu (a przynajmniej nie wszystkie da się do tego zmusić).
+</li>
+</ol>
+
+== Przykład 2 ==
+
+Przykład przedstawia stworzenie tunelu TCP umożliwiającego bezpieczny dostęp do aplikacji bazodanowej wewnątrz sieci LAN.
+
+Zadanie to możemy rozwiązać za pomocą programu Stunnel, przy czym w tym przypadku program nie będzie działał na routerze, a nie bezpośrednio na serwerze bazodanowym. Przyda nam się tutaj opcja uwierzytelniania klientów, a także załączenie kompresji.
+
+Zdanie wykonujemy wg. poniższych punktów.
+<ol>
+<li>Zainstaluj program Stunnel na routerze.</li>
+<li>Wygeneruj na osobnym komputerze (CA) klucz i certyfikaty dla serwera i użytkowników. Pamiętaj aby nie ściągać haseł z kluczy dla użytkowników.</li>
+<li>Przynieś przygotowany plik <em>server.pem</em> oraz certyfikat CA (plik <em>cacert.pem</em> na router. Ustaw uprawnienia tak aby tylko root był właścicielem i żeby tylko on miał prawo odczytu.</li>
+<li>Ustal, na jakim porcie i jakim adresie działa baza danych.</li>
+<li>Przygotuj plik konfiguracyjny po stronie routera</li>
+<li>Odblokuj na firewallu możliwość łączenia się z portem na którym słucha program Stunnel.</li>
+<li>Przenieś klucz i certyfikat (w formie <em>client.pem</em>) oraz certyfikat CA (cacert.pem) na komputer użytkownika. Pozostaw kopie certyfikatów użytkowników na komputerze CA.</li>
+<li>Przygotuj plik konfiguracyjny klienta i przetestuj połączenie.</li>
+</ol>
+Jeśli jest to możliwe to dobrze by było, żeby Stunnel od strony internetu nasłuchiwał na jakimś wysokim porcie z którym nie jest skojarzona żadna usługa.
+
+Poniżej przedstawiono plik konfiguracyjny routera:
+
+<pre>
+# plik konfiguracyjny programu Stunnel po stronie routera
+# opcje globalne
+chroot = /var/run/stunnel ; ścieżka do chroota
+pid = /stunnel.pid
+setuid = stunnel   ; zrzuć uprawnienia do użytkownika stunnel
+setgid = stunnel   ; jw. dla grupy
+debug = 3
+output = /var/log/stunnel.log
+
+# sekcja związana z dostępem do serwera SQL
+[sqls]               ; początek sekcji SQL
+accept  = 11298      ; oczekuj połączeń na tym porcie
+connect = 192.168.20.6: 3050   ; przekazuj do portu 3050 hosta 192.168.20.6
+cert = /etc/stunnel/server.pem
+CAfile = /etc/stunnel/cacert.pem
+verify = 2
+</pre>
+
+Jeśli na naszym routerze domyślną polityką jest blokuj, to w następnej kolejności należy należy odblokować port na którym słucha Stunnel. 
+
+Do uruchomienia tunelu pozostała jeszcze konfiguracja klienta. W tym celu należy zainstalować program Stunnel oraz przegrać przygotowane wcześniej certyfikaty <em>client.pem</em> oraz <em>cacert.pem</em>. Konfiguracja klienta jest przestawiona poniżej.
+
+<pre>
+debug = 3
+output = stunnel.txt ; loguj do pliku
+[sqls]
+accept = 127.0.0.1: 3050       ; słuchaj na porcie 110 interfejsu pętli zwrotnej
+connect = 85.198.209.251:11298 ; połącz się z serwerem na port 11298
+client = yes       ; jestem klientem
+CAfile = certs.pem ; plik z certyfikatem CA, ewentualnie certyfikatem serwera
+cert = client.pem  ; plik z kluczem i certyfikatem użytkownika
+verify = 2   ; weryfikuj certyfikat serwera przez CA
+</pre>
+
+Ostatnią rzeczą jaką należy zrobić jest zmiana adresu IP serwera bazy danych aplikacji, która ma korzystać z tej bazy na adres pętli zwrotnej. Do testowania działania tunelu przydaje się Telnet - po połączeniu się z portem lokalnego interfejsu, powinien odpowiedzieć serwer bazy danych.
+

@@ -1,0 +1,212 @@
+1. Instalacja z repo: mc vim dovecot openssl ca-certificates
+
+
+
+2. Ustawienie postfixowi mydestination na morketsmerke.net i uruchomienie SMTP na porcie 25.
+
+
+
+3. Wysłanie maila testowego w celu weryfikacji SMTP.
+
+
+
+4. Ustawienie SASL zgodnie z tym co jest napisane na https://doc.dovecot.org/configuration_manual/howto/postfix_and_dovecot_sasl/
+
+
+
+5. Dovecot nie wystartuje, spowoduje ustawienia nie istniejących certyfikatów. Wyłączenie tych opcji spowoduje uruchomienie 
+usługi.
+
+
+
+6. Generalnie logowanie nie jest wymagane jeśli łączymy się z zaufanej sieci (chyba?!), wyłączenie SMTP i użycie submission
+z opcjami jak podane jest na stronie Dovecot z ustawieniami SASL (jest poniżej konfiguracji SASL). Jeśli chcemy skorzystać
+z SMTPS zamiast z Submission to w pliku /etc/postfix/master.cf zamieniamy submission na smtps 
+(po zapisaniu konfiguracji rekomendowanej przez Dovecot do użycia SASL), w opcji syslog_name również
+ustawiamy smtps, na koniec dodajemy opcje smtpd_tls_wrappermode=yes i jeśli wybierzemy SMTPS zamiast Submission to
+możemy odpuścić sobie punkt nr. 7, chociaż i tak lepiej wyłączyć nie używane usługi.
+
+
+
+7. Submission z postfixa nie wystartuje ponieważ na tym porcie nasłuchuje Submission Dovecot-a. Wyłaczenie go poprzez nadanie
+mu portu 0 w pliku /usr/pkg/etc/dovecot/conf.d/10-master.cf:
+
+service submission-login {
+	inet_listener submission {
+		port = 0
+	}
+}
+
+
+
+8. Kiedy Submission zostanie uruchomione, wymagane będzie zestawienie szyfrowanego połączenia z serwerem, żeby to zrobić 
+musimy ważne certyfikaty przekopiować najlepiej do katalogu /etc/openssl. Następnie ustawić ścieżkę do pliku klucz i
+i pliku certyfikatu za pomocą opcji smtpd_tls_cert_file (dla pliku certyfikatu) smtpd_tls_key_file (dla pliku klucza) w
+/etc/postfix/main.cf, pod konfiguracją SASL.
+
+
+
+9. Z powodu ustawień Submission, musimy ustawić mapowania adresów mailowych na adresy użytkowników systemu, w przeciwnym
+wypadku, nie wyślemy żadnego maila. Mapowania dokonujemy w pliku /etc/postfix/virtual, gdzie:
+
+root@morketsmerke.net	root
+xf0r3m@morketsmerke.net	xf0r3m
+
+Po zapisaniu wyszystkich mapowań musimy utworzyć bazę z tego pliku z pomocą polecenia:
+
+# postmap /etc/postfix/virtual
+
+
+
+10. Teraz możemy się połączyć tylko nie przez telnet, bo po wydaniu polecenia STARTTLS dostaniemy "220 2.0.0 Ready to start TLS"
+musimy użyć openssl.
+
+$ openssl s_client -starttls smtp -crlf -connect 192.168.8.10:587
+
+Pierwsze co to trzeba się przywitać: EHLO shiny.morketsmerke.net dostaniemy listę konfiguracji, z racji konfiguracji Submission
+(znowu) możliwe jest zalowanie tylko za pomocą LOGIN, wiec kolejny poleceniem będzie AUTH LOGIN, serwer zwróci dziwny randomowy
+ciąg znaków, ten ciąg znaków jest zakodowany w Base64, na ten pierwszy musimy odpowiedzieć zakodowanym w Base64 nazwą użytkownika
+bez tworzenia jakiej kolwiek bazy użytkownicy systemowy stają się automatycznie posiadaczami kont mailowych na serwerze - nazwa
+użytkownika do logowania na SMTP to nazwa użytkownika w systemie, a Base64 wygeneruje Perl.
+
+perl -MMIME::Base64 -e 'print encode_base64("user");'
+
+Serwer zwróci kolejny dziwy ciąg znaków po nim należy podać również zakodowane w Base64 hasło. Po poprawnym zalogowaniu 
+dostaniemy informacje "235 2.7.0 Authentication successful". Teraz możemy wysłać testowego maila.
+
+
+
+11. Po restarcie trzeba włączyć ręcznie dovecot. Aby daemon sam startował, należy umieścić poniższa instrukcję w pliku
+/etc/rc.local:
+
+if [ -x /usr/pkg/sbin/dovecot ]; then
+	echo -n ' dovecot ';
+	/usr/pkg/sbin/dovecot
+fi
+
+Teraz można zrestartować serwer. Podczas bootowania powinnien pojawić się napis: "Starting local daemons: dovecot .".
+
+
+
+12. SSL dla POP3 oraz IMAP ustawiamy w pliku /usr/pkg/etc/dovecot/conf.d/10-ssl.conf. Usuwamy znak komentarza z przed pierwszej opcji
+ustawiając:
+
+ssl = yes
+
+Następnie podajemy ścieżki do pliku certyfikatu i pliku klucza:
+
+ssl_cert=</etc/openssl/fullchain1.pem
+ssl_key=</etc/openssl/privkey1.pem
+
+Zapisujemy zmiany w pliku. W pliku /usr/pkg/etc/dovecot/conf.d/10-master.conf usuwamy znaki komentarza przy deklaracja dla imaps
+oraz pop3s
+
+...
+inet_listener imaps {
+	port = 993
+	ssl = yes
+}
+
+...
+
+inet_listener pop3s {
+	port = 995
+	ssl = yes
+}
+
+Zapisujemy zmiany. Do skonfigurowania pozostało jedynie wskazać gdzie będą znajdować się skrzynki mailowe użytkowników w pliku
+/usr/pkg/etc/dovecot/conf.d/10-mail.conf, usuwając znak komentarza sprzed opcji 'mail_location' i nadać jej odpowiednią wartość
+
+mail_location = mbox:~/mail:INBOX=/var/mail/%u
+
+Teraz zmiany możemy zapisać w pliku i zrestartować usługę za pomocą polecenia;
+
+# dovecot reload
+
+
+
+13. Testowe połączenie z IMAPs
+
+Połączenie z IMAPs możemy zrealizować z pomocą poniższego polecenia, warto jednak połączyć się z SMTP i wysłać do siebie testowego maila:
+
+$ openssl s_client -connect 192.168.8.10:993
+
+Polecenia do odczytu wiadomości za pomocą tego typu połączenia są opisane pod tym adresem: https://wiki2.dovecot.org/TestInstallation
+
+Logowanie na serwer: 
+
+	a login użytkownik hasło
+
+Sprawdzenie widoczności skrzynki odbiorczej:
+	
+	b select inbox
+
+Sprawdzenia maila, polecenia znajdują się w sekcji "Check out some other IMAP commands", każde z tych polecnie należy literą
+ja użyłem litery 'b'.
+
+Wyście, zamknięcie połączenia:
+	c logout
+
+
+
+14. Użycie Thunderbirda.
+
+Tworzymy nowe konto, wpisujeny nazwę użytkownika w pole imię i nazwisko. Adres e-mail to wiadomo. Hasło też możemy zapisać. Przechodzimy do ustawień ręcznych.
+Serwer SMTP: (potrzebny będzie DNS, żeby użyć adresu FQDN serwera inaczej będzie zwrać błąd certyfikatu).
+
+Nazwa/Adres serwera: mail.morketsmerke.net
+Port: 465
+Bezpieczeństwo połączenia: SSL/TLS
+Metoda uwierzytelniania: Normalne hasło
+Użytkownik: xf0r3m
+
+Serwer IMAP:
+
+Nazwa/Adres serwera: mail.morketsmerke.net
+Port: 993
+Użytkownik: xf0r3m
+Bezpieczeństwo połączenia: SSL/TLS
+Metoda uwierzytelniania: Normalne hasło
+
+Zapisujemy ustawienia i gotowe. Możemy wysłać do siebie testowego maila.
+
+
+
+
+15. Użycie Mutt-a
+
+W celu użycia Mutt-a, z własnym serwerem należy zainstalować wersję mutt ze wsparciem SASL. Tworzymy niezbędne plik i możemy wykorzystać poniższą konfigurację
+
+set ssl_starttls=yes
+set ssl_force_tls=yes
+
+set imap_user='xf0r3m'
+set imap_pass='****'
+set from='xf0r3m@morketsmerke.net'
+
+set realname='xf0r3m'
+set folder=imaps://mail.morketsmerke.net/
+set spoolfile=imaps://mail.morketsmerke.net/INBOX
+
+set header_cache="~/.mutt/cache/headers"
+set message_cache="~/.mutt/cache/bodies"
+set certificate_file="~/.mutt/certificates"
+
+set smtp_url="smtps://xf0r3m@mail.morketsmerke.net"
+set smtp_pass="****"
+set move = no
+set imap_keepalive = 900
+
+Zapisujemy powyższe w pliku ~/.muttrc. Teraz powinniśmy móc wysłać i odebrać
+pocztę.
+
+
+
+16. Użycie na serwera na zewnątrz musimy odblokować porty: TCP/465 oraz TCP/993
+w zależności od tego czy chcemy IMAP czy POP3 albo oba. Ważne! Aby pamiętać od
+otworzeniu portu TCP/25 ponieważ na tym porcie dochodzi do komunikacji między
+serwera SMTP, jeśli ten port będzie zablokowany nie dostaniemy żadnego maila z
+zewnątrz.
+
+
+

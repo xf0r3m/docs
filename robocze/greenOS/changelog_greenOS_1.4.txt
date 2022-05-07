@@ -1,0 +1,2 @@
+--wersja 1.4:
+	* Uzupełnienie obrazów jak i archiwów o pakiet wpasupplicant

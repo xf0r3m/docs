@@ -1,0 +1,7 @@
+
+Gdy nie podamy obase i ibase, to zostanie domyślnie ustawione 10.
+
+$ echo 'bin=155; obase=2; bin' | bc -l
+10011011
+$ echo 'ibase=2; bin=10011011; bin' | bc -l
+155

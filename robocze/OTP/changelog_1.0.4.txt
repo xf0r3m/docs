@@ -1,0 +1,5 @@
+-- Wersja: 1.0.4
+  * Ustawienie języka polskiego
+  * Zmiana czcionki terminala
+  * Ustawienie domyślnego layoutu klawiatury na polski oraz ustawienie
+    poprawnego wyświetania polskich znaków w terminalu.

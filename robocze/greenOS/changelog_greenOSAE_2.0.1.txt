@@ -1,0 +1,9 @@
+-- Wersja: 2.0.1
+  * Usunięcie użytkownika xf0r3m
+  * Przeniesienie konfiguracji użytkownika xf0r3m do katalogu /etc/skel
+  * Aktualizacja pakietów
+  * Usunięcie pakietu ncspot instalowanego ze snap
+  * Usunięcie snap
+  * Instalacja ntfs-3g openssh
+  * Usunięcie plików /etc/fstab ora /boot/grub/grub.cfg pozstałych po
+środowisku budowania.

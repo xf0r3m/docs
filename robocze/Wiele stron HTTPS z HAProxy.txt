@@ -1,0 +1,16 @@
+frontend port443
+    mode tcp
+    bind *:443
+    tcp-request inspect-delay 5s
+    tcp-request content accept if { req_ssl_hello_type 1 }
+    use_backend blog if { req_ssl_sni -i blog.tn2261 }
+    use_backend gitlab if { req_ssl_sni -i gitlab.tn2261 }
+
+backend blog
+    mode tcp
+    server blog 192.168.56.3:443
+
+backend gitlab
+    mode tcp
+    server gitlab 192.168.56.4:443
+

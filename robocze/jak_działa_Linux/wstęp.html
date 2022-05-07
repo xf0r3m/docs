@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="https://i.ibb.co/khy45hh/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+					text-align: left;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				ul {
+					text-align: left;
+				}
+        p { text-align: justify; }
+			</style>
+		</head>
+		<body style="font-family: monospace;" >
+<pre>
+     _       _          _     _       _         _     _                  ___ 
+    | | __ _| | __   __| |___(_) __ _| | __ _  | |   (_)_ __  _   ___  _|__ \
+ _  | |/ _` | |/ /  / _` |_  / |/ _` | |/ _` | | |   | | '_ \| | | \ \/ / / /
+| |_| | (_| |   <  | (_| |/ /| | (_| | | (_| | | |___| | | | | |_| |>  < |_| 
+ \___/ \__,_|_|\_\  \__,_/___|_|\__,_|_|\__,_| |_____|_|_| |_|\__,_/_/\_\(_)
+</pre>
+<p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+	&#9760;&nbsp;<a href="https://morketsmerke.net">morketsmerke</a>&nbsp;&#9760;
+</p>
+			<div style="margin-left: auto; margin-right: auto; width: 80%;">
+       <h1>Wstęp</h1>
+       <p>
+          Zanim zaczniemy zastanawiać się jak działa Linux musimy odpowiedzieć
+          sobie <s>na jedno bardzo ważne pytanie</s> czym, w ogóle jest Linux
+          i jak jest skonstruowany (oczywiście, tylko powierzchownie). 
+          <strong>Linux</strong> to jak podaje Wikipedia:
+       </p>
+       <blockquote>
+          ... rodzina uniksopodbnych systemów operacyjnych opartych na
+          jądrze Linux ...
+       </blockquote>
+       <p>
+          Dla wielu nie jest to tylko system operacyjny. Można by
+          powiedzieć że to symbol wolności w elektronicznym świecie, 
+          w przeciwnym
+          razie należało by wybrać, między Microsoftem, a Applem. Dzięki
+          Linux-owi można śmiało powiedzieć stanowcze NIE, korporacjom,
+          które tak naprawdę nie wiadomo co nam sprzedają, bo nie mamy wglądu w
+          kod źródłowy. Linux to także zaoszczędzone pieniądze, systemy
+          te są najcześciej dostępne za darmo. Nawet takie, nad którymi pieczę
+          sprawują duże firmy jak np. Oracle. Produkt tej firmy dostępny jest
+          za darmo, a jedyne co jest płatne to pomoc techniczna, ale właśnie
+          dzięki takim materiałom jak ten, będziemy mogli obejść bez tego.
+          Oszczędności mogą wynikać nie tylko z braku potrzeby zakup 
+          oprogramowania, ale również sprzętu. Korzystanie z Windows 10 na
+          sprzęcie z przed 10 lat możę przynieć mizerne efekty. Linux z racji
+          tego jak jest skonstruowany może dać drugie zycie starym pecetom
+          czy laptopom.
+       </p>
+       <p>
+          Systemy Linux są rozprowdzane na zasadzie dystrybucji. 
+          <strong>Dystrybucja</strong> to
+          to wszystkie te programy oraz konfiguracje, które
+          wraz z jądrem powodują że jest to pełnoprawny system operacyjny.
+          Pliki dystrybucji z tymi wszystkimi programami, czy też z własnymi
+          technologiami są rozpowszechniane pod własną nazwą, która często
+          bywa, że staje się marką.
+          Dlatego też mówi się, że korzysta się z Debiana, a nie z Linux-a w
+          dystrybucji Debian (oczywiście, można smiało użyć tego sformułowania). 
+       </p>
+       <p>
+          Każdy działający system z rodziny Linux, składa się następujących
+          warstw z:
+       </p>
+       <ul>
+        <li><strong>Sprzętu</strong> - najważniejsza jest pamięć, w 
+            której przechowywane są zrzucone stany procesów podczas
+            przełączania konktekstu. Pamięć również jest wydzielana przez
+            jądro dla procesów użytkownika.</li>
+        <li><strong>Jądra</strong> - rezydentnego głównego programu 
+            znajdującego się w pamięci. Jądro
+            zajmuje się wydzielaniem i ochroną pamięci, przełączaniem
+            kontekstu czyli zarządzaniem którym proces w danym momencie będzie
+            wykonywany przez procesor, zapewnieiem jednolitego interfejsu
+            dostępu do urządzeń oraz udostępnieniem wywołań systemowych.</li>
+        <li><strong>Przestrzeni użytkownika</strong> - można by rzec, że są 
+            to wszystkie pliki dostarczane przez dystrybucje.</li>
+       </ul>
+       <p>
+          Na <strong>przestrzeń użytkownika</strong> składają się wszystkie 
+          inne rzeczy, które
+          nie są jądrem, ani urządzeniami. Między innymi proces init, procesy
+          programów użytkownika, użytkownicy, grupy, wszelkiego rodzaju
+          serwery. Procesy posiadają własną, wydzieloną i strzeżoną przez jądro
+          pamięć, procesy pracują w trybie użytkownika, przez co są ograniczone
+          to swojej pamięci oraz jeśli już to robią - pamięci współdzielonej
+          z innymi procesami, nie mogą naruszać pamięci innych procesów, 
+          wyjątkiem są procesy jądra systemu, które działają w trybie jądra,
+          takie procesy często nie mają żadnych ograniczeń dostępu, aby bez
+          przeszkód realizować jego zadania.
+       </p>
+       <p>
+          Podobnie do uproszczonej architektury dystrybucji Linux-a, procesy
+          przestrzeni użytkownika możemy podzielić na trzy warstwy. Na warstwie
+          najniższej znajdują się bardzo proste procesy jak protokół 
+          diagnostyczny,
+          który odbiera od innych procesów komunikaty diagnostyczne i zapisuje
+          w odpowiednich plikach, kompresuje i zapewnia ich rotację (kasuje
+          stare, robiąc miejsce na nowe, przez co nie pochłania za dużo miejsca
+          na dysku), powyżej są różnej maści serwery, nie tylko te sieciowe,
+          ale również lokalne. Na samej górze znajdują się procesy, z którymi
+          styczność ma sam użytkownik. Procesy mogą się komunikować z innymi
+          procesami pod warunkiem, że znajdują się na tej samej lub niższej
+          warstwie.
+       </p>
+       <p>
+          Procesy komunikują się z jądrem za pomocą <u>wywołań systemowych</u>.
+          Takimi najistotniejszymi są:
+       </p>
+       <ul>
+          <li><strong>fork()</strong> - kiedy proces wywoła funkcję 
+              <em>fork()</em> to jądro utworzy identyczną kopię tego procesu.</li>
+          <li><strong>exec()</strong> - po wywołaniu funkcji 
+              <em>exec(program)</em>, jądro zastąpi kopię procesu utworzoną
+              funkcją <em>fork()</em> procesem uruchamianego programu.</li>
+       </ul>
+       <p>
+          Mniej więcej w taki sposób uruchamiane są programy w Linuxie. Właśnie
+          za pomocą wywołań systemowych <em>fork()</em> oraz <em>exec()</em>.
+       </p>
+       <p>
+          <strong>Użytkownicy</strong> w Linuxie są po to aby wyznaczać 
+          granicę, każdy
+          z nich jest zamknięty wewnątrz swoje katalogu domowego, mogący
+          uruchamiać różne programy. Oczywiście te, do których będziemy mieć
+          dostęp. Każdy użytkownik ma swoją nazwę, po której rozpoznawany
+          jest przez człowieka, jednak procesy systemu rozpoznają go za pomocą
+          specjalnego numeru <em>UID</em>. W systemie poza użytkownikiem, za
+          którym stoi człowiek istnieją również inni
+          użytkownicy przydzieleni do uruchamiania konkretnych
+          usług, często nie mają oni nawet możliwości logowania (i nie powinni).
+          Po za nami oraz tymi
+          specjalnymi użytkownikami, istnieje ich zupełne przeciwieństwo.
+          Użytkownik ten może zrobić wszystko, nawet wysadzić cały system,
+          wydając jedno polecenie w odpowiednim katalogu, 
+          nazywany jest superużytkownikiem lub administratorem. Administrator
+          w Linuxie nazywa się <strong>root</strong> i ma on nieograniczone 
+          możliwości.
+		   </p>
+       <p>
+          Inną rzeczą związaną z użytkownikami są grupy. <strong>Grupy</strong>
+          są zbiorami
+          użytkowników ich zadaniem jest współdzielenie plików. Grupy jak i
+          użytkownicy mają również swój numer identyfikacyjny <em>GID</em>. 
+       </p>
+      </div>
+			<p style="margin: 15px; padding: 0; outline: 0;">
+				2021; COPYLEFT; ALL RIGHTS REVERSED;
+			</p>
+		</body>
+	</html>

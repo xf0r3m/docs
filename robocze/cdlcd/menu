@@ -1,0 +1,8 @@
+prog "xterm" xterm xterm -fg orange -bg black
+prog "ranger" xterm xterm -fg orange -bg black -T ranger -e ranger
+prog "irssi" xterm xterm -fg orange -bg black -T irssi -e irssi
+prog "firefox" ! x-www-browser
+prog "qmmp" qmmp qmmp
+prog "VLC" vlc vlc
+prog "Oracle VirtualBox" virtualbox virtualbox
+prog "Spotify" spotify spotify

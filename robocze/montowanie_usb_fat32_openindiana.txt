@@ -1,0 +1,5 @@
+Montowanie USB FAT32 na OpenIndiana
+
+1. rmformat - wyświetli listę podłączonych dysków do systemu
+2. sudo mount -F pcfs /dev/dsk/<identyfikator_dysku_z_rmformat>:a /mnt
+$ sudo mount -F pcfs /dev/dsk/c4t0d0p0:a /mnt 

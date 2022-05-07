@@ -1,0 +1,126 @@
+1. Aktualizacja list pakietów:
+  $ sudo apt update
+
+2. Instalacja narzędzia debootstrap:
+  $ sudo apt install debootstrap
+
+3. Pobranie pełnego obrazu dystrybucji do katalogu:
+  $ sudo debootstrap --arch=amd64 buster rootfs http://ftp.icm.edu.pl/debian
+
+4. Zmiana głównego katalogu:
+  $ sudo chroot rootfs
+
+5. Aktualizacja list pakietów w środowisku zmienionego katalogu głównego:
+(chroot)# apt update
+
+6. Instalacja edytora Vim:
+(chroot)# apt install vim
+
+7. Dodanie ścieżek źródłowych zapewniających aktualizacje pakietów oraz
+  aktualizacje bezpieczeństwa:
+(chroot)# vim /etc/apt/source.list
+  deb http://ftp.icm.edu.pl/debian buster main
+  deb-src http://ftp.icm.edu.pl/debian buster main
+  
+  deb http://ftp.icm.edu.pl/debian buster-updates main
+  deb-src http://ftp.icm.edu.pl/debian buster-updates main
+
+  deb http://security.debian.org/debian-security buster/updates main
+  deb-src http://security.debian.org/debian-security buster/updates main
+
+8. Ponowna aktualizacja list pakietów:
+(chroot)# apt update
+
+9. Aktualizacja pakietów rdzennych, instalowanych przez debootstrap:
+(chroot)# apt upgrade
+
+10. Ustawienie strefy czasowej:
+(chroot)# dpkg-reconfigure tzdata <- Europe/Warsaw
+
+11. Instalacja i konfiguracji ustawień lokalnych:
+(chroot)# apt install locales
+(chroot)# dpkg-reconfigure locales
+
+12. Instalacja pakietów konfiguracji klawiatury, konsoli tekstowej oraz ich
+konfiguracja:
+(chroot)# apt install keyboard-configuration console-setup
+(chroot)# dpkg-reconfigure keyboard-configuration
+(chroot)# dpkg-reconfigure console-setup
+
+13. Instalacja jądra systemu oraz podstawowych wolnych sterowników:
+(chroot)# apt install linux-image-amd64 firmware-linux-free
+
+14. Instalacja podstawowych pakietów serwera X11, menedżera wyświetlania
+XDM, oraz menedżera okien ratpoison:
+(chroot)# apt install xserver-xorg-core xserver-xorg xinit terminator xdm
+ratpoison
+
+15. Instalacja pakietów niezbędnych do kompilacji menedżera kompozycji picom:
+(chroot)# apt install build-essential libxext-dev libxcb1-dev libxcb-damage0-dev
+libxcb-xfixes0-dev libxcb-shape0-dev libxcb-render-util0-dev libxcb-render0-dev
+libxcb-randr0-dev libxcb-composite0-dev libxcb-image0-dev libscb-present-dev
+libxcb-xinerama0-dev libxcb-glx0-dev libpixman-1-dev libdbus-1-dev libconfig-dev
+libgl1-mesa-dev libpcre2-dev libpcre3-dev libevdev-dev uthash-dev libev-dev
+libx11-xcb-dev meson
+
+16. Instalacja programu git:
+(chroot)# apt install git
+
+17. Pobranie kodu źródłowego programu picom:
+(chroot)# cd /root
+(chroot)# git clone https://github.com/yshui/picom.git
+
+18. Budowa programu picom:
+(chroot)# cd picom.
+(chroot)# git submodule update --init --recursive
+(chroot)# meson --buildtype=release . build
+(chroot)# ninja -C build
+(chroot)# ninja -C build install
+(chroot)# cd ..
+(chroot)# rm -rf picom/
+
+19. Pobranie i instalacja plików bazowych greenOS
+(chroot)# apt install wget
+(chroot)# cd /
+(chroot)# wget http://ftp.icm.edu.pl/greenOS/greenOS_base-files.tgz
+(chroot)# tar -xzvf greenOS_base-files.tgz
+(chroot)# rm greenOS_base-files.tgz
+(chroot)# rm README
+(chroot)# rm -rf /etc/skel/.icewm/
+(chroot)# rm /etc/skel/.conkyrc
+(chroot)# rm -rf /root/.icewm
+(chroot)# rm /root/.conkyrc
+(chroot)# rm /etc/dpkg/origins/default
+(chroot)# ln -s /etc/dpkg/origins/greenos /etc/dpkg/origins/default
+(chroot)# apt-mark hold base-files
+
+20. Pobranie i instalacja plików bazowych specyficznych dla wersji ratpoison
+(chroot)# cd /
+(chroot)# wget http://ftp.morketsmerke.net/greenOS/greenOS_rp_base-files.tgz
+(chroot)# tar -xzvf greenOS_rp_base-files.tgz
+(chroot)# rm greenOS_rp_base-files.tgz
+
+21. Instalacja oprogramowania dostarczanego wraz z wersją ratpoison:
+(chroot)# apt install firefox-esr cmus mpv ranger cifs-utils cryptsetup \
+network-manager feh net-tools iproute2 wireless-tools alsa-utils man man-db \
+texinfo lest mc dosfstools isc-dhcp-client fdisk whiptail rsync xscreensaver \
+sudo
+
+22. Włączenie jednostek xdm oraz networkmanager, aby były aktywowane podczas
+uruchamiania systemu.
+(chroot)# systemctl enable xdm
+(chroot)# systemctl enable NetworkManager
+
+23. Zezwolenie na wykonanie polecenia ping przez zwykłego użytkownika:
+(chroot)# chmod +s /usr/bin/ping
+
+24. Zablokowanie pakietu base-files oraz oczyszczenie obrazu z pobranych
+pakietów:
+(chroot)# apt-mark hold base-files
+(chroot)# apt-get clean
+
+23. Utworzenie archiwum z głównym systemem plików.
+(chroot)# history -c
+(chroot)# <- Ctrl+d
+  $ cd rootfs
+  $ sudo tar -czvf ../greenOS_rp.tgz *

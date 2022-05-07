@@ -1,0 +1,10 @@
+-- Wersja: 1.0.3
+  * Aktualizacja pakietów
+  * Usunięcie plików pakietu lsb-release z pakietu icedesk.sce. Pakiet
+    icedesk.sce niezdatny do samodzielnego update-u przez sce-update.
+  * Zmiana domyślnego terminala z aterm na xterm, mimo to pakiet aterm
+    dalej pozostaje dostępny i ładowany podczas startu systemu.
+  * Dodanie pakietu neofetch
+  * Pakiet neofetch oraz pakiet bash (zależność pakietu neofetch) jest
+    teraz ładowany podczas systemu
+  * Uruchomienie pakietu neofetch wraz ze startem powłoki.

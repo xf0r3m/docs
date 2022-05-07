@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="https://i.ibb.co/khy45hh/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+					text-align: left;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				ul {
+					text-align: left;
+				}
+        p { text-align: justify; }
+			</style>
+		</head>
+		<body style="font-family: monospace;" >
+<pre>
+     _       _          _     _       _         _     _                  ___ 
+    | | __ _| | __   __| |___(_) __ _| | __ _  | |   (_)_ __  _   ___  _|__ \
+ _  | |/ _` | |/ /  / _` |_  / |/ _` | |/ _` | | |   | | '_ \| | | \ \/ / / /
+| |_| | (_| |   <  | (_| |/ /| | (_| | | (_| | | |___| | | | | |_| |>  < |_| 
+ \___/ \__,_|_|\_\  \__,_/___|_|\__,_|_|\__,_| |_____|_|_| |_|\__,_/_/\_\(_)
+</pre>
+<p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+	&#9760;&nbsp;<a href="https://morketsmerke.net">morketsmerke</a>&nbsp;&#9760;
+</p>
+			<div style="margin-left: auto; margin-right: auto; width: 80%;">
+        <h1>Uruchamianie jądra oraz programy rozruchowe</h1>
+        <p>
+          W tym materiale chciałbym poruszyć, w jaki sposób jest uruchamiane
+          jądro oraz czym są służące właśnie do uruchamiania jądra programy
+          rozruchowe. Z racji tego iż uruchomienie jądra nie jest zbyt obszernym
+          zagadnieniem, to większość materiału poświęcimy właśnie programom
+          rozruchowym.
+        </p>
+        <p>
+          Uruchomienie jądra jest częścią sekwencji rozruchu całego systemu
+          operacyjnego. Najbardziej uproszczona procedura uruchamiania Linuxa
+          wygląda w następujący sposób.
+        </p>
+        <ol>
+          <li>BIOS komputera lub jego firmware ładuje a następnie uruchamia
+              <strong>program rozruchowy</strong> (ang. <em>boot loader</em>).
+          </li>
+          <li>Program rozruchowy znajduje na dysku obraz jądra, ładuje go do
+              pamięci oraz uruchamia.</li>
+          <li>Jądro inicjuje wszystkie urządzenia wraz z ich sterownikami.</li>
+          <li>Jądro montuje podstawowy system plików.</li>
+          <li>Jądro uruchamia program o nazwie <strong>init</strong> związany
+              z procesem o PID-zie <strong>1</strong>. Tym samym uruchamiana
+              jest przestrzeń użytkownika.</li>
+          <li>Program <em>init</em> uruchamia pozostałe elementy systemu</li>
+          <li>W pewnym momencie <em>init</em> uruchamia proces pozwalający na
+              na zalogowanie się użytkownika. Dzieje się to zazwyczaj pod
+              sam koniec procesu uruchamiania systemu.</li>  
+        </ol>
+        <p>
+          Zaznajomienie się w proces uruchamiania systemu, może pomóc w
+          rozwiązywaniu problemów z jego rozruchem. Wiele dystrybucji, które
+          starają się być przyjazne użytkownikowi, utrudnia nam to, próbując
+          ukryć wiele komunikatów za ekranami ładowania. Przez co tę procedurę
+          prześledzić możemy dopiero po załadowaniu systemu i zalogowaniu się.
+        </p>
+        <h2>Komunikaty rozruchowe</h2>
+        <p>
+          Podczas rozruchu generowana jest duża ilość komunikatów 
+          diagnostycznych opisujących cały ten proces. Na początku pojawiają
+          się tylko komunikaty generowane przez jądro, ale poźniej również
+          mogą pojawiać się komunikaty od procesów i procedur uruchamianych
+          przez program typu <em>init</em>. Te komunikaty bywają nieczytelne i
+          niespójne. Dodatkowo nieustanny rozwój sprzetu, powoduje ciągły 
+          rozwój jądra, co wpływa na szybkość jego uruchamiania. 
+          Nowoczesne jądra
+          uruchamiają się coraz szybciej i cięzko jest nadąrzyć za
+          pojawiającymi się komunikatami. Istnieją dwie metody przeglądania
+          komunikatów diagnostycznych rozruchu jądra oraz działających
+          poźniej programów. Możemy: 
+        </p>
+        <ul>
+          <li>Przejrzeć pliki protokołu systemowego <em>/var/log/messages</em>
+          </li>
+          <li>Użyć polecenia <strong>dmesg</strong> przepuszczając jego
+              wyjście przez polecenie <em>less</em>, ponieważ informacji będzie
+              na tyle dużo, że nie zmieszczą się one na jednym ekranie.
+              Polecenie wykorzystuje to cykliczny bufor jądra, który ma
+              ograniczoną ilość miejsca, jednak nowoczesne jądro mają go na
+              tyle dużo, że mogą przechowywać komunikaty diagnostyczne przez
+              długi czas.</li> 
+        </ul>
+        <p>
+          Poniżej znajduje się fragment wyjścia polecenia <em>dmesg</em> z
+          maszyny, na której aktualnie tworzę ten materiał:
+        </p> 
+<pre class="code-block">
+[    0.000000] Linux version 5.14.14-arch1-1 (linux@archlinux) (gcc (GCC) 11.1.0, GNU ld (GNU Binutils) 2.36.1) #1 SMP PREEMPT Wed, 20 Oct 2021 21:35:18 +0000
+[    0.000000] Command line: BOOT_IMAGE=/boot/vmlinuz-linux root=UUID=40b29c57-5564-4896-802c-c7179a584850 rw loglevel=3 quiet
+[    0.000000] x86/fpu: Supporting XSAVE feature 0x001: 'x87 floating point registers'
+[    0.000000] x86/fpu: Supporting XSAVE feature 0x002: 'SSE registers'
+[    0.000000] x86/fpu: Supporting XSAVE feature 0x004: 'AVX registers'
+[    0.000000] x86/fpu: Supporting XSAVE feature 0x008: 'MPX bounds registers'
+[    0.000000] x86/fpu: Supporting XSAVE feature 0x010: 'MPX CSR'
+[    0.000000] x86/fpu: xstate_offset[2]:  576, xstate_sizes[2]:  256
+[    0.000000] x86/fpu: xstate_offset[3]:  832, xstate_sizes[3]:   64
+[    0.000000] x86/fpu: xstate_offset[4]:  896, xstate_sizes[4]:   64
+[    0.000000] x86/fpu: Enabled xstate features 0x1f, context size is 960 bytes, using 'compacted' format.
+[    0.000000] signal: max sigframe size: 2032
+</pre>
+        <p>
+          Po zakończeniu uruchamiania jądra, generowane są komunikaty przez
+          procesy startujące przestrzeń użytkownika. Skrypt startowe zazwyczaj
+          wypisują na konsole swoje komunikaty, a te są kasowane po zakończeniu
+          procedury.
+        </p>
+        <h2>Inicjowanie jądra i opcje rozruchu</h2>
+        <p>
+          Rozruch jądra wygląda w następujący sposób:
+        </p>
+        <ol>
+          <li>Sprawdzenie procesora.</li>
+          <li>Sprawdzenie pamięci.</li>
+          <li>Rozpoznawanie magistrali urządzeń.</li>
+          <li>Rozpoznawanie urządzeń.</li>
+          <li>Konfigurowanie uzupełniające podsystemów jądra (sieć, itp.).</li>
+          <li>Montowanie podstawowego systemu plików.</li>
+          <li>Uruchomienie przestrzeni użytkownika.</li>
+        </ol>
+        <p>
+          Pierwsze dwa etapy nie są zbyt spektakularne. Jednak gdy dochodzimy
+          do obsługi urządzeń, to tutaj mogą pojawiąć się zależności. Sterownik
+          dysków może zależeć od funkcji magistrali oraz podsystemu SCSI. Na
+          dalszym etapie jeśli jądro musi załadować zewnętrzne moduły to robi
+          to przed montowaniem podstawowego systemu pliku, ze względu na to
+          do rozruchu jądra potrzebny jest początkowy system plików w pamięci
+          RAM. Po tych czynnościach montowane jest wkońcu podstawowy system
+          plików oraz uruchamiana jest przestrzeń użytkownika. 
+        </p>
+        <p>
+          Jądro uruchomienie przestrzeni użytkownika komunikuje w nastepujący 
+          sposób:
+        </p>
+<pre class="code-block">
+[    0.703413] Freeing unused kernel image (initmem) memory: 1804K
+[    0.703529] Write protecting the kernel read-only data: 26624k
+[    0.704743] Freeing unused kernel image (text/rodata gap) memory: 2036K
+[    0.705252] Freeing unused kernel image (rodata/data gap) memory: 884K
+[    0.779720] x86/mm: Checked W+X mappings: passed, no W+X pages found.
+[    0.779723] rodata_test: all tests were successful
+[    0.779724] x86/mm: Checking user space page tables
+[    0.817335] x86/mm: Checked W+X mappings: passed, no W+X pages found.
+[    0.817347] Run /init as init process
+[    0.817348]   with arguments:
+[    0.817349]     /init
+[    0.817350]   with environment:
+[    0.817350]     HOME=/
+[    0.817350]     TERM=linux
+[    0.817351]     BOOT_IMAGE=/boot/vmlinuz-linux
+</pre>
+        <h2>Parametry jądra</h2>
+        <p>
+          Podczas uruchamiania jądra program rozruchowy przezkazuje do niego
+          listę parametrów, w postaci tekstowych opcji. Parametry definiują
+          typowe dla jądra zachowania jak np. ilość wypisywanych komunikatów
+          diagnostycznych. Możemy je podejrzeć za pomoca polecenia
+          <code class="code-inline">cat /proc/cmdline</code>.
+        </p>
+<pre class="code-block">
+$ cat /proc/cmdline
+BOOT_IMAGE=/boot/vmlinuz-linux root=UUID=40b29c57-5564-4896-802c-c7179a584850 rw loglevel=3 quiet
+</pre>
+        <p>
+          Parametrami mogą być pojedyńcze słowa, takie jak
+          <code class="code-inline">rw</code> czy 
+          <code class="code-inline">quiet</code>. Mogą również przyjmować
+          postaci opcji <em>klucz=wartość</em> tak jak opcja
+          <code class="code-inline">BOOT_IMAGE=...</code>. Najważniejszym
+          parametrem, który jest niezbędny do uruchomienia systemu jest
+          parametr <code class="code-inline">root</code>, wskazuje on domyślną
+          lokalizacje głównego systemu plików, bez niego nie będzie możliwe
+          uruchomienie przestrzeni użytkownika. Wartość tego parametru możemy
+          podać nazwą urządzenia, jednak w obecnych dystrybucjach stosowany
+          jest identyfikator UUID. Ciekawą cechą parametrów jądra jest fakt, że
+          jeśli jądro nie zrozumie jakiegoś parametu, to i tak je zapamiętuje a
+          następnie przekaże je do programu typu <em>init</em>, dlatego
+          parametry dla tego typu programu przekazywane są za pomocą
+          parametrów jądra.
+        </p>
+        <h2>Programy rozruchowe</h2>
+        <p>
+          Zadaniem <strong>programu rozruchowego</strong> jest załadowanie
+          jądra do pamięci, a następnie uruchomienie go z odpowienimi
+          parametrami. Problemami z jakimi musi poradzić sobie ten program
+          są: 
+        </p>
+        <ul>
+          <li>Namierzenie jądra</li>
+          <li>Parametry jakie należy mu przekazać w momencie uruchamiania</li>
+        </ul>
+        <p>
+          Odpowiedzi na te pytania są proste, jądro oraz jego parametry
+          znajdują się gdzieś na głownym systemie plików (system plików
+          przechowywującym katalog glówny), jednak należy pamiętać, że w tym
+          momencie jądro jeszcze nie działa, więc nie ma mozliwości
+          przeszukania systemu plików, aby znaleźć niezbędne pliki.
+        </p>
+        <p>
+          W komputerach PC programy rozruchowe uzyskują dostęp do dysków za
+          pośrednictwem interfejsów <strong>BIOS</strong> lub 
+          <strong>UEFI</strong>. Dyski twarde są wyposarzone w odpowiedniego
+          typu oprogramowanie, pozwalające na dostęp do danych za pomocą
+          adresowania <strong>LBA</strong> 
+          (ang. <em>Linear Block Addressing</em>). To rozwiązanie ma bardzo
+          niską wydajność, ale ten tryb adresowania pozwala na uniwersalny
+          dostęp do zawartości dysku. Programy rozruchowe są jedynmi programami,
+          które odwołują się dysku za pośrednictwem BIOS-u. Jądro korzysta ze
+          sterowników o znacznie lepszej wydajnosci. Większość programów
+          rozruchowych może odczytać tablicę partycji i ma wbudowaną obsługę
+          systemów plików w trybie tylko do odczytu dzięki czemu mogą one
+          odczytywać pliki z dysku.
+        </p>
+        <h3>Zadania programu rozruchowego</h3>
+        <p>
+          Poniżej znajduje się lista zadań programu rozruchowego stosowanego
+          na Linux-ie.
+        </p>
+        <ul>
+          <li>Wybieranie z pośród kilku różnych jąder</li>
+          <li>Przełączanie pomiędzy różnymi zestawami parametrów jądra</li>
+          <li>Umożliwienie użytkownikowi ręcznej edycji nazw i parametrów
+              jądra systemu</li>
+          <li>Umożliwienie uruchomienia innych systemów operacyjnych</li>
+        </ul>
+        <h3>Przegląd programów rozruchowych</h3>
+        <p>
+          Oto lista najczęsciej spotykanych programów rozruchowych, na jakie
+          możemy się natknąć obsługując dystrybucje Linux-a.
+        </p>
+        <ul>
+          <li><strong>GRUB</strong> - standardowy program rozruchowy, stosowany
+              w większości dystrybucji.</li>
+          <li><strong>LILO</strong> - pierwszy program rozruchowy jaki powstał,
+              obecnie używany tylko przez dystrybucje Slackware Linux.</li>
+          <li><strong>SYSLINUX</strong> - Program rozruchowy współpracujący
+              z wieloma systemami plików. <em>ISOLINUX</em> (jego wersja) jest
+              często wykorzystywana w obrazach instalacyjnych lub LiveCD.</li>
+          <li><strong>LOADLIN</strong> - uruchamia jądro w systemie MS-DOS</li>
+          <li><strong>efilinux</strong> - program rozruchowy działający z
+              UEFI, który ma być wzorem i modelem dla innych programów
+              rozruchowych.</li>
+          <li><strong>coreboot</strong> (dawniej <strong>LinuxBIOS</strong>) -
+              zamiennik BIOS-u komputera o wysokiej wydajnosci, który może
+              zawierać jądro systemu.</li>
+          <li><strong>Linux Kernel EFISTUB</strong> - moduł jądra pozwalający
+              na załadowanie jądra bezpośrednio z partycji systemowej EFI/UEFI.
+              Pojawia się w najnowszych systemach.</li> 
+        </ul>
+        <p>
+            W tym materiale skupimy się na GRUB-ie, ponieważ zastosowanie
+            innych jest albo niszowe (<em>LILO</em>) albo występuje w
+            specyficznych przypadkach (<em>SYSLINUX</em>). Innymi czynnika są
+            albo prostota konfiguracji (konfiguracja GRUB-a nie jest aż tak
+            oczywista) albo szybkość działania (GRUB do najszybszych nie 
+            należy). 
+        </p>
+        <h2>Wprowadzenie do programu GRUB</h2>
+        <p>
+          Na wstępie chciałbym zaznaczyć, że będziemy zajmować się tutaj
+          <em>GRUB</em>-em w wersji 2. Dostępna jest rownież starsza wersja
+          <strong>GRUB Legacy</strong> jednak obecnie, jest rzadko spotykana. 
+        </p>
+        <p>
+          Jedną z najważnieszych funkcji tego programu jest możliwość
+          poruszania się po systemie plików, przez co możemy łatwiej wybrać
+          interesujący nas obraz jądra i jego konfigurację.
+        </p>
+        <p>
+          W nie których dystrybucjach menu wyboru programu rozruchowego może
+          się domyślnie nie pokazywać, wiec jeśli menu się nie wyświetla
+          dotyczy to głównie dystrybucji Ubuntu, należy przytrzymąć klawisz
+          <strong>Shift</strong> wczasie wyświetlania informacji przez BIOS
+          lub <em>firmware</em> komputera. Klaszyczne menu wygląda jak na
+          załączonym obrazku. 
+        </p>
+        <p>
+          <img src="https://i.ibb.co/r3tbnDj/boot-loader-menu.png" alt="boot-loader-menu" border="0">
+        </p>
+        <p>
+          Jak możemy zobaczyć, <em>boot loader</em> po menu odlicza czas. Po
+          jego upływie wybierze pierwszą zaznaczoną opcję (domyślną), czas
+          możemy zatrzymać zmieniając domyślny wybór za pomocą klawiszy 
+          strzałek. Opcje rozruchu możemy podejrzeć na wyróżnionym wpisie za
+          pomocą klawisza <strong>e</strong>. Na zrzucie ekranu poniżej
+          przestawiono tryb edycji (użycie klawisza 'e') na domyslnej opcji
+        </p>
+        <p>
+          <img src="https://i.ibb.co/M8nQFM3/boot-loader-menu-e.png" alt="boot-loader-menu-e" border="0">
+        </p>
+        <p>
+          Na jego podstawie możemy wywnioskować, że główny system plików
+          wskazywany jest przez UUID, a pośród parametrów jądra znajdują się
+          takie opcje jak <code class="code-inline">ro</code> oraz
+          <code class="code-inline">quiet</code>. Konfiguracja przestawiona
+          na zrzucie tyczy się samego GRUB-a, mimo to możemy zobaczyć tutaj
+          kilka terminów, które odnoszą się typowo do jądra. Wynika to z faktu
+          zapożyczeń z wielu źródeł, GRUB ma swoje własne jądro (można tak
+          powiedzieć), oraz własne polecenie 
+          <code class="code-inline">insmod</code> pozwalające na dynamiczne
+          ładowanie modułów, które są typowe dla GRUB-a i są niezależne od
+          jądra właściwego systemu. Dostępna jest na wersją polecenia
+          <em>ls</em> dla GRUB-a. W konfiguracji GRUB-a, wszystkie parametry
+          jądra są podawane po słowie kluczowym <strong>linux</strong>.
+          Mogą pojawić się identyczne opcje, ale jeśli nie będą występowac po
+          wyżej wymienionym słowie kluczowym, będą oznaczać instrukcje lub
+          dyrektywy dla samego GRUB-a. Piewszym parameterem podanym po słowie
+          <em>linux</em>, jest ścieżka dostępu do pliku jądra. Program załaduje
+          ten plik ze swojego glównego systemu plików ustalonego na podstawie
+          instrukcji <code class="code-inline">search</code>. Podobnie jest
+          z początkowym system plików w pamięci RAM, jest on wskazywany za
+          pomocą instrukcji <code class="code-inline">initrd</code>. Użwając
+          klawisza "e" przechodzimy tak naprawdę do trybu edycji, sam GRUB daje
+          nam taką możliwość, dzięki czemu możemy coś poprawić jeśli uznamy, że
+          coś z rozruchem jest nie tak.
+        </p>
+        <h3>Przeszukiwanie urządzeń i partycji za pomocą wiersza poleceń
+            programu GRUB</h3>
+        <p>
+          Przejście do wiersza poleceń GRUB-a wymaga naciśniecia klawisza
+          <strong>c</strong> podczas wyświetlania menu programu. Przejeście
+          do przeszukiwanie urządzeń wymaga podania dość istotnej informacji
+          mianowicie, chodzi o oznaczenia dysków, GRUB powsiada własne 
+          oznaczenia dla dysków i partycji, dyski oznacznane są przez
+          <strong>hdX</strong>, gdzie <em>X</em> - oznacza liczbę od 0.
+          Pierwszy zlokalizowany dysk posiada oznaczeie <em>hd0</em> i tak
+          dalej. Przy partycjach sprawa się komplikuje ponieważ oznaczenie
+          oparte jest na podstawie tablicy partycji. Dla tablicy MBR, będzie to
+          <strong>msdosX</strong>, a dla GPT <strong>gptX</strong>, zasada 
+          jest taka sama jak dla dysków.
+        </p>
+        <h4>Wypisywanie urządzeń</h4>
+        <p>
+          Po naciśnięciu klawisza w trakcie wyświetlania menu, zostaniem nam
+          zwrócony prompt wiersza poleceń programu GRUB.
+        </p>
+<pre class="code-block">
+grub&gt;
+</pre>
+        <p>
+          Aby wypisać wszystkie znalezione przez GRUB dyski użyjemy polecenia
+          <strong>ls</strong>.
+        </p>
+<pre class="code-block">
+grub&gt; ls
+(hd0) (hd0,msdos1) (hd0,msdos5)
+</pre>
+        <p>
+          W moim przypadku jest tylko jeden dysk z dwoma partycjami. Dysk
+          posiada tablicę <em>MBR</em>, co możemy wywnioskować po oznaczeniach
+          partycji. Inny ciekawy przykładem może być dodanie do powyższego
+          polecenia opcji <strong>-l</strong>. 
+          Wynik jest bardziej szczegółowy, z
+          przydatnych nam informacji może być wyświetlenie UUID dla każdego
+          rozpoznanego systemu plików.
+        </p>
+<pre class="code-block">
+grub&gt; ls -l
+Urządzenie hd0: Nie wykryto żadnego znanego systemu plików - rozmiar sektora
+512B - całkowity rozmiar w sektorach: 8388608KiB
+  Partycja hd0,msdos5: Nie wykryto żadnego znanego systemu plików - partycja
+zaczyna się od 7389184KiB - całkowity rozmiar w sektorach: 998400 KiB.
+  Partycja hd0,msdos1: Typ systemu plików ext* - czas ostatniej modyfikacji
+2021-11-15 12:01:42 Poniedziałek, UUID 9a5ca629-5a7c-4a2d-b752-b8ce4f365661 - 
+partycja zaczyna się od 1024KiB - całkowity rozmiar w sektorach: 7387136KiB
+</pre>
+        <p>
+          Patrząc na wynik, niestety nie jesteśmy wstanie stwierdzić, że
+          partycja nr. 5 jest przestrzenią wymiany. Nie ma tutaj żadniej
+          informacji na to wskazującej.
+        </p>
+        <h4>Nawigacja wśród plików</h4>
+        <p>
+          Nawigację rozpoczniemy od zmiennej <strong>root</strong>, zawiera ona
+          oznaczenie partycji, na której GRUB domyślnie będzie szukać jądra.
+          Za pomocą polecenia <strong>echo</strong> możemy wyświetlić sobie jej
+          zawartość.
+        </p>
+<pre class="code-block">
+grub&gt; echo $root
+hd0,msdos1
+</pre>
+        <p>
+          Za pomocą powyższej zmiennej możemy wykorzystać aby wyświetlić
+          znajdujące na partycji pliki i katalogi, wymaga to trochę 
+          inwencji twórczej, ale są prostsze sposoby:
+        </p>
+<pre class="code-block">
+grub&gt; ls ($root)/
+lost+found/ etc/ media/ vmlinuz.old var/ bin usr/ sbin lib lib32 lib64 libx32
+boot/ dev/ home/ proc/ root/ run/ sys/ tmp/ mnt/ srv/ opt/ initrd.img.old
+vmlinuz initrd.img
+grub&gt; ls /
+lost+found/ etc/ media/ vmlinuz.old var/ bin usr/ sbin lib lib32 lib64 libx32
+boot/ dev/ home/ proc/ root/ run/ sys/ tmp/ mnt/ srv/ opt/ initrd.img.old
+vmlinuz initrd.img
+</pre>
+        <p>
+          Wiersz polecenia GRUB-a oparto o podbne rozwiązania jak powłokę
+          BASH, dzięki czemu posiadamy historię wpisywanych poleceń oraz
+          obsługę identycznych skrótów klawiszowych. Za pomocą polecenia
+          <code class="code-inline">ls</code> możemy przeglądać różnego
+          katalogi głównego systemu plików. Inny poleceniem, już nie związanym
+          z nawigacją jest <strong>set</strong>. Pozwala ono przejrzeć
+          wszystkie obecnie zdefiniowane zmienne GRUB-a.
+        </p>
+<pre class="code-block">
+grub&gt; set
+...
+prefix=(hd0,msdos1)/boot/grub
+...
+</pre>
+        <p>
+          Z naszego punktu widzenia naistotniejsza jest zmienna
+          <code class="code-inline">prefix</code>, zawiera ona ścieżkę, na
+          której GRUB ma szukać swojej konfiguracji oraz plików dodatkowych.
+          Kiedy znudzi nam się już zabawa wierszem poleceń, naciskamy klawisz
+          <em>Esc</em>, powracając tym samym do menu programu.
+        </p>
+        <h3>Konfigurowanie programu GRUB</h3>
+        <p>
+          W katalogu wskazywanym przez zmienną <em>prefix</em> znajduje się
+          główny plik konfiguracyjny - <em>grub.cfg</em> oraz umieszczone w
+          różnych podkatalogach dodatkowe modułu. Nie modyfikujemy pliku
+          z konfiguracją bezpośrednio, lepiej jest użyć do tego polecenia
+          <strong>grub-mkconfig</strong>.
+        </p>
+        <p>
+          Przeglądając plik konfiguracyjny na początku natkniemy się na
+          definicje zmiennych oraz konfiguracje sposobu wyświetlania oraz
+          kolory menu. Następnie od dyrektywy <em>menuentry</em> rozpoczynają
+          się wpisy w menu. Wpisy zawierają dyrektywy ładowania modułów
+          <em>insmod</em>, ustawienie wyświetlania dla dalszych etapów 
+          uruchamiania systemu oraz co najważniejsze dyrektywy odpowiedzialne
+          za ładowanie systemu (<em>kernel</em> - definicja jądra wraz z jego
+          parametrami, <em>initrd</em> - defincja początkowego dysku w pamięci
+          RAM). Wsród wpisów <em>menuentry</em> możemy spotkać
+          dyrektywę <em>submenu</em>, tworząc podmenu. Podmenu stosuje się
+          w celu odróżnienia najnowszego (obecnie stosowanego jądra) od jego
+          poprzednich wersji stosowanych w systemie. Poniżej znajduje się
+          przykładowy plik zaczerpnięty ze świerzej instalacji Debiana.
+        </p>
+<pre class="code-block">
+#
+# DO NOT EDIT THIS FILE
+#
+# It is automatically generated by grub-mkconfig using templates
+# from /etc/grub.d and settings from /etc/default/grub
+#
+
+### BEGIN /etc/grub.d/00_header ###
+if [ -s $prefix/grubenv ]; then
+  set have_grubenv=true
+  load_env
+fi
+if [ "${next_entry}" ] ; then
+   set default="${next_entry}"
+   set next_entry=
+   save_env next_entry
+   set boot_once=true
+else
+   set default="0"
+fi
+
+if [ x"${feature_menuentry_id}" = xy ]; then
+  menuentry_id_option="--id"
+else
+  menuentry_id_option=""
+fi
+
+export menuentry_id_option
+
+if [ "${prev_saved_entry}" ]; then
+  set saved_entry="${prev_saved_entry}"
+  save_env saved_entry
+  set prev_saved_entry=
+  save_env prev_saved_entry
+  set boot_once=true
+fi
+
+function savedefault {
+  if [ -z "${boot_once}" ]; then
+    saved_entry="${chosen}"
+    save_env saved_entry
+  fi
+}
+function load_video {
+  if [ x$feature_all_video_module = xy ]; then
+    insmod all_video
+  else
+    insmod efi_gop
+    insmod efi_uga
+    insmod ieee1275_fb
+    insmod vbe
+    insmod vga
+    insmod video_bochs
+    insmod video_cirrus
+  fi
+}
+
+if [ x$feature_default_font_path = xy ] ; then
+   font=unicode
+else
+insmod part_msdos
+insmod ext2
+set root='hd0,msdos1'
+if [ x$feature_platform_search_hint = xy ]; then
+  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 --hint-baremetal=ahci0,msdos1  9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+else
+  search --no-floppy --fs-uuid --set=root 9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+fi
+    font="/usr/share/grub/unicode.pf2"
+fi
+
+if loadfont $font ; then
+  set gfxmode=auto
+  load_video
+  insmod gfxterm
+  set locale_dir=$prefix/locale
+  set lang=pl_PL
+  insmod gettext
+fi
+terminal_output gfxterm
+if [ "${recordfail}" = 1 ] ; then
+  set timeout=30
+else
+  if [ x$feature_timeout_style = xy ] ; then
+    set timeout_style=menu
+    set timeout=5
+  # Fallback normal timeout code in case the timeout_style feature is
+  # unavailable.
+  else
+    set timeout=5
+  fi
+fi
+### END /etc/grub.d/00_header ###
+
+### BEGIN /etc/grub.d/05_debian_theme ###
+set menu_color_normal=cyan/blue
+set menu_color_highlight=white/blue
+### END /etc/grub.d/05_debian_theme ###
+
+### BEGIN /etc/grub.d/10_linux ###
+function gfxmode {
+	set gfxpayload="${1}"
+}
+set linux_gfx_mode=
+export linux_gfx_mode
+menuentry 'Debian GNU/Linux' --class debian --class gnu-linux --class gnu
+--class os $menuentry_id_option 'gnulinux-simple-9a5ca629-5a7c-4a2d-b752-b8ce4f365661' {
+	load_video
+	insmod gzio
+	if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+	insmod part_msdos
+	insmod ext2
+	set root='hd0,msdos1'
+	if [ x$feature_platform_search_hint = xy ]; then
+	  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 
+--hint-baremetal=ahci0,msdos1  9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+	else
+	  search --no-floppy --fs-uuid --set=root 9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+	fi
+	echo	'Loading Linux 5.10.0-9-amd64 ...'
+	linux	/boot/vmlinuz-5.10.0-9-amd64 root=UUID=9a5ca629-5a7c-4a2d-b752-b8ce4f365661 ro  quiet
+	echo	'Loading initial ramdisk ...'
+	initrd	/boot/initrd.img-5.10.0-9-amd64
+}
+submenu 'Advanced options for Debian GNU/Linux' $menuentry_id_option 'gnulinux-advanced-9a5ca629-5a7c-4a2d-b752-b8ce4f365661' {
+	menuentry 'Debian GNU/Linux, with Linux 5.10.0-9-amd64' --class debian --class gnu-linux --class gnu 
+--class os $menuentry_id_option 'gnulinux-5.10.0-9-amd64-advanced-9a5ca629-5a7c-4a2d-b752-b8ce4f365661' {
+		load_video
+		insmod gzio
+		if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+		insmod part_msdos
+		insmod ext2
+		set root='hd0,msdos1'
+		if [ x$feature_platform_search_hint = xy ]; then
+		  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 
+--hint-baremetal=ahci0,msdos1  9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+		else
+		  search --no-floppy --fs-uuid --set=root 9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+		fi
+		echo	'Loading Linux 5.10.0-9-amd64 ...'
+		linux	/boot/vmlinuz-5.10.0-9-amd64 root=UUID=9a5ca629-5a7c-4a2d-b752-b8ce4f365661 ro  quiet
+		echo	'Loading initial ramdisk ...'
+		initrd	/boot/initrd.img-5.10.0-9-amd64
+	}
+	menuentry 'Debian GNU/Linux, with Linux 5.10.0-9-amd64 (recovery mode)' --class debian --class gnu-linux --class gnu 
+--class os $menuentry_id_option 'gnulinux-5.10.0-9-amd64-recovery-9a5ca629-5a7c-4a2d-b752-b8ce4f365661' {
+		load_video
+		insmod gzio
+		if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+		insmod part_msdos
+		insmod ext2
+		set root='hd0,msdos1'
+		if [ x$feature_platform_search_hint = xy ]; then
+		  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 
+--hint-baremetal=ahci0,msdos1  9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+		else
+		  search --no-floppy --fs-uuid --set=root 9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+		fi
+		echo	'Loading Linux 5.10.0-9-amd64 ...'
+		linux	/boot/vmlinuz-5.10.0-9-amd64 root=UUID=9a5ca629-5a7c-4a2d-b752-b8ce4f365661 ro single 
+		echo	'Loading initial ramdisk ...'
+		initrd	/boot/initrd.img-5.10.0-9-amd64
+	}
+	menuentry 'Debian GNU/Linux, with Linux 5.10.0-8-amd64' --class debian --class gnu-linux --class gnu 
+--class os $menuentry_id_option 'gnulinux-5.10.0-8-amd64-advanced-9a5ca629-5a7c-4a2d-b752-b8ce4f365661' {
+		load_video
+		insmod gzio
+		if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+		insmod part_msdos
+		insmod ext2
+		set root='hd0,msdos1'
+		if [ x$feature_platform_search_hint = xy ]; then
+		  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 
+--hint-baremetal=ahci0,msdos1  9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+		else
+		  search --no-floppy --fs-uuid --set=root 9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+		fi
+		echo	'Loading Linux 5.10.0-8-amd64 ...'
+		linux	/boot/vmlinuz-5.10.0-8-amd64 root=UUID=9a5ca629-5a7c-4a2d-b752-b8ce4f365661 ro  quiet
+		echo	'Loading initial ramdisk ...'
+		initrd	/boot/initrd.img-5.10.0-8-amd64
+	}
+	menuentry 'Debian GNU/Linux, with Linux 5.10.0-8-amd64 (recovery mode)' --class debian --class gnu-linux --class gnu 
+--class os $menuentry_id_option 'gnulinux-5.10.0-8-amd64-recovery-9a5ca629-5a7c-4a2d-b752-b8ce4f365661' {
+		load_video
+		insmod gzio
+		if [ x$grub_platform = xxen ]; then insmod xzio; insmod lzopio; fi
+		insmod part_msdos
+		insmod ext2
+		set root='hd0,msdos1'
+		if [ x$feature_platform_search_hint = xy ]; then
+		  search --no-floppy --fs-uuid --set=root --hint-bios=hd0,msdos1 --hint-efi=hd0,msdos1 
+--hint-baremetal=ahci0,msdos1  9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+		else
+		  search --no-floppy --fs-uuid --set=root 9a5ca629-5a7c-4a2d-b752-b8ce4f365661
+		fi
+		echo	'Loading Linux 5.10.0-8-amd64 ...'
+		linux	/boot/vmlinuz-5.10.0-8-amd64 root=UUID=9a5ca629-5a7c-4a2d-b752-b8ce4f365661 ro single 
+		echo	'Loading initial ramdisk ...'
+		initrd	/boot/initrd.img-5.10.0-8-amd64
+	}
+}
+
+### END /etc/grub.d/10_linux ###
+
+### BEGIN /etc/grub.d/20_linux_xen ###
+
+### END /etc/grub.d/20_linux_xen ###
+
+### BEGIN /etc/grub.d/30_os-prober ###
+### END /etc/grub.d/30_os-prober ###
+
+### BEGIN /etc/grub.d/30_uefi-firmware ###
+### END /etc/grub.d/30_uefi-firmware ###
+
+### BEGIN /etc/grub.d/40_custom ###
+# This file provides an easy way to add custom menu entries.  Simply type the
+# menu entries you want to add after this comment.  Be careful not to change
+# the 'exec tail' line above.
+### END /etc/grub.d/40_custom ###
+
+### BEGIN /etc/grub.d/41_custom ###
+if [ -f  ${config_directory}/custom.cfg ]; then
+  source ${config_directory}/custom.cfg
+elif [ -z "${config_directory}" -a -f  $prefix/custom.cfg ]; then
+  source $prefix/custom.cfg;
+fi
+### END /etc/grub.d/41_custom ###
+</pre>
+        <p>
+          Zróćmy uwagę na komentarze zapisane w tym pliku. Główny plik
+          konfiguracyjny jest tworzony przez skrypt powłoki 
+          <em>grub-mkconfig</em> na podstawie zawartości plików opisanych w 
+          tych
+          komentarzach. Miedzy nimi znajduje się zawartość tego pliku. Jeśli
+          będziemy mieć potrzebę wprowadzenia zmian, to należy je umieścić w
+          pliku <em>/boot/grub/custom.cfg</em>. Do wprowdzania zmian w
+          konfiugracji mogą posłużyć pliki <em>/etc/grub.d/40_custom</em> oraz
+          <em>/etc/grub.d/41_custom</em>. Decydując się na wykorzystanie pliku
+          <em>40_custom</em>, możemy spodziewać się, że nasza konfiguracja może
+          zostać nadpisana przez aktualizacje pakietu GRUB. Jeśli użyjemy pliku 
+          <em>custom.cfg</em>, to nie nasze zmiany nie pojawią się podczas
+          generowania pliku konfiguracyjnego, zostaną załadowane podczas
+          uruchamiania GRUB-a. Przed wprowadzeniem zamian, należy utworzyć
+          kopię pliku.
+        </p>
+        <p>
+          Nową konfigurację w celu sprawdzenia możemy wygenerować na 
+          standardowe wyjście za pomocą polecenia:
+        </p>
+<pre class="code-block">
+# grub-mkconfig
+</pre>
+        <p>
+          Jeśli konfiguracja jest gotowa, możemy ją zapisać do właściwego pliku.
+          Do powyższego polecenia dodamy opcję <strong>-o</strong> i wskażemy
+          miejsce zapisania pliku.
+        </p>
+<pre class="code-block">
+# grub-mkconfig -o /boot/grub/grub.cfg
+</pre>
+        <h3>Instalowanie programu GRUB</h3>
+        <p>
+          Każdy kto kiedyś miał nieco więcej styczności z dystrybucjami
+          Linux-a, zastanawia się tutaj nad kolejnością. Dlaczego przestawiłem
+          na początku konfigurację, a nie instalacje. Instalacja GRUB-a 
+          jest bardziej skomplikowana niż jego konfiguracja. Nie ma się co tym
+          jednak za bardzo przejmować, poniważ tym zadaniem zajmuje się pakiet
+          oprogramowania dostarczany przez dystrybucje. Głównym
+          powodem dla ręcznej instalacji GRUB, może być przygotwanie 
+          własnej sekwencji rozruchowej.
+        </p>
+        <p>
+          Zanim jednak przejdziemy do instalacji programu rozruchowego musimy
+          określić jakiego rodzaju jest rozruch przeprowadzany w naszym
+          komputerze.
+        </p>
+        <ul>
+            <li>
+              W przypadku <strong>rozruchu MBR</strong> rekord rozruchowy 
+              zawiera niewielki obszar, który jest ładowany do pamięci zaraz
+              po teście POST. Obszar ten jest za mały aby pomieścić 
+              jakikolwiek program rozruchowy, co jest przczyną tzw.
+              <strong>wieloetapowego programu rozruchowego</strong>. We 
+              wspomnianym kawłku
+              pamięci znajduje się kod odpowiedzialny za załadowanie pozostałej
+              części kodu programu rozruchowego znajdującego się gdzieś
+              pomiędzy MBR a pierwszą partycją. Nie jest do za dobre 
+              roziwązanie ponieważ każdy program może nadpisać ten obszar.
+              Jednak nie tylko GRUB, korzysta z tego rozwiązania robi to
+              większość programów rozruchowych. Ten rozdzaj rozruchu nie
+              funkcjonuje wraz partycjami GPT. Ponieważ tablica GPT znajduje
+              się za MBR, a on sam pozostał w celu zapewnienia wstecznej
+              zgodności. Obejściem tego problemy jest przygotowanie niewielkiej
+              partycji rozruchowej z specjalnym identyfikatorem UUID,
+              odpowiednio dużej aby swobodnie zmienieścić tam program
+              rozruchowy. Tablice GPT są zazwyczaj wykorzystywane wraz z
+              rozruchem UEFI.
+            </li>
+            <li>
+              W przypadku <strong>rozruchu UEFI</strong> producenci oraz
+              duże firmy dostarczające oprogramowanie, uznali że tradycjny
+              sposób rozruchu jest bardzo ograniczony. W ten sposób
+              powstało EFI (ang. <em>Extensible Firmware Interface</em>).
+              Trochę mineło zanim się to upowszechniło, jednymi z pierwszych
+              komercyjnych komputerów stosujących EFI, był polwęglanowy
+              Apple MacBook z 2006 roku wykorzystując 32-bitową werjsę. Obecnym
+              standardem jest UEFI (ang. <em>Unified EFI</em>), udostępniającym
+              takie funkcje jak wybudowana powłka, możliwość odcztywania
+              tablic partycji czy nawigowanie po systemach plików. Schemat
+              partycjonowania GPT jest częścią standardu UEFI. W systemach UEFI
+              rozruch jest łatwiejszy do zrozumienia. W tym przypadku 
+              wykonywalny
+              kod rozruchowy nie musi znajdować się poza system plików. Na
+              dysku tworzona jest nowa partycja oznaczna jako 
+              <strong>systemowa partycja EFI</strong> 
+              (ang. <em>EFI System Partition - ESP</em>) zawierającą katalog
+              <em>efi</em>. Każdy program ma swój identyfikator oraz podkatalog
+              np. <em>efi/grub</em>. Plik programu rozruchowego ma rozszerzenie
+              <em>.efi</em> i znajduje się w katalogu wraz z innymi plikami
+              pomocniczymi. Kiedy nasz komputer jest oparty wyłącznie na
+              UEFI potrzebne jest użycie programu rozruchowego przystosowanego
+              do pracy z EFI. Konieczne jest również zapisane informacji w
+              firmwarze komputera o tym, że taki program rozruchowy będzie
+              uruchamiał system operacyjny.
+            </li>
+        </ul>
+        <p>
+          Jak rozpoznać u siebie czy mamy doczynienia z MBR, czy UEFI?
+          Najlepiej uruchomić LiveCD z jakąś dystrybucją. Domyślny typ rozruchu
+          poznamy po wyglądzie menu programu zawartego na LiveCD. Dla MBR
+          często stosuje się program <strong>SYSLINUX</strong>, dla EFI używa
+          się GRUB-a albo <strong>rEFInd</strong>. Menu dla EFI może być
+          wyświetlone w lepszej rozdzielczości. Inny sposobem jest zajrzenie
+          do biosu, jeśli będzie wyglądać dość wyszukanie: wykresy, animacje
+          itd. to znaczy, że korzystamy z EFI. Jeśli wygląda jak typowy bios
+          to możemy sprawdzić zakładkę "Boot", czy możemy przestawić rozruch
+          między UEFI lub "Legacy" (MBR). Jeśli mamy możliwośc użycia MBR,
+          korzystajmy z MBR. Ostatnim sposobem jaki przychodzi mi do głowy
+          jest uruchomienie dystrybucji z LiveCD, zainstalowanie
+          narzędzia <strong>efibootmgr</strong> i wydanie polecenia:
+        </p>
+<pre class="code-block">
+# efibootmgr -v
+</pre>
+        <p>
+          Jeśli zwróci błąd mówiący mniej więcej tyle, że w systemie nie
+          występują żadne zmienne. To korzystamy z rozruchu MBR. Przy UEFI
+          warto pamiętać o tym że istnieje jeszcze jedna dodatkowa cecha,
+          która definiuje nam jakiego programu rozruchowe należy użyć.
+          Mianowcie chodzi o wersje EFI ponieważ dostępna jest 32 oraz
+          64-bitowa. Z doświadczenia jednak wiem, że dzisiaj o sprzęt z
+          32-bitowym UEFI trzeba się postarać. W naszych komputerach będziemy
+          mieć doczynienia najprawdopodbniej z 64-bitowym UEFI z możliwością
+          przełączenia na MBR, co polecam zrobić. Mniej możliwych problemów
+          do wystąpienia. 
+        </p>
+        <p>
+          Przed samą instalacją musimy zdefiniować następujące elementy:
+        </p>
+        <ul>
+          <li>Katalog docelowy dla programu rozruchowego widziany przez
+              aktualnie pracujący system. Przypadku zwykłej instalacji
+              podczas instalowania systemu, takim katalogiem jest
+              <em>/boot</em>. Jednak w przypadku instalacji na nośnikach
+              zewnętrznych nie jest to takie oczywiste.</li>
+          <li>Widoczne w systemie urządzenie docelowe dla instalacji GRUB-a.
+              Takie sytuacje najczęściej mają miejsce podczas ręcznej
+              instalacji jakiejś dystrybucji. Jeśli nie korzystaliśmy z
+              dedykowanego narzędzia do zmiany katalogu głównego, wówczas
+              trzeba się upewnić, że dysk jest widoczny w środowisku
+              <em>chroot</em>.</li>
+          <li>Punkt montowania partycji systemowej EFI, dla rozruchu UEFI. 
+              Również
+              tyczy się to przypadku opisnego w drugim punkcie. Taką partycje
+              montuje się przeważnie zaraz po zamontowaniu partycji
+              przeznaczonej na katalog główny. Tego typu partycje nie są
+              montowane przez narzędzia do zmiany katalogu głównego.</li>
+        </ul>
+        <p>
+          Z programem GRUB dostarczane jest narzędzie
+          <strong>grub-install</strong>, które skomplikowane zadanie jakim jest
+          zbudowanie odpowiedniego programu z użyciem odpowiednich modułów
+          sprowadza do pojedyńczego polecenia. Jeśli chcemy zainstalować
+          GRUB, z wykorzystaniem standardowego katalogu <em>/boot</em>.
+          Należy użyć prostego polecenia zapisanego poniżej.
+        </p>
+<pre class="code-block">
+# grub-install /dev/sda
+</pre>
+        <p>
+          Gdzie <code class="code-inline">/dev/sda</code> jest docelowym
+          urządzeniem dla GRUB-a. Inny przykładem jest instalacja GRUB na
+          nosniku zewnętrznym. Taką samą instalację będziemy przez
+          przeprowadzać również, gdy będziemy chcieli zainstalować program
+          rozruchowy bez zmiany katalogu głównego. Za pomocą opcji
+          <strong>--boot-directory</strong> będzie musimy wskazać katalog
+          docelowy programu.
+        </p>
+<pre class="code-block">
+# grub-install --boot-directory=/mnt/boot /dev/sda
+</pre>
+        <p>
+          Instalacja dla systemów UEFI wymaga jeszcze jednej opcji, mianowicie 
+          wskazania identyfikatora programu rozruchowego, tutaj przy nie 
+          których dystrybucjach mogą pojawić się problemy. Na przykład dla 
+          Debiana 
+          identyfikator nie może być inny niż <strong>debian</strong>, w 
+          przeciwnym razie zamiast menu, dostaniemy wiersz polecenia dla
+          Arch Linux, stosowanym przez mnie identyfikatorem było <em>GRUB</em> 
+          i nie było problemów. Wydaje mi się, że może być to wina kompilacji
+          programu na potrzeby pakietu dystrybucji. Identyfikator wskazujemy
+          za pomocą opcji <strong>--bootloader-id</strong>. Jeśli
+          chcemy być drobiazgowi i mieć pewność że została zainstalowana tą
+          żądana wersja należy użyć opcji <strong>--target</strong>
+        </p>
+<pre class="code-block">
+#64-bitowe UEFI
+# grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub
+
+#32-bitowe UEFI
+# grub-install --target=i386-efi --efi-directory=/boot --bootloader-id=grub
+</pre>
+        <p>
+          W obu przypadkach użyłem opcji <code class="code-inline">--target</code>
+          ponieważ te nazwy wersji nie są tak oczywiste. Nazwą dla MBR jest
+          <strong>i386-pc</strong>.
+        </p>
+        <h2>Problemy z bezpiecznym rozruchem</h2>
+        <p>
+          Microsoft wymógł w momencie premiery Windows 8 na producentach
+          sprzetu użycia funkcji bezpiecznego rozruchu 
+          (ang. <em>Secure Boot</em>). Przez co UEFI wymaga podpisanego przez
+          zaufaną organizację programu rozruchowego. Twórcy
+          programów rozruchowych musieli mierzyć się z kolejnym wyzwaniem - 
+          uruchomieniem 
+          swoich programów na najnowyszych komputerach. Najprostszym
+          rozwiązaniem tego
+          problemu, było poprostu wyłączenie <em>Secure Boot</em> na swoich
+          komputerach. Obecnie jednak dostarczane są w pełni podpisane
+          rozwiązania. Nie które z nich to to tylko programy wstępne dla GRUB-a
+          inne są w pełni podpisanymi sekwencjami rozruchu.
+        </p>
+        <h2>Ładowanie innych systemów operacyjnych</h2>
+        <p>
+          Używanie wielu systemów operacyjnych na jednym komputerze jest
+          teraz prostsze dzięki UEFI. Na partycji ESP może znajdować się
+          kilka różnych programów rozruchowych. Możemy być jednak zmuszeni do
+          korzystania z programu współpracującego z MBR, dlatego istnieje
+          możliwość skonfigurować GRUB-a w taki sposób aby uruchomił inny
+          program rozruchowy znajdujący się na innej partycji. Taki proces
+          nazywa się <strong>rozruchem łańcuchowym</strong>
+          (ang.<em>chainloading</em>).
+        </p>
+        <p>
+          Do wprowadzenie rozruchu łańcuchowego należy utworzyć nowy wpis
+          w konfiguracji GRUB-a. Często wraz z GRUB-em instalowany jest
+          pakiet <strong>os-prober</strong> przynajmniej tak jest w przypadku
+          Debiana i pochodnych. Program ten szuka innych systemów operacyjnych
+          na partycjach docelowego dysku. Uruchamiany jest zazwyczaj podczas
+          generowania pliku konfiguracyjneg GRUB-a. Program sam wygeneruje 
+          odpowiednie wpisy, pojawią się one w menu GRUB-a. Jeśli 
+          <em>os-prober</em> nie zadziała to poniżej znajduje się przykładowy 
+          wpis uruchamiający system Windows, gdyby zadarzyła się potrzeba
+          dodania go ręcznie.
+        </p>
+<pre class="code-block">
+menuentry "Windows" {
+  insmod chain
+  insmod ntfs
+  set root=(hd0,3)
+  chainloader +1
+}
+</pre>
+        <p>
+          Wartość <code class="code-inline">+1</code>, nakazuje uruchomić
+          jakiekolwiek dane znajdujące się w pierwszym sektorze partycji.
+        </p>
+        <h2>Szczegóły programu rozruchowego</h2>
+        <p>
+          Podczas instalacji GRUB-a, określiśmy sobie kilka zagadnień z tego
+          tematu. Poznaliśmy szczegóły rozruchu MBR oraz EFI, pozostało jeszcze
+          dowiedzieć się jak dokładnie działa GRUB. Poniżej znajduje się lista
+          czynności, które wykonują się podczas rozruchu. 
+        </p>
+        <ol>
+          <li>BIOS lub firmware komputera PC inicjuje elementy sprzętowe i
+              poszukuje kodu rozruchowego na dyskach w kolejności ustalonej
+              w konfiguracji (kolejce bootwania).</li>
+          <li>Po odnalezieniu kodu rozruchowego BIOS lub firmware ładuje go
+              do pamięci i uruchamia. W tym momencie GRUB zostaje
+              uruchomiony.</li>
+          <li>Załadowana zostaje podstawowa funkcjonalność programy GRUB.</li>
+          <li>Inicjacja. GRUB otrzymuje możliwość uzyskania dostępu do dysków i
+              systemów plików.
+          <li>GRUB odszukuje swoją partycję główna i ładuje z niej
+              konfigurację.</li>
+          <li>Wyświetlane jest menu, GRUB daje użytkownikowi szansę na zmianę
+              konfiguracji. Podczas wyświetlania się menu odbywa się
+              odliczanie do wyboru domyślnej wartości.</li>
+          <li>Po upływie odliczania uruchamiany jest domyślny wybór
+              w menu z instrukacjami zapisanymi w konfiguracji.</li>
+          <li>W trakcie wykonywania instrukcji z wpisu, GRUB może załadować
+              dodatkowe moduły z partycji głównej.</li>
+          <li>GRUB wykonuje polecenie <em>boot</em>, które ładuje i uruchamia
+              jądro zgodnie z instrukcjami podawanymi w poleceniu 
+              <em>linux</em></li> 
+        </ol>
+        <p>
+          Kroki 3 i 4 mogą być bardzo skomplikowane ze względu na różnorodność
+          mechanizmów rozruchu komputera PC. Jednym z nasuwających się pytań
+          jest lokalizacja jądra GRUB-a. Jądro programu może znajdować się
+          w trzech miejscach.
+        </p>
+        <ul>
+          <li>Pomiędzy MBR a początkiem pierwszej partycji</li>
+          <li>Na zwykłej partycji na dysku</li>
+          <li>Na specjalnej partycji rozruchowej, partycji rozruchowej GPT,
+              partycji ESP lub gdzieś indziej.</li>
+        </ul>
+        <p>
+          W większości przypadków czynności opisane w rodzajach rozruchu
+          podczas instalacji GRUB-a, nie oddają w pełni przeprowadzanego w
+          naszych komputerach procesu uruchamiania systemu operacyjnego. 
+          Programy
+          rozruchowe mogą wymagać załadowania początkowego systemu plików w
+          pamięci RAM do uruchomienia jądra systemu. Takie zachowanie
+          jest definiowane przez dyrektywę <strong>initrd</strong> w
+          konfiguracji programu rozruchowego. Zanim jednak przjedziemy do
+          wstępnego systemu plików w pamięci RAM, przyjrzymy się startowi
+          przestrzeni użytkownika.
+        <p>
+        <p>
+          Źródła:
+        </p>
+        <ol>
+          <li>Jak działa Linux Wyd. II, Brian Ward, Helion 2015</li>
+        </ol>
+        <p>
+          ~xf0r3m
+        </p> 
+      </div>
+			<p style="margin: 15px; padding: 0; outline: 0;">
+				2021; COPYLEFT; ALL RIGHTS REVERSED;
+			</p>
+		</body>
+	</html>

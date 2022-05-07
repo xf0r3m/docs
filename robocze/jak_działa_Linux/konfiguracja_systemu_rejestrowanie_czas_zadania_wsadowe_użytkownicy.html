@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="utf-8" />
+			<link rel="icon" type="image/png" href="https://i.ibb.co/khy45hh/mm.png">
+			<style>
+				.code-block {
+					display: block;
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+					text-align: left;
+				}
+				.code-inline {
+					background-color: silver;
+					font-family: monospace;
+					font-weight: bolder;
+				}
+				ul {
+					text-align: left;
+				}
+        p { text-align: justify; }
+			</style>
+		</head>
+		<body style="font-family: monospace;" >
+<pre>
+     _       _          _     _       _         _     _                  ___ 
+    | | __ _| | __   __| |___(_) __ _| | __ _  | |   (_)_ __  _   ___  _|__ \
+ _  | |/ _` | |/ /  / _` |_  / |/ _` | |/ _` | | |   | | '_ \| | | \ \/ / / /
+| |_| | (_| |   <  | (_| |/ /| | (_| | | (_| | | |___| | | | | |_| |>  < |_| 
+ \___/ \__,_|_|\_\  \__,_/___|_|\__,_|_|\__,_| |_____|_|_| |_|\__,_/_/\_\(_)
+</pre>
+<p style="margin: 0; padding: 0; outline: 0; font-size: 18pt;">
+	&#9760;&nbsp;<a href="https://morketsmerke.github.io">morketsmerke</a>&nbsp;&#9760;
+</p>
+			<div style="margin-left: auto; margin-right: auto; width: 80%;">
+        <h1>Konfiguracja systemu: rejestrowanie, czas systemowy, zadania wsadowe
+            i użytkownicy</h1>
+        <p>
+          Na początku tego materiału przyjrzymy się strukturze katalogu 
+          <em>/etc</em>, to w nim bowiem znajdują się pliki mające wpływ
+          na zadania wykonywane przez system operacyjny, kilka z nich jest
+          dość istonych do samego jego funkcjonowania.
+        </p>
+        <h2>Struktura katalogu /etc</h2>
+        <p>
+          Każdy program, który wymaga konfiguracji będzie przechowywać swoje
+          pliki konfiguracyjne w katalogu <em>/etc</em>. Na początku w tym 
+          katalogu
+          panował dość spory bałagan ponieważ, każdy plik konfiguracyjny lezał
+          w nim luzem. Warto zaznaczyć, że nie każdy program posiada jeden plik
+          konfiguracyjny. Dla rozwiązania tego problemu wprowadzono podkatalogi
+          dla każdego z programów, który miał przechowywać swoją konfigurację
+          w <em>/etc</em>. Innym problemem była możliwość nadpisania zmian w
+          konfiguracji przez aktualizacje pakietów, dlatego też zastosowano
+          katalogi konfiguracyjne z dopiskiem <em>.d</em> na końcu nazwy 
+          np. <em>/etc/grub.d</em>. Jeśli pakiet nie wspiera tego typu
+          rozwiązania, pomija przy rozpakowywaniu plik konfiguracji o ile
+          ten różni się od tego zawartego w pakiecie (użytkownik dokonał w nim
+          jakiś zmian). 
+        </p>
+        <p>
+          Innymi plikami znajdującymi się w omawianym katalogu są informacje o
+          użytkowniku <em>/etc/passwd</em> oraz informacje o konfiguracji sieci
+          <em>/etc/network</em>.
+        </p>
+        <h2>Rejestrowanie dzienników systemowych</h2>
+        <p>
+          Po omówieniu czego możemy się spodziewac po katalogu <em>/etc</em>
+          przjrzymy się tradycjnej usłudze systemowej <strong>syslog</strong>.
+          Usługa ta przyjmuje komunikaty diagnostyczne od programów i w
+          zależności od ich typu przekazuje do pliku, na ekran, do 
+          poszczególnych użytkowników lub całkowicie ignoruje.
+        </p> 
+        <h3>Rejestrator systemowy</h3>
+        <p>
+          Istotną częścia systemu jest <strong>dziennik systemowy</strong>.
+          Jeśli w systemie zdarzy się coś złego to za jego pomocą będzie mogli
+          ustalić przyczynę problemów. Przykładowy wpis wygląda następująco:
+        </p>
+<pre class="code-block">
+Jan 2 11:27:53 greenOS dhclient[676]: bound to 192.168.8.183 -- renewal in 3249
+seconds.
+</pre>
+        <p>
+          Obecnie wykorzysywaną wersją jest <em>syslog</em> jest
+          <strong>rsyslog</strong>, którego funkcję są nieco bardziej
+          rozbudowane i nie sprowadzają się tylko do zapisywania komunikatów
+          do pliku. Rozpoczynając pracę z dziennikiem systemowym nałatwiejszym
+          zadaniem będzie przejrzenie plików rejestratora, ktore przechwywane 
+          są w <strong>/var/log</strong>. Nie wszystkie pliki które się tam
+          znajdują są obsługiwane przez <em>syslog</em>, najlepszym
+          spobem na ich określenie jest sprawdzenie jego konfiguracji.
+        </p>
+        <h2>Plik konfiguracyjny</h2>
+        <p>
+          Główny plik konfiguracjny dla programy <em>rsyslogd</em> znajduje się
+          bezpośrednio w <em>/etc</em> pod nazwą <em>rsyslog.conf</em>
+          inne bardziej ścisłe konfiguracje znajdziemy w katalogu 
+          <em>/etc/rsyslog.d</em>. Format konfiguracji stanowi połączenie
+          tradycyjnych reguł wraz z rozszerzeniami określanymi przez program
+          <em>rsyslog</em>. Uznaje się, że wszystko zaczyna się od znaku dolara
+          (<strong>$</strong>) jest rozszerzeniem.
+        </p>
+        <p>
+          Tradycjne reguły składają się z <strong>selektora</strong> oraz
+          <strong>akcji</strong>, okreslając tym sposób przechwytywania 
+          komunikatów oraz ich miejsce docelowe. Poniżej znajduje się
+          przykładowa lista reguł.
+        </p>
+<pre class="code-block">
+auth,authpriv.*       /var/log/auth.log
+*.*;auth,authpriv.none  -/var/log/syslog
+#cron.*               /var/log/cron.log
+daemon.*              -/var/log/daemon.log
+kern.*                -/var/log/kern.log
+lpr.*                 -/var/log/lpr.log
+mail.*                -/var/log/mail.log
+user.*                -/var/log/user.log
+</pre>
+        <p>
+          Po lewej stronie znajduje się selektor, wskazujący rodzaj
+          komunikatów jakie mają być przesyłane do akcji określających w tym
+          przypadku miejsce docelowe zapisu komunikatów.
+        </p>
+        <p>
+          Selektory składają się z <strong>funkcji</strong> oraz
+          <strong>priorytetu</strong>. Te elemnty rozdzielone są kropką, a
+          pierwszym członem jest funkcja (ang. <em>facility</em>) drugim zaś
+          priorytet. Funkcje określają kategorie komunikatów, na powyższym
+          przykładzie mamy takie funkcje jak:
+        </p>
+<pre class="code-block">
+auth, daemon, kern, lpr, mail, user
+</pre>
+        <p>
+          Myślę, że po nazwie tych funkcji dojedziem jakiego typu komunikatów
+          dotyczą. Priorytet jest drugą częścią selektora. Możemy wymienić
+          następujące priorytety stosowane przez <em>syslog</em> (w kolejnosci
+          od najniższego do najwyższego):
+        </p>
+<pre class="code-block">
+debug, info, notice, warning, err, crit, alert lub emerg
+</pre>
+        <p>
+          Innym priorytem, który nie został wymieniony na powyższej lisćie jest
+          <strong>none</strong>, priorytet działa na zasadzie modyfikatora. 
+          Wyłącza on zapisywanie komunikatów z określonej tym priorytetem
+          funkcji. Priorytet zapisany w selektorze pełni funkcję granicy
+          zapisywanych komunikatów, ponieważ <em>syslog</em> zapisuje wszystkie
+          powyższe priorytety do tego określonego właśnie. Przy wiekszości 
+          funkcji na przykładzie występuje gwiazdka (<strong>*</strong>) jest
+          to symbol wieloznaczny. Oznaczna zapis komunikatów o każdym 
+          priorytecie. Na przykładzie istnieje linia, która zawiera zapis: 
+        </p>
+<pre class="code-block">
+*.*;auth,authpriv.none
+</pre>
+        <p>
+          Zapis <code class="code-inline">*.*</code> oznacza zapisywanie
+          komunikatów, każdej funkcji o każdym priorytecie. Średnik
+          (<strong>;</strong>) daje możliwość zapisu dwóch selektorów dla
+          jednej akcji. Przecinek (<strong>,</strong>) umożlia podanie listy
+          funkcji, dla której bedzie wybrany jeden ten sam priorytet podany
+          w ostatniej z nich tak jak na przykładzie.
+        </p>
+        <h4>Składnia rozszerzona</h4>
+        <p>
+          Jak zostało to zaznaczone na początku omawiania konfiguracji
+          <em>rsyslog</em>, jego format składa sie z tradycjnych reguł
+          oraz rozszerzeń zapisywanych przeważnie w dowolnym pliku
+          umieszczonym w katalogu <em>/etc/rsyslog.d</em> według poniższego
+          zapisu w pliku <em>/etc/rsyslog.conf</em>.
+        </p>
+<pre class="code-block">
+$IncludeConfig /etc/rsyslog.d/*.conf
+</pre>
+        <p>
+          Jednak już w głownym pliku możemy dostrzec występowanie opcji z
+          rozszerzenia. Opisują one uprawnienia użytkowników związanych z
+          demonem oraz uprawnienia dostępu do plików dziennika
+        </p>
+<pre class="code-block">
+$FileOwner root
+$FileGroup adm
+$FileCreateMode 0640
+$DirCreateMode 0755
+$Umask 0022
+</pre>
+        <h4>Rozwiązywanie problemów</h4>
+        <p>
+          Jednym ze sposobów testowania rejestratora systemowego jest wysłanie
+          do niego komunikatu za pomocą polecenia <em>logger</em>.
+        </p>
+<pre class="code-block">
+$ logger -p daemon.info Something wrong...
+</pre>
+        <p>
+          Z samym rejestratorem może się wydarzyć nie wiele złego. Ewentualnie
+          konfiguracja może nie przechwytywać jakiejś funkcji albo priorytetu, 
+          lub może dojść do przepełnienia partycji systemowej plikami dziennika.
+          Chociaż obecne dystrybucje wywołują program <em>logrotate</em> co
+          jakiś czas więc taka sytuacja raczej nie będzie mieć miejsca, jednak
+          jeśli mamy naprawdę dużo demonów w systemie to informacje do plików
+          zaczną spływać bardzo szybko co może doprowdzić do takiej sytuacji
+          oraz znacznego obciążenia systemu.
+        </p>
+        <p>
+          Warto zaznaczyć, że <em>rsyslog</em> nie jest jedynym programem
+          rejestrującym w systemie. Nowoczesne programy typu <em>init</em>
+          również rejestrują komunikaty diagnostyczne, z kolei nie wszystkie
+          daemony muszą komunikować się z <em>syslog</em>, np serwer WWW
+          <em>Apache</em>, sam rejestruje swoje komunikaty błedów oraz
+          komunikaty dostępu, przez co możemy sprawdzić kto odwiedzał naszą
+          stronę.
+        </p>
+        <h2>Pliki związane z zarządzaniem użytkownikami</h2>
+        <p>
+          UNIX-y umożliwiają istnienie wielu niezależnych użytkowników w
+          systemie. Z poziomu jądra to tylko numery, jednak ludziom łatwiej
+          zapamiętać ich nazwy. Dlatego też niezbędny jest sposób odwzorowania
+          nazwy na tą liczbę (<strong>identyfikator użytkownika</strong>) dla
+          programów, które muszą odwołać się do użytkownika podczas 
+          komunikacji z jądrem.
+        </p>
+        <h3>Plik /etc/passwd</h3>
+        <p>
+          Plik <em>/etc/passwd</em> wiąże nazwy użytkowników i ich
+          identyfikatory. Poniżej znajduje się listing fragmentu pliku
+          <em>/etc/passwd</em>.
+        </p>
+<pre class="code-block">
+xf0r3m:x:1000:1000:,,,:/home/xf0r3m:/bin/bash
+systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin
+libvirt-qemu:x:64055:106:Libvirt Qemu,,,:/var/lib/libvirt:/usr/sbin/nologin
+sshd:x:107:65534::/run/sshd:/usr/sbin/nologin
+geoclue:x:108:117::/var/lib/geoclue:/usr/sbin/nologin
+avahi:x:109:118:Avahi mDNS daemon,,,:/var/run/avahi-daemon:/usr/sbin/nologin
+</pre>
+        <p>
+          Każdy z powyższych wierszy reprezentuje jednego użytkownika. Wiersze
+          są podzielone na siedem pól rozdzielonych dwukropkiem. Pola kolejno
+          określają:
+        </p>
+        <ul>
+          <li><strong>Nazwa użytkownika</strong></li>
+          <li><strong>Zaszyfrowane hasło użytkownika.</strong> W obecnych 
+            czasach żadne UNIX-y
+            nie przechowują hasła w tym pliku, do przechowywania hasła służy
+            plik <em>/etc/shadow</em>, który jest niedostępny dla
+            zwykłego użytkownika. Znak <strong>x</strong> oznacza że hasło
+            znajduje się właśnie w <em>/etc/shadow</em>, zamiast niego może 
+            występować
+            <strong>*</strong> oznaczająca, że użytkownik nie może zalogować
+            się do systemu. Jeśli to pole jest puste oznacza to, że hasło
+            nie jest wymaga do logowania się tego użytkownika.</li> 
+          <li><strong>Identyfikator użytkownika (ang. <em>user ID - UID</em>)</strong>
+            Jest to numer reprezentujący użytkownika w jądrze. Identyfikator
+            użytkownika powinien być unikatowy.</li>
+          <li><strong>Identyfikator grupy (ang. <em>group ID - GID</em>)</strong>
+            Podany tu numer będzie również występować wśród wpisów
+            znajdujących się w pliku <em>/etc/group</em>. Grupy służą do między
+            innymi do określania uprawnień do pliku. Podana w tym miejscu grupa
+            nazywana jest <strong>podstawową grupą użytkownika</strong></li>
+          <li><strong>Pole GECOS</strong>. Prawdziwa nazwa użytkownika pole
+            oddzielające przecinkami takie informacje o użytkowniku jak imie
+            nazwisko, numer telefonu itp. Obecnie bardzo rzadko wykorzystywane
+          </li>
+          <li><strong>Katalog domowy użytkownika</strong></li>
+          <li><strong>Powłoka użytkownika</strong>, program uruchamiany po
+              zainicjowaniu przez użytkownika sesji terminala.</li> 
+        </ul>
+        <p>
+          Składnia pliku <em>/etc/passwd</em> jest dość restrykcyjna nie mogą
+          w niej znajdować się żadne komentarze oraz puste wiersze. 
+          Użytkownik podany w pliku <em>/etc/passwd</em> oraz odpowiadający mu
+          katalog domowy są określane mianem konta.
+        </p>
+        <h3>Użytkownicy specjalni</h3>
+        <p>
+          W pliku <em>/etc/passwd</em>, występują również inni użytkownicy,
+          np. <em>root</em>, który jest superużytkownikiem i ma nieograniczone
+          możliwości, z drugiej strony w prawie każdej dystrybucji, oczywiście
+          zawartość tego pliku jest w pewnym sensie zależna od dystrybucji,
+          jest użytkownik <strong>nobody</strong> - użytkownik nie posiadający
+          żadnych uprawnień w systemie, nie które usługi działają z jego
+          uprawnieniami. Pozostali użytkownicy służą głównie ograniczeniu
+          uprawnień demonów. Mogą one skorzystać z użytkownika <em>daemon</em>
+          jednak część z nich tworzy własnych użytkowników. Użytkownicy
+          związani z programami lub usługami nigdy nie mają mozliwości 
+          logowania się - posiadają powłowkę użytkownika ustawioną na
+          <em>/usr/sbin/nologin</em> lub <em>/bin/false</em>. Takich
+          użytkowników nazywa się <strong>pseudoużytkownikami</strong>.
+        </p>
+        <h3>Plik /etc/shadow</h3>
+        <p>
+          Plik <em>/etc/shadow</em>, zawiera informacje dotyczące
+          uwierzytelniania użytkowników, zaszyfrowane hasło oraz informacje o
+          jego ważności. Wpisy z <em>/etc/shadow</em> odpowiadają wpisom z 
+          pliku <em>/etc/passwd</em>. Plik ten został wprowadzony dla
+          elastyczniejszego oraz bezpiecznieniejszego sposóbu przechowywania
+          haseł w UNIX-ach. 
+        </p>
+        <h3>Manipulowanie użytkownikami oraz hasłami</h3>
+        <p>
+          Zmian w informacjach o użytkownikach dokonujemy pomocą polecenia
+          <strong>passwd</strong>. Domyślnie to polecenie służy do zmiany
+          hasła, jednak za jego pomoca możemy zmienić infomacje zawarte w 
+          polu <em>GECOS</em> (za pomocą opcji <em>-f</em>), czy dokonać
+          zmiany powłoki (za pomocą opcji <em>-s</em>). Polecenie to korzysta
+          z bitu <em>setuid</em>, czyli dokonuje zmian w pliku z uprawnieniami
+          superużytkownika.
+        </p>
+        <p>
+          Informacje o użytkownikach możemy modyfikować również ręcznie po
+          przez edycje pliku <em>/etc/passwd</em>. Jednak nie jest zalecene.
+          Lepiej jest wykorzystać takich narzędzi jak <em>useradd</em>,
+          <em>usermod</em> i <em>userdel</em>
+        </p>
+        <h3>Praca z grupami</h3>
+        <p>
+          Grupy na UNIX-ach służą głównie wyznaczaniu uprawnień. Pozwalają
+          współdzielić pliki z częścią użytkowników oraz chronić je przed
+          innymi użytkownikami systemu. Wynika to z ustawianych podczas
+          definiowania uprawnień bitów (rwx itp.). Grupy straciły na znaczeniu
+          w momencie odejścia specjalistów od wielkich maszyn - przjeścia
+          z komputerów typu main-frame, gdzie z jednego komputera jednocześnie
+          korzystało wielu użytkowników na komputery osobiste.
+        </p>
+        <p>
+          W pliku <em>/etc/group</em> zostały zdefiniowane grupy oraz ich
+          identyfikatory. Poniżej znajduje się fragment listingu tego pliku:
+        </p>
+<pre class="code-block">
+libvirt:x:115:xf0r3m
+libvirt-qemu:x:64055:libvirt-qemu,xf0r3m
+wireshark:x:116:
+geoclue:x:117:
+avahi:x:118:
+</pre>
+        <p>
+          Pomiędzy plikiem <em>/etc/group</em>, a plikiem <em>/etc/passwd</em>,
+          istnieje analogia formatu zapisu danych. Tutaj każdy jeden wpis
+          opisuje grupę, a te wpisy są podzielone na pola rozdzielone dwu
+          kropkami. Każde z pół opisuje (zaczynając od lewej): 
+        </p>
+        <ul>
+          <li><strong>Nazwa grupy</strong></li>
+          <li><strong>Hasło grupy</strong>, obecnie nieużywane. To pole
+              najczęsciej zawiera gwiazdkę (<strong>*</strong>) lub znak
+              <strong>x</strong>.</li>
+          <li><strong>Identyfikator grupy</strong>, Numer <strong>GID</strong>
+              niepowtarzalny identyfikator, służy do wskazywania domyślnej
+              grupy użytkownika, w pliki <em>/etc/passwd</em>.</li>
+          <li><strong>Opcjonalna lista użytkowników należących do grupy</strong>
+              Opróczy wyświetlonych na liście użytkowników, grupa posiada
+              również tego użytkownika, który ma ją zapisaną jako swoją
+              domyślną w pliku <em>/etc/passwd</em>.</li>
+        </ul>
+        <p>
+          Generalnie w Linux-ach, narzędzia służące tworzeniu nowych
+          użytkowników, tworzą w systemie grupę o nazwie użytkownika i
+          przypisują mu ją jako domyślną.
+        </p>
+        <h2>Programy getty i login</h2>
+        <p>
+          Program <strong>getty</strong>, służy wyświetleniu prompta
+          (znaku zachęty) logowania na konsolach wirtualnych. Prosząc o tak 
+          zwany <em>login</em>.
+          Następnie program sam się zastąpi programem <strong>login</strong>,
+          proszącym o hasło, jeśli podaliśmy poprawne dane logowania to
+          ten program za pomocą przerwania <em>exec()</em> zastąpi się
+          procesem powłoki. Te dwa programy wymagają konfiguracji w bardzo
+          specyficznych przypadkach. Użytkownicy korzystający z mainstramowych
+          dystrybucji nie będą mieć z nimi żadnego kontaktu poniważ oni 
+          przeważnie logują się za pomocą menedżera wyświetlania (częsci
+          środowiska graficznego) takiego jak <em>gdm</em> czy <em>lightdm</em>
+          a jeśli chodzi o serwery to najczęsciej wykorzystuje się SSH, gdzie
+          te programu nie są używane.
+        </p>
+        <h2>Ustawienia czasu</h2>
+        <p>
+          Dośc istotną role w UNIX-ach, odgrywa czas. Jednym z pomniejszych
+          zadań jądra jest ustawienie zegara systemowego, z którego korzysta
+          np. polecenie <strong>date</strong>. W pecetach montowany jest
+          zegar czasu rzeczywistego, jest on zasilany z baterii BIOS na płycie
+          głównej. Niestety nie jest on za szczególnie precyzyjny, mimo to
+          jądro podczas uruchamiania synchronizuje swój zegar z zegrem
+          sprzętowym. Taką synchronizacja również możemy wymusić za pomocą
+          polecenia <strong>hwclock</strong>. 
+        </p>
+        <p>
+          Podczas korzystania z dowolnego UNIX-a, może zdarzyć się tego typu
+          sytuacja, że po załadowaniu systemu, czas systemowy nie będzie się
+          zgadać z czasem rzeczywistym. Najczęstszym tego powodem jest fakt
+          iż zegar sprzętowy zostal ustawiony z zgodnie naszym stanem faktyczym
+          gdzie nasze zegarki w telefonach, na rękach są już ustawione z
+          uwzględnieniem strefy czasowej ustawianej najcześciej podczas
+          instalacji, a jądro na podstawie czasu pobranego zegara sprzętowego
+          będzie jeszcze korygować ten czas podwzględem wybranej strefy
+          czasowej. Dlatego też zegar BIOS, w przypadku gdy na tym sprzęcie
+          będzie działać jakiś UNIX, powinny być ustawione zgodnie z czasem UTC.
+          Obecnie jednak jądro jest na tyle rozwinięte, że jeśli zegar jest
+          już ustawiony to nie dokonuje tej korekcji.
+        </p>
+        <p>
+          Inną dość ciekawą rzeczą związaną z czasem, jest odchylenie 
+          spowodowane długim czasem pracy systemu. Nie oszukujmy się, UNIX-y
+          przeważnie pracują na serwerach, albo to Android. Serwery z kolei 
+          mogą pozostać włączone przez długie miesiące lub lata, przez co 
+          pojawiają się takie odchylenia, program jakim nie wątpliwie jest
+          jądro jest na pewno mniej precyzyjny niż zamontowany na płycie
+          RTC. Nie należy jednak stosować do korekcji odchylenia polecenia
+          <em>hwclock</em>. Ponieważ nie co namieszać w systemie, resetując
+          lub zmieniając zdarzenia systemowe oparte o czasie. Najlepiej zrobić
+          to wykorzystując do tego protokół NTP (będzie o tym w dalszej części
+          materiału).
+        </p>
+        <h3>Reprezentacja jądra i strefy czasowe</h3>
+        <p>
+          Zegar systemowy reprezentuje czas jako tzw. 
+          <strong>Unix Timestamp</strong> jest liczba sekund liczona od
+          północy 1 stycznia 1970 roku czasu UTC. <em>Timestamp</em> możemy
+          wyświetlić za pomocą poniższego polecenia:  
+        </p>
+<pre class="code-block">
+$ date +%s
+</pre>
+        <p>
+          Ta wartość zamienia na jest przez takie programy jak wspomniany
+          <em>date</em> na formę zrozumiałą dla człowieka z uwzględnieniem
+          strefy czasowej oraz innych spcyficznych sytuacji. Strefa czasowa
+          jest kontrolowana przez plik binarny <em>/etc/localtime</em>.
+          Natomiast same pliki stref znajdują się w katalogu
+          <em>/usr/share/zoneinfo</em>. Strefę czasową możemy zmienić w
+          dowolnym momencie wykorzystując poniższe polecenie:
+        </p>
+<pre class="code-block">
+$ tzselect
+</pre>
+        <p>
+          Polecenie wyświetli interaktywne menu, z którego wybierzemy
+          strefę czasową dla naszej przykładowej lokalizacji, dla Polski
+          strefa czasowa to: <strong>Europe/Warsaw</strong>. Strefę czasową
+          można również ustawić ręcznie tworząc dowiązanie symboliczne
+          o nazwie <em>/etc/localtime</em> wskazujące na odpowiedni plik w 
+          katalogu <em>/usr/share/zoneinfo</em>. Jeśli chcemy zmienić strefę
+          dla pojedyńczej sesji powłoki możemy użyć zmiennej środowiskowej
+          <strong>TZ</strong>
+        </p>
+<pre class="code-block">
+$ date
+śro, 5 sty 2022, 19:26:30
+$ export TZ=Europe/London
+$ date
+śro, 5 sty 2022, 18:26:46
+</pre>
+        <p>
+          Możemy posunąć się o krok dalej, i z czystej ciekawości sprawdzić
+          jaka jest teraz godzina w Tokio, nie dokonując żadnych modyfikacji.
+          Każdą zmienną środowiskową możemy ustawić na czas działania
+          konkretnego polecenia.
+        </p>
+<pre class="code-block">
+$ TZ=Asia/Tokio date
+czw, 6 sty 2022, 03:31:40 JST 
+</pre>
+        <h3>Czas sieciowy</h3>
+        <p>
+          Jeśli nasz komputer ma stałe połączenie z internetem, możemy użyć
+          daemona NTP, do sychronizacji czasu. Większość dystrybucji posiada
+          wbudowaną jego obsługę, jednak przeważnie jest ona wyłączona.
+          Konieczne może być zainstalowanie pakietu <strong>ntpd</strong>.
+          Konfiguracja daemon wymaga wykonania czterech czynności:
+        </p>
+        <ol>
+          <li>Znalezienia najbliższego dla nas serwera</li>
+          <li>Umiesczenia informacji o tym serwerze w pliku 
+              <em>/etc/ntpd.conf</em></li>
+          <li>Uruchomienia w czasie rozruchu systemu programu 
+              <em>ntpdate</em></li>
+          <li>Uruchomienia polecenia <em>ntpd</em> po uruchomieniu polecenia
+              <em>ntpdate</em></li>
+        </ol>
+        <p>
+          Jeśli nasz komputer nie posiada stałego połączenia z internetem,
+          możemy użyć demona <em>chronyd</em>.
+        </p>
+        <p>
+          Dostosowując zegar systemowy na podstawie danych z serwera czasu
+          możemy zsynchronizować z nim zegar sprzętowy, aby
+          zniwelować odchylenia czasu podczas ponownego rozruchu, w większości
+          dystrybucji odbywa się to automatycznie. Synchronizacji dokonujemy
+          za pomocą poniższego polecenia:
+        </p>
+<pre class="code-block">
+# hwclock --systohc --utc
+</pre>
+        <h2>Planowanie powtarzalnych zadań w programie cron</h2>
+        <p>
+          UNIX-y udostępniają usługę, która umożliwia wykonywanie powtarzalnych
+          czynności zgodnie określonym schematem. Za jej pomocą większość
+          administratorów dokonuje automatycznych konserwacji systemu. Jedną z
+          czynności jakie obsługuje <em>cron</em> jest wspominiany już 
+          <em>logrotate</em>, który usuwa stare pliki dziennika systemowego,
+          robiąc tym samym miejsce na nowe i nie doprowadzając do przepełnienia
+          dysku.
+        </p>
+        <p>
+          <em>Cron</em> daje możliwość uruchomienia dowolnego polecenia w
+          odpowiednim dla niego czasie. Uruchomiony przez usługę program
+          nazywa się <strong>zadaniem cron</strong> (ang. <em>cron job</em>).
+          Do jego utworzenia i uruchomienia niezbędny jest wpis w pliku
+          naszym <em>crontab</em>, najczęściej jest to dokonywane za pomocą
+          polecenia <strong>crontab</strong>. Przykładowo wpis uruchamiający
+          skrypt <em>backup.sh</em> codziennie o 6:45 wygląd następująco:
+        </p>
+<pre class="code-block">
+45 06 * * * bash /home/xf0r3m/backup.sh
+</pre>
+        <p>
+          Pierwszych pięć pól, rozdzielanych spacjami określa czas uruchomienia
+          polecenia, kolejno:
+        </p>
+        <ul>
+          <li><strong>Minuty</strong> (0-59). Dla powyższego przykładu
+              ustawiono <code class="code-inline">45</code>.</li>
+          <li><strong>Godziny</strong> (0-23). Dla powyższego przykładu
+              ustawiono <code class="code-inline">06</code>.</li>
+          <li><strong>Dzień w miesiącu</strong> (1-31).</li>
+          <li><strong>Miesiąc</strong> (1-12).</li>
+          <li><strong>Dzień tygodnia</strong> (0-7). Przyczy wartości 0 oraz 7
+          oznaczają niedzielę.</li>
+        </ul>
+        <p>
+          Ostatnie pole określa zaś uruchamiane polecenie.
+          Gwiazdka (<strong>*</strong>) zapisana w polu oznacza każdą wartość
+          określoną przez pole. W naszym przykładzie użylismy aż w trzech
+          polach gwiazdek, co spowoduje że zadanie zostanie uruchomione
+          każdego dnia miesiąca i tygodnia.
+        </p>
+        <p>
+          Pola mogą również przyjąć więcej niż jedną wartość, na przykład 
+          powiedzmy, że musimy uruchomić nasz skrypt 6 i 10 dnia każdego
+          miesiąca, nie trzeba wówczas tworzyć dwóch wpisów. Wystarczy, że
+          użyjemy dwóch wartości w polu.
+        </p>
+<pre class="code-block">
+45 06 6,10 * * bash /home/xf0r3m/backup.sh 
+</pre>
+        <p>
+          Wszelkie komunikaty otrzymane z zadania <em>cron</em>, będą wysłane
+          wewnątrz systemową poczta e-mail. Jeśli nie chcemy otrzymywać
+          komunikatów, to należy przekierować wyjście polecenia w zadaniu
+          <em>cron</em> do urządzenia <em>/dev/null</em> lub do innego pliku
+          dziennika.
+        </p>
+        <h3>Instalowanie plików crontab</h3>
+        <p>
+          Każdy użytkownik może posiadać plik <em>crontab</em>, oznacza to że
+          wewnątrz systemu może być ich kilka. Pliki przechowywane są
+          najczęściej w katalogu <em>/var/spool/cron/crontab</em>. Zwykły
+          użytkownik nie uprawnień do zapisu w tym katalogu, dlatego też
+          do obsługi tych plików stosuje się polecenie <strong>crontab</strong>.
+          Polecenie to instaluje, zmienia, usuwa oraz wyświetla ich zawartość.
+        </p>
+        <p>
+          Najprostszym sposobem na zainstalowanie pliku, jest wydanie polecnia:
+        </p>
+<pre class="code-block">
+$ crontab plik
+</pre>
+        <p>
+          Podany w parametrze <code class="code-inline">plik</code> zostanie
+          sprawdzony pod kątem formatu oraz wprowadzonych w nim danych
+          po czym zostanie zainstalowany. Opcją <em>-l</em> możemy wpisać
+          zapisane w pliku zadania <em>cron</em> natomiast opcją <em>-r</em>
+          możemy zainstalowany plik usunąć. Korzystanie z tego typu rozwiązania
+          jak podane powyżej polecnie może wprowadzić sporo bałaganu, dlatego 
+          też
+          polecnie <em>crontab</em> udostępnia opcję <em>-e</em>, co umożliwia
+          edycję oraz zainstalowanie pliku <em>crontab</em>, przyczym podczas
+          instalacji program sprawdzi plik i jeśli wystąpi w nim błąd wówczas
+          zapyta się czy chcemy poprawić jego zawartość.
+        </p>
+        <h3>Systemowe pliki crontab</h3>
+        <p>
+          Systemowym plikiem <em>crontab</em> w dystrybucjach Linux-a, nie jest
+          plik użytkownika <em>root</em>, a plik <em>/etc/crontab</em>. Do jego
+          edycji należy wykorzystać zwykły edytor, ponieważ posiada on trochę
+          inny format wpisów - dodane zostało jedno pole, określające
+          użytkownika, który ma uruchomić podane w zadaniu polecenie. Dla
+          przykładu stworzymy wpis, w którym użytkownik <em>root</em> o 7:30 
+          uruchomi
+          polecenie <em>cleansystem</em>, nie chcemy otrzymywać ani zapisywać
+          żadnych komunikatów z tego polecenia.
+        </p>
+<pre class="code-block">
+30 07 * * * root /usr/local/bin/cleansystem &gt; /dev/null 2&gt;&amp;1
+</pre>
+        <p>
+          Jak widzimy na powyższym przykładzie, pole użytkownika zostało
+          umieszczone pomiedzy polem określającym czas, a polem polecenia.
+        </p>
+        <p>
+          Nie wszystkie dystrybucje stosują się do pliku <em>/etc/crontab</em>
+          jako systemowego pliku usługi <em>cron</em>, w niektórych 
+          dystrybucjach plik ten może znajdować się w katalogu 
+          <em>/etc/cron.d</em>.
+        </p>
+        <h3>Przyszłość programu cron</h3>
+        <p>
+          Program <em>cron</em> jest starszy od samego Linux-a. Programy typu
+          <em>init</em> takie jak <em>systemd</em>, próbują wdrożyć moduły
+          pozwalający przejąć czynności <em>cron</em>. Jednak ich implementacje
+          nie zapewniają wszystkich możliwości programu <em>cron</em>, co
+          więcej potrzeba będzie wstecznej zgodności dla komponetów, których
+          działanie bazuje na <em>cron</em>. Dlatego póki co nic nie wygląda
+          aby miało się tutaj co zmienić. 
+        </p>
+        <h2>Planowanie jednorazowych zadań w programie at</h2>
+        <p>
+          Jeśli mamy wykonać jakieś zadanie w przyszłości, ale ma ono być
+          jednorazowe, to wówczas wykorzystanie w tym momencie <em>cron</em>-a
+          nie ma sensu, jednak UNIX-y dają nam jescze jedno narzędzie, które
+          pozwoli nam zaplanować pojedyńcze wykonanie polecenie - polecenie
+          <strong>at</strong>. Chcąc ustawić przyszłe wykonanie polecenia
+          wydajemy polecenie <em>at</em> jak argument podajem godzinę, o której
+          polecenie ma dostać wykonane. Powiedzmy że polecenie to ma wykonać
+          skrypt <em>moje_zadanie</em> dzisiaj o 21:30.
+        <p>
+<pre class="code-block">
+$ at 21:30
+at&gt; moje_zadanie
+</pre>
+        <p>
+          Po uruchomieniu polecenia zwraca on znak zachęty, przez co możemy
+          podać sekwencję poleceń. Za pomocą kombinacji <em>Ctrl+d</em> możemy 
+          zakończyć wprowadzanie poleceń. Polecenie <strong>atq</strong> 
+          pozwala
+          na sprawdzenie zaplanowanych zadań za pomocą polecenie <em>at</em>.
+        </p>
+        <p>
+          Opisując przykład nie bez powodu podałem <em>dzisiaj</em>. Ponieważ
+          z pomocą polecenia <em>at</em> można zaplanować działanie poleceń 
+          na całe dnie do przodu, podając obok czasu datę.
+        </p>
+<pre class="code-block">
+$ at 21:30 10.01.22
+</pre>
+        <h2>Identyfikatory użytkowników i przełącznie ich</h2>
+        <p>
+           Przełączanie identyfikatorów użytkowników ma na celu zmianę
+           uprawnień do procesu. Na początku podczas omawiania uprawnień do
+           plików, wspominałem o bicie <em>setuid</em>, który pozwala na
+           na uruchomienie programu z uprawnieniami właściciela, bez względu
+           na to kto tem program uruchomił. Wykorzystanie tego bitu jest
+           jednym ze sposób na przełączanie identyfikatorów użytkowników.
+           Drugi sposób to wykorzystanie wywołania systemowego z rodziny
+           wywołań <em>setuid()</em>, istnieje kilka wersji tego wywołania,
+           które uwzględniają różne identyfikatory powiązane z procesami.
+        </p>
+        <p>
+          Jądro stosuje trzy podstawowe kwestie określające co proces może a
+          czego nie:
+        </p>
+        <ul>
+          <li>Proces działający z uprawnieniami użytkownika <em>root</em>
+              (z <em>userid</em> o wartości 0) może uzyć wywołania
+              <em>setuid()</em> do uzyskania uprawnień dowolnego innego
+              użytkownika</li>
+          <li>Proces nie działający z uprawnieniami użytkownika <em>root</em>
+              posiada poważnie ograniczenia co do wywoływania <em>setuid()</em>
+              przeważnie nie może z niego korzystać.</li>
+          <li>Dowolny proces może wykonać program z ustawionym bitem
+              <em>setuid</em> podwarunkiem że posiada odpowiednie uprawnienia
+              do pliku</li>
+        </ul>
+        <h3>Prawo właściciela procesu, efektywny, rzeczywisty i zapisany
+            identyfiktor użytkownika</h3>
+        <p>
+          Wcześniej używaliśmy uproszczenia, że każdy proces posiada jeden
+          identyfikator użytkownika. W rzeczywistości procesy posiadają więcej
+          niż jeden identyfikator.
+        </p>
+        <ul>
+          <li><strong>efektywny identyfikator użytkownika</strong> -
+              <em>euid</em> (ang. <em>effective user ID</em>) - definiuje
+              prawa dostępu do procesu.</li>
+          <li><strong>rzeczywisty identyfikator użytkownika</strong> -
+              <em>ruid</em> (ang. <em>real user ID</em>) - wskazuje kto
+              uruchomił proces. Definiuje użytkownika, który może prowadzić
+              interakcje z procesem, może go zakończyć i wysyłać do niego
+              sygnały.</li>
+        </ul>
+        <p>
+          W momencie gdy uruchamiamy program z ustawionym bitem <em>setuid</em>
+          Linux ustawia <em>euid</em> na właściela program/pliku, ale
+          oryginalny identyfikator zostaje w postaci <em>ruid</em>-u. W
+          standardowych dystrybucjach w większości procesów <em>euid</em> oraz
+          <em>ruid</em> są równe (wskazują tego samego użytkownika). Oprócz
+          rzeczywistego oraz efektywnego identyfikatora istnieje jeszcze jeden
+          identyfikator <strong>zapisany identyfikator użytkownika</strong>,
+          jego zadaniem jest przechowanie <em>euid</em>-u w momencie obniżenia
+          uprawnień, aby później móc je przywrócić do stanu w jakim został
+          uruchomiony. Skrótem dla niego jest <em>suid</em>
+          (ang. <em>Saved set-user-ID</em>). Proces w trakcie działania może
+          przełączać te identyfikator jeśli będzie to konieczne.
+        </p>
+        <p>
+          W pewnym momencie gdy rozumiemy miej więcej o co chodzi z tym
+          identyfikatorami, przychodzi rzeczywistość i to weryfikuje. Jeśli
+          uruchomimy proces za pomocą programu <em>sudo</em> (jest to program
+          z ustawionym bitem <em>setuid</em>) i zechcemy go zakończyć to dalej
+          będzie trzeba stosować ten program. Może nam się wydawać przecież
+          zwykły użytkownik (nasze konto) jest zapisane jako <em>ruid</em>
+          procesu. Jednak te programy z ustawionym bitem <em>setuid</em>
+          jawnie zamieniają efektywny i rzeczywisty identyfikator za pomocą
+          wywołania system <em>setuid()</em>. Takie zachowanie wynika z tego,
+          iż wiele programów może zachowywać się niestabilnie oraz mieć
+          problemy z dostępem, gdy identyfikatory nie są spójne.
+        </p>
+        <p>
+          Z racji tego iż jądro obsługuje wszystkie przełączenia użytkowników
+          (w efekcie uprawnień do pliku też) należy zachować szczególną
+          ostrożność w momencie nadawania programom bitu <em>setuid</em>.
+          Najgłupszym przypadkiem jest utworzenie kopii powłoki z ustawionym
+          bitem <em>setuid</em>. Wówczas wystarczy by zwykły użytkownik
+          uruchomił taką kopię i już ma dostęp do całego systemu. Dlatego
+          warto myśleć co to za program, któremu mamy nadać ten bit.
+        </p>
+        <h2>Identyfikowanie i uwierzytelnianie użytkowników</h2>
+        <p>
+          Będąc już w temacie bezpieczeństwa omówmy sobie odwzorowanie 
+          użytkownikow i haseł oraz w jaki sposób procesy uzystkują dostęp do
+          takie odwzorowania. Najprostszym przykładem do zobrazowania jest
+          uzyskanie nazwy użytkownika odpowiadjącej <em>euid</em>-owi. Cała
+          procedura może wyglądać w następujący sposób: 
+        </p>
+        <ol>
+          <li>Za pomocą wywołania systemowego <em>geteuid()</em> proces żąda
+              od jądra własnego <em>euid</em>-u.</li>
+          <li>Proces otwiera plik <em>/etc/passwd</em> i rozpoczyna 
+              odczytywanie go odpoczątku.</li>
+          <li>Proces wczytuje wiersz z pliku <em>/etc/passwd</em>, jeśli nie
+              zostało nic do wczytania, oznacza to, że procesowi nie udało się
+              znaleźć nazwy użytkownika.</li>
+          <li>Proces analizuje pola wiersza, dzieląc wszystko co znajduje się
+              między dwukropkami. Trzecie pole wiersza zawiera identyfikator
+              użytkownika.</li>
+          <li>Proces porównuje identyfikator z kroku 4 z identyfikatorem z
+              kroku numer 1. Jeśli są one identyczne to pierwsze pole z
+              pobranego wiersza zawierą żądaną nazwę użytkownika. Teraz proces
+              może zakończyć szukanie i użyć tej nazwy.</li>
+          <li>Jeśli pola nie są identyczne proces przechodzi do kolejnego
+              wiersza, cofając sie tym samym do kroku numer 3.</li>
+        </ol>
+        <p>
+          W rzeczywistości cały proces jest bardziej skomplikowany.
+        </p>
+        <h3>Użycie bibliotek do użyskiwania informacji o użytkownikach</h3>
+        <p>
+          Dzięki standardowym bibliotekom, możemy uniknąć implementowania
+          powyższych procedur oraz zaoszczędzić bałaganu w systemie. Teraz
+          uzyskanie nazwy użytkownika sprowdza się do wywowłania kilku funkcji.
+          Rozwiązanie z użyciem standardowej biblioteki dobrze się sprawdziło
+          w przypadku nazw użytkowników, niestety hasła okazały sie nieco
+          bardziej kłoptliwe. Rozwiązanie grupy problemów związanych z hasłami
+          przy tradycyjnej implemetacji w pliku <em>/etc/passwd</em> pojawiło 
+          podczas projektowania i implementowania systemu PAM.
+        </p>
+        <h2>System PAM</h2>
+        <p>
+          System PAM (ang. <em>Pluggable Authentication Modules</em>) jest 
+          standard mający zapewnić elastyczność w procesie
+          uwierzytelniania. Implementowany jest za pomocą współdzielonych
+          bibliotek. Do uwierzytleniania użytkownika aplikacja przekazuje
+          informacje o nim do PAM, aby to on określił czy może się on
+          pomyślnie zidentyfikować. Dzięki PAM ułatwione zostało dodawanie
+          obsługi uwierzytelnia dwuskładnikowego oraz kluczy fizycznych. 
+          PAM dodatkowo może zapewnić w ograniczonym zakresie autoryzacje
+          usług, jeśli np. chcielibyśmy zablokować, nie którym użytkownikom
+          dostęp do powiedzmy <em>cron</em>-a.
+        </p>
+        <p>
+          Ponieważ może istnieć kilka przypadków uwierzytelniania system PAM
+          wykorzystuje dynamicznie ładowane 
+          <strong>moduły uwierzytelniania</strong>, każdy z nich realizuje
+          konkretne zadanie: na przykład moduł <strong>pam_unix.so</strong>
+          może sprawdzić hasło użytkownika.
+        </p>
+        <h3>Konfiguracja systemu PAM</h3>
+        <p>
+          Pliki konfiguracjne znajdują się w katalogu <em>/etc/pam.d</em>.
+          Wewnątz może znajdować się wiele plików, dlatego możemy nie wiedzieć
+          od czego zacząć. Nie które z nich mogą zawierać nazwy znanych nam
+          już komponentów systemu takich jak <em>passwd</em> czy <em>cron</em>.
+          Całość utrudnia jeszcze fakt iż konfiguracja w tych plikach może być
+          inna na różnych dystrybucjach. Aby lepiej zrozumieć konfiguracje
+          weźmiemy jako przykład w linię z pliku <em>/etc/pam.d/chsh</em>
+        </p>
+<pre class="code-block">
+auth  required  pam_shells.so
+</pre>
+        <p>
+          Ten wiersz oznacza, że powłoka użytkownika musi znajdować w pliku
+          <em>/etc/shells</em>, aby mógł on się uwierzytelnić. Zwróćmy uwagę
+          na format konfiguracji, każdy wiersz zawiera trzy pola:
+        </p>
+        <ul>
+          <li><strong>Typ funkcji</strong>. Funkcja, której wykonania żąda 
+          aplikacja użytkownika od systemu PAM. W naszym przykładzie jest
+          funkcja <code class="code-inline">auth</code>, odpowiada za 
+          uwierzytelnienie użytkownika.</li>
+          <li><strong>Argument kontrolny</strong>. Określa jak ma postąpić
+          system PAM po powodzeniem lub niepodzeniem swojego działa względem
+          analizowanego wiersza konfiguracji. W przypadku naszego przykładu
+          takim argumentem kontrolnym jest to słowo
+          <code class="code-inline">required</code>.</li>
+          <li><strong>Moduł</strong>. Określa wykonywaną przez PAM operację.
+          Moduł <code class="code-inline">pam_shell.so</code> sprawdza czy
+          bierząca powłoka użytkownika jest wymieniona w pliku
+          <em>/etc/shells</em>.
+        </ul>
+        <p>
+          Teraz omówimy sobie poszczególne wartości jakie mogą przyjąć te trzy
+          pola. Można je również znaleźć w na stronie podręcznika
+          <em>pam.conf(5)</em>.
+        </p>
+        <h4>Typy funkcji</h4>
+        <p>
+          Aplikacje mogą zażądać od PAM wykonania jednej z czterech funkcji
+        </p>
+        <ul>
+          <li><strong>auth</strong>. Sprawdza czy użytkownik jest tym za kogo
+          się podaje - uwierzytelnia go.</li>
+          <li><strong>account</strong>. Sprawdza czy użytkownika jest
+          upoważniony do wykonania jakiegoś działania. Sprawdza status konta
+          użytkownika.</li>
+          <li><strong>session</strong>. Wykonuje działania tylko dla bierzącej
+          sesji użytkownika, na przykład może wyświetlić komunikat dnia.</li>
+          <li><strong>password</strong>. Zmienia hasło lub inne dane
+          uwierzytelniające uzytkownika.</li>
+        </ul>
+        <p>
+          W przypadku wierszy konfiguracji działanie systemu PAM, okreslają 
+          pary moduł i funkcja. Moduł może mieć wiecej niż jedną funkcję
+          dlatego warto pamiętać o tej regule. Moduł <em>pam_unix.so</em>
+          wraz funkcją <em>auth</em> sprawdza hasło, ale z kolei ten sam moduł
+          z funkcją <em>password</em> może już to hasło ustawić.
+        </p>
+        <h4>Argumenty kontrolne i reguły zestawiane</h4>
+        <p>
+          Istotnym szczególem pracy systemu PAM, jest
+          <strong>zestawianie reguł</strong>. Oznacza to że powodzenie lub
+          niepowodzenie działania reguł (wierszy konfiguracji) może wpływać
+          na inne wiersze. Daje nam to możliwość stosowania wielu reguł podczas
+          wykonywania funkcji. Elementem odpowiedzialnym z określanie powodzenia
+          lub niepowdzenia reguł są <strong>argumenty kontrolne</strong>.
+        </p>
+        <p>
+          Argumenty możemy podzielić bazując na ich składni. Istnieją
+          argumenty o prostszej oraz bardzie złozonej składni. Poniżej
+          znajdują się trzy proste argumenty, ktore możemy znaleźć w
+          regułach.
+        </p>
+        <ul>
+          <li><strong>sufficient</strong>. Jeśli reguła się powiedzie,
+            uwierzytelnianie zakończy się pomyślnie, a PAM nie musi sprawdzać
+            dodatkowych reguł. Jeśli regułą się niepowiedzie się, PAM
+            przechodzi do dodatkowych reguł.</li>
+          <li><strong>requisite</strong>. Jeśli dana reguła się powiedzie,
+            PAM używa dodatkowych reguł. Jeżeli reguła się niepowiedzie 
+            system zwróci informacje o nieudanym uwierzytelnianiu i nie będzie
+            sprawdzać dodatkowych reguł.</li>
+          <li><strong>required</strong>. Jeśli dana reguła się powiedzie system
+            korzysta z dodatkowych reguł. Jeżli dana reguła się niepowiedzie
+            uwierzytelnianie zakończy się niepowodzeniem, nie zależnie od
+            końcowego wyniku dodatkowych reguł.</li>
+        </ul>
+        <p>
+          Aby lepiej zobrazować zestawianie reguł uzyjemy poniższego przykładu
+          zawierającego kilka reguł.
+        </p>
+<pre class="code-block">
+auth sufficient pam_rootok.so
+auth requisite pam_shell.so
+auth sufficient pam_unix.so
+auth required pam_deny.so
+</pre>
+        <p>
+          Aplikacja korzystająca z tej konfiguracji żąda funkcji
+          uwierzytelniania. Pierwszą regułą jaką jest sprawdzenie czy to
+          użytkownik <em>root</em>, próbuje się uwierzytelnić. Jeśli tak, to
+          argumenty kontrolny <code class="code-inline">sufficient</code> mówi
+          że jeśli reguła się powiodła, system nie musi dalej sprawdzać tego
+          zestawu, i może zwrócić informacje o prawidłowym uwierzytelnieniu się
+          i to tak naprawdę koniec. Jeśli nie jest to jednak superużytkownik
+          system przejdzie do następnej reguły. Argumenty kontrolny następnej
+          reguły spowoduje że jeśli się ona niepowiedzie, to zostanie 
+          zwrócona przez PAM informacja o niepowodzeniu uwierzytelniania, a
+          sprawdzanie reguł zostanie przerwane. Moduł
+          <code class="code-inline">pam_unix.so</code> odpowiedzialny jest za
+          sprawdzenia hasła, ustawiony w jego regule argument kontrolny
+          <code class="code-inline">sufficient</code> również spowoduje
+          zakończenie uwierzytelniania w momencie, gdy reguła powiedzie się.
+          Ostatnia reguła wykorzystuje moduł 
+          <code class="code-inline">pam_deny.so</code>, który powoduje
+          automatyczne niepowodzenie reguły, co prowadzi do zwrócenia
+          komunikatu o niepowodzeniu uwierzytelniania. 
+        </p>
+        <p>
+          Złożone argumenty kontrolne możemy poznać po nawiasach kwadratowych,
+          służą one ręcznemu kontrolowaniu odpowiedzi w oparciu o informacje
+          zwracane z modułu(a nie tylko powodzenie lub niepowodzenie).
+          Szczegóły znajdują sie na stronie podręcznika.
+        </p>
+        <h4>Argumenty modułu</h4>
+        <p>
+          Moduły systemu PAM mogą pobierać argumenty podane za jego nazwą. 
+          W specyficznnych konfiguracjach UNIX-ów, możemy spotkać się z tym
+          że użytkownik loguje się pustym hasłem. Umozliwienie takiego
+          zachowania wymaga właśnie użycia argumentu modułu w systemie PAM. 
+        </p>
+<pre class="code-block">
+auth sufficient pam_unix.so nullok
+</pre>
+        <p>
+          Za logowanie pustym hasłem odpowiada właśnie argument
+          <code class="code-inline">nullok</code>. Bez tego argumentu takie
+          logwanie nie było by możliwe.
+        </p>
+        <h3>Uwagi dotyczącze systemu PAM</h3>
+        <p>
+          Dotychczas tylko pobierzenie omówiliśmy sobie system PAM. Jednak
+          wydaje mi się, że obecnie większe zagłebianie się w szczegóły tego
+          systemu nie ma sensu. Zostały tutaj nakreślone odpowiednie podstawy
+          aby wrazie potrzeby pracy z tym systemem rozumieć mniej wiecej o
+          co chodzi. Pozostały nam jeszcze dwa zagadnienia i zamykamy ten
+          materiał. Aby uzupełnić powyższe podstawy kilka dodatkowych uwag
+          odnośnie systemu PAM.
+       </p>
+        <ul>
+          <li>
+            <p>
+              Listę dostępnych w systemie modułów możemy wylistować z pomocą
+              niepozornego polecenia:
+            </p> 
+<pre class="code-block">
+$ man -k pam_
+</pre>
+            <p>
+              Wywołując to polecenie należy pamiętać o znaku podkreślenia
+              (<strong>_</strong>).
+            </p>
+          </li>
+          <li>Strony podręcznika zawierają opisy każdej funkcji, argumentu oraz
+              modułu.
+          </li>
+          <li>W wielu dystrybucjach określone pliki konfiguracji systemu PAM
+              są generowane automatycznie. Dlatego wprowadzanie zmian w plikach
+              katalogu <em>/etc/pam.d</em> nie jest najlepszym pomysłem.
+              Źródlo pochodzenia plików, mogło zostać określone w komentarzach
+              wewnątrz plików.
+          </li>
+          <li>Plik <em>/etc/pam.d/other</em> zawiera konfigurację systemu PAM
+              dla aplikacji pozbawionej własnego pliku. Najczęściej w nim
+              wszystko jest blokowane. 
+          </li>
+          <li>Zależnie od dystrybucji, istnieje możliwość dołączania
+              dodatkowych plików konfiguracyjnych do pliku konfiguracyjnego PAM
+              Za pomocą <strong>@include</strong> możemy załadować cały plik
+              konfiguracyjny, ale możemu również użyć argumentu kontrolnego
+              aby załadować konfiugrację dla konkretnej funkcji.</li>
+          <li>Konfiguracja reguł systemu PAM nie kończy się na argumentach
+              modułów, nie które z modułów mogą uzyskiwać dostęp do katalogu
+              <em>/etc/security</em>, zwykle ma to na celu skonfigurowanie
+              ograniczeń dla zwykłych uzytkowników.</li>
+        </ul>
+        <h3>System PAM i hasła</h3>
+        <p>
+          W wyniku trwającej lata ewolucji obsługi haseł w dystrybucjach
+          Linux-a, trzeba mieć świadomość istnienia kilku zaszłości z dawnych
+          lat. Jednym z nich jest plik <em>/etc/login.defs</em>. Zawiera on
+          konfiguracje pakietu obsługującego hasła. Jest on rzadko
+          stosowany ze względu na system PAM, który zawiera tego typu 
+          informacje. Algorytm znajdujący się w tym pliku powinien być zgodny
+          z konfiguracją PAM. Plik ten jest wykorzystywany głównie w
+          dystrybucjach gdzie nie używa się systemu PAM.
+        </p>
+        <p>
+          Zapisywane podczas zmiany hasła są szyfrowane za pomocą algorytmu 
+          <em>sha512</em>,
+          oraz wymagają pewnej złożoności. Konfigurację tych parametrów możemy
+          znaleźć w plikach konfiguracyjnych systemu PAM znajdując odpowiednie
+          pliki za pomocą wyrażenia regularnego:
+        </p>
+<pre class="code-block">
+$ grep password.*unix /etc/pam.d/*
+</pre>
+        <p>
+          Polecnie wyświetli odpowienią linię oraz nazwę pliku. Chcąc zmienić 
+          ustawienia dotyczące
+          haseł możemy posiłkować sie argumentami modułu <em>pam_unix.so</em>,
+          gdzie na stronie podręcznika tego modułu znajdziemy opisy 
+          wymienionych argumentów.
+        </p>
+        <p>
+          Źródła:
+        </p>
+        <ol>
+          <li>Jak działa Linux Wyd. II, Brian Ward, Helion 2015</li>
+          <li><a href="https://mudongliang.github.io/2020/09/17/ruid-euid-suid-usage-in-linux.html">Definicja SUID</a></li>
+          <li><a href="http://manpages.ubuntu.com/manpages/trusty/man8/pam_unix.8.html">Opis argumentów modułu pam_unix.so</a></li>
+        </ol>
+        <p>
+          Na potrzeby morketsmerke.github.io opracował: xf0r3m
+        </p>
+      </div>
+			<p style="margin: 15px; padding: 0; outline: 0;">
+				2021; COPYLEFT; ALL RIGHTS REVERSED;
+			</p>
+		</body>
+	</html>
+
