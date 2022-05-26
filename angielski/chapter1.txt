@@ -1,59 +1,59 @@
-umbrella term - szerokie pojęcie
-day-to-day operation - codzienne funkcjonowanie
-increasingly - coraz bardziej
-applies - dotczy
-apply - stosować
-enable - umożliwiać
-completion - ukończenie
-meaningful - znaczący
-meaningless - nic nie znaczący
-fundamental objectives - podstawowy cel
-increase in revenue - wzrost przychodu
-render long-term benefits - zapewnić długoterminowe korzyści
-business management software - oprogramowanie do zarządzania przedsiębiorstwem
-inventory - inwentarz
-comprehensive real-time view - pełny wgląd w czasie rzeczywistym
-accurate - dokłady,precyzjny,trafny
-in alingment with - w zgodzie z
-key business drivers - kluczowy czynnik biznesowy
-measuring - ocena
-profitability - rentowność
-assets - aktywa
-intagible - niematerialne niewymierne
-tangible - materialne wymierne
-enhancement - poprawa/zwiększenie
-goodwill - wartość firmy
-plants and equipment - maszyny i urządzenia
-future gain - przyszły zysk
-well-being - dobrobyt, pomyślność
-taking advantage of - czerpać korzyści
-particular - konkretnych określone
-competive advantage - przewaga konkurencyjna
-suitable - odpowiednie
-conduct of business - prowadzenie biznesu
-research and development (R&D) - badania i rozwój
-set up - stworzyć ustawiać konfigurować
-pressure - presja
-computer-based systems - systemy komputerowe
-subsidiaries - spółki zależne (firmy)
-in time - w samą porę
-on time - na czas
-falling behind schedule - niezgodnie z harmonogramem
-amount - ilość
-income - dochód
-expenses - wydatków
-substracted - odliczone odjęte
-ability - możliwość zdolność
-effectivness - skuteczność
-efficiency - sprawnie efektywnie wydajnie
-project manager - kierownik projektu
-engaged - potrzebny
-include - obejmuje zawiera
-e.g. - na przykład
-i.e. -  to jest
-ad hoc - tymczasowy
-de facto - faktycznie rzeczywiście
-i.a. - między innym
-convenience - wygoda udogdnienie
-habit - nawyki
-combines - obejmują
+umbrella term=szerokie pojęcie
+day-to-day operation=codzienne funkcjonowanie
+increasingly=coraz bardziej
+applies=dotczy
+apply=stosować
+enable=umożliwiać
+completion=ukończenie
+meaningful=znaczący
+meaningless=nic nie znaczący
+fundamental objectives=podstawowy cel
+increase in revenue=wzrost przychodu
+render long-term benefits=zapewnić długoterminowe korzyści
+business management software=oprogramowanie do zarządzania przedsiębiorstwem
+inventory=inwentarz
+comprehensive real-time view=pełny wgląd w czasie rzeczywistym
+accurate=dokłady,precyzjny,trafny
+in alingment with=w zgodzie z
+key business drivers=kluczowy czynnik biznesowy
+measuring=ocena
+profitability=rentowność
+assets=aktywa
+intagible=niematerialne niewymierne
+tangible=materialne wymierne
+enhancement=poprawa/zwiększenie
+goodwill=wartość firmy
+plants and equipment=maszyny i urządzenia
+future gain=przyszły zysk
+well-being=dobrobyt pomyślność
+taking advantage of=czerpać korzyści
+particular=konkretnych określone
+competive advantage=przewaga konkurencyjna
+suitable=odpowiednie
+conduct of business=prowadzenie biznesu
+research and development (R&D)=badania i rozwój
+set up=stworzyć ustawiać konfigurować
+pressure=presja
+computer-based systems=systemy komputerowe
+subsidiaries=spółki zależne (firmy)
+in time=w samą porę
+on time=na czas
+falling behind schedule=niezgodnie z harmonogramem
+amount=ilość
+income=dochód
+expenses=wydatków
+substracted=odliczone odjęte
+ability=możliwość zdolność
+effectivness=skuteczność
+efficiency=sprawnie efektywnie wydajnie
+project manager=kierownik projektu
+engaged=potrzebny
+include=obejmuje zawiera
+e.g.=na przykład
+i.e.=to jest
+ad hoc=tymczasowy
+de facto=faktycznie rzeczywiście
+i.a.=między innym
+convenience=wygoda udogdnienie
+habit=nawyki
+combines=obejmują
