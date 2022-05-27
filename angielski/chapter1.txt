@@ -1,7 +1,7 @@
 umbrella term=szerokie pojęcie pojęcie zbiorcze
 day-to-day operation=codzienne funkcjonowanie
 increasingly=coraz bardziej
-applies=dotczy
+applies=dotyczy
 apply=stosować
 enable=umożliwiać
 completion=ukończenie
