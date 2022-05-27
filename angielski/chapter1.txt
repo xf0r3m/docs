@@ -54,6 +54,6 @@ i.e.=to jest
 ad hoc=tymczasowy
 de facto=faktycznie rzeczywiście
 i.a.=między innym
-convenience=wygoda udogdnienie
+convenience=wygoda udogodnienie
 habits=nawyki zwyczaje
 combines=łączy
