@@ -5,7 +5,7 @@ vocFile=/tmp/voc;
 userAnsFile=/tmp/userAns;
 ansFile=/tmp/ansFile;
 
-if [ -z $1 ]; then
+if [ -f $1 ]; then
   cp $1 /tmp/${1}.tmp;
   sourceFile=/tmp/${1}.tmp;
 	sourceFileNOL=$(wc -l $sourceFile | awk '{printf $1}');
@@ -49,8 +49,12 @@ if [ -z $1 ]; then
     sed -i "${randomLineNo}d" $sourceFile
     sourceFileNOL=$((sourceFileNOL - 1));
   done
-
+  
+  #I sending division in below to python, because python3 in latest or other 
+  #version is usually pre installed in main Linux distributions, what can't 
+  #tell this about bc tool.
   pointsPercentage=$(echo "print(${points}/${pointsToGet})" | python3);
+  
   if [ $(echo $pointsPercentage | cut -c 1) -eq 1 ]; then
     result=100;
   elif [ $(echo $pointsPercentage | cut -c 3) -eq 0 ]; then
