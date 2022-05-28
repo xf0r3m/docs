@@ -1,0 +1,100 @@
+Exercise A:
+  1) f
+  2) c
+  3) e
+  4) b
+  5) a
+  6) h
+  7) d
+  8) g 
+  
+  8/8
+
+Exercise B:
+  currently=now,nowadays,presently
+  significant=crucial,important,meaningful
+  goal=objective,purpose,aim
+  fundamental=essential
+  impact=influence
+  primarily=chiefly
+
+  12/13
+
+Exercise C:
+  rozwijać się  to grow   a grown   growing
+  zwiększać     to increase an increase increasing
+  stosować      to apply  an apply  applying
+  dostosować    to customize a customization  customizing
+  konkurować    to compete  a competition competitive
+  optymalizować to optimize an optimization optimizing
+  kontynuować   to continue a continuation continuing
+  czerpać zysk  to make profit a make profit  making profit
+
+  10/19
+
+Exercise D:
+  2. in for
+  3. of in of
+  4. in of 
+  5. in on of
+  6. on
+  7. on
+  8. in
+
+  11/13
+
+Exercise E:
+  2 -> j - surowe dane
+  3 -> c - inwestycje wysokiego ryzyka
+  4 -> f - strategiczy zasób
+  5 -> g - przewaga konkurencyjna
+  6 -> i - system informatyczny
+  7 -> e - długoterminowe korzyści
+  8 -> d - analiza portfelowa
+  9 -> a - czynnik powodzenia
+  10 -> b - czynnik biznesowy
+
+  15/18
+
+Exercise F:
+  DSS - Decision Support System
+  MNC - Multinational Corporation
+  ERP - Enterprise Resource Planning
+
+  3/5
+`
+Exercise G:
+  1)
+  Nowadays IT becomes increasingly significant element in grown every company.
+  For this reason IT investments are today an integral part of business plan
+  every enterprise which want gain a competitve advantage.
+
+  2)
+  According to IT investments defensive approach in McFarlan's matrix,
+  enterprise can invests i.a. an applications which aren't critical for
+  successful enterprise operation.
+
+  3)
+  Enterprises can use a such measuring of tangible investments benefits
+  methods like a return in investments and analysis costs and benefits.
+
+  4)
+  Companies usually make an investments prioritization according particular
+  criteria.
+  
+  5)
+  Offensive approach to investments in IT are preferred by enterprises which
+  put emphasis on creative taking advantage of IT, not only on increase
+  efficiency in day-to-day operations.
+
+  3/5
+
+Execise H:
+  In our company, we don't use internal IT systems. We are using external one,
+  managed by others like Central Exam Commision and this solutions brings
+  benefits only for them not for us.
+  1/1
+
+ex: 63/82 = 77% = 4
+voc: 58/59 = 98% = 6
+result: 5
