@@ -17,8 +17,9 @@ $vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/Stratis.vdi" \
 --size 1024 --format VDI --variant Standard;
 
 $vboxmanage storagectl $vmname --name SATA0 --add sata;
-$vboxmanage modifyvm $vmname --memory 2048
-$vboxmanage modifyvm $vmname --nic1 bridged
+$vboxmanage modifyvm $vmname --memory 2048;
+$vboxmanage modifyvm $vmname --graphicscontroller vmsvga;
+$vboxmanage modifyvm $vmname --nic1 bridged;
 $vboxmanage modifyvm $vmname --bridgeadapter1 $bridged_if;
 
 $vboxmanage storageattach $vmname --storagectl SATA0 --port 0 --type hdd --medium \
