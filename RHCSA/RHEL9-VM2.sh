@@ -9,7 +9,7 @@ bridged_if="wlp1s0";
 
 $vboxmanage createvm --name $vmname --ostype RedHat_64 --register;
 $vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/OS.vdi" --size \
-1024000 --format VDI --variant Standard;
+10240 --format VDI --variant Standard;
 
 $vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/VDO.vdi" --size \
 4096 --format VDI --variant Standard;
