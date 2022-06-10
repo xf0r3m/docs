@@ -2,7 +2,7 @@
 
 vboxmanage=$(which vboxmanage);
 vmname="RHEL9-VM2";
-bridged_if="wlp1s0";
+bridged_if="enp1s0";
 
 #echo $vboxmanage;
 
@@ -22,11 +22,14 @@ $vboxmanage modifyvm $vmname --graphicscontroller vmsvga;
 $vboxmanage modifyvm $vmname --nic1 bridged;
 $vboxmanage modifyvm $vmname --bridgeadapter1 $bridged_if;
 
-$vboxmanage storageattach $vmname --storagectl SATA0 --port 0 --type hdd --medium \
+$vboxmanage storageattach $vmname --storagectl SATA0 --port 0 --type dvddrive \
+--medium "$HOME/Pobrane/rhel-baseos-9.0-x86_64-dvd.iso";
+
+$vboxmanage storageattach $vmname --storagectl SATA0 --port 1 --type hdd --medium \
 "$HOME/VirtualBox VMs/${vmname}/OS.vdi";
 
-i=1;
-while [ $i -le 4 ]; do
+i=2;
+while [ $i -le 5 ]; do
   $vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/LVM${i}.vdi" --size \
   250 --format VDI --variant Standard;
   $vboxmanage storageattach $vmname --storagectl SATA0 --port $i --type hdd --medium \
@@ -34,11 +37,9 @@ while [ $i -le 4 ]; do
   i=$((i + 1));
 done
 
-$vboxmanage storageattach $vmname --storagectl SATA0 --port 5 --type hdd --medium \
-"$HOME/VirtualBox VMs/${vmname}/VDO.vdi";
 $vboxmanage storageattach $vmname --storagectl SATA0 --port 6 --type hdd --medium \
+"$HOME/VirtualBox VMs/${vmname}/VDO.vdi";
+$vboxmanage storageattach $vmname --storagectl SATA0 --port 7 --type hdd --medium \
 "$HOME/VirtualBox VMs/${vmname}/Stratis.vdi";
 
-$vboxmanage storageattach $vmname --storagectl SATA0 --port 7 --type dvddrive \
---medium "$HOME/Pobrane/rhel-baseos-9.0-x86_64-dvd.iso";
 
