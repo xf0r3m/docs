@@ -1,0 +1,87 @@
+Exercise A:
+	1→ = UNIQUE
+	1↓ = ONETOMANY
+	2→ = DATABASE
+	2↓ = BACKUP
+	3→ = CLOUD
+	3↓ = TUPLE
+	4→ = UNIT
+	4↓ = QUERY
+	5→ = RELATIONSHIP
+	5↓ = RAM
+	6→ = OBJECT
+	6↓ = ANALYSIS
+	7→ = PARALLELISM
+	7→ = PERFORMANCE
+	8→ =
+	8↓ = 
+	9→ = LOGICAL
+	9↓ = REDUNDANCY
+	10→ = ENTITY
+	10↓ = PRIMARY
+	11→ = UML
+	11↓ = USER
+	12→ = ERD
+	13→ = 
+	14→ = INMEMORY
+
+Exercise B:
+	2) Owing to CPUs with many cores, the execution time of a complex query can
+    be reduced to few seconds.
+  
+  3) A Number of crucial information was writed down in the requirement
+    analisis.
+	
+  4) Database administrators perform a great deal of performance tuning 
+    activities to make use of database more effective.
+
+  5) Embeded databases are databases which are integrade within an aplication
+    software and aren't accessible for the end-users of application.
+
+  6) The simplest type od database is a set of flat files which are being
+    stored computer disk.
+
+Exercise C:
+  1) key uniqueness = unikatowość klucza
+  3) data recovery = odzyskiwanie danych
+  4) integrity constraints = więzy integralności
+  5) data migration = migracja/przenoszenie danych
+  6) production enviroment = środowisko produkcyjne
+  7) concurrent access = jednoczesny dostęp
+  8) performance tuning = poprawienie/zwiększenie wydajności
+  9) foreign key = klucz obcy
+  10) unique identifier = unikatowy identyfikator
+
+Exercise D:
+  2 between, with
+  3 at, to
+  4 in,
+  5 by
+  6 by, over, by
+  7 for, with, into
+  8 to, over, to 
+
+Exercise E:
+  1) Entities, their attributes and relationship between those entities are
+    included into logical data model.
+
+  2) Definition of relational model was created by E.F. Codd.
+
+  3) The release of database to production enviroment was accepted by the
+    project manager.
+  
+  4) The Database had been recovered from backup by database administrator
+    when power went off.
+
+  5) Primary and foreing keys for each entity are indentified by the system
+    analyst.
+
+Exercise F:
+
+  1) Inforamtion retrieval into database are taking advantage by user to make
+    business decisions.
+
+  2) Integrity constraints are used to ensure accuracy and consistency in
+    relational databases.
+
+  3)  

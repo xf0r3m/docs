@@ -25,3 +25,7 @@ data marts=hurtownie danych
 to distinguish=odróżnić
 whereas=podczas gdy
 with respect to=odnośnie do czegoś
+specify=określają
+owing to=dzięki
+ensure=zapewnić
+consistent=spójny
