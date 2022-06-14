@@ -24,22 +24,28 @@ Exercise A:
 	12→ = ERD
 	13→ = 
 	14→ = INMEMORY
+  
+Password = REFERENTIAL INTEGRITY
+
+Result: 11/15
 
 Exercise B:
 	2) Owing to CPUs with many cores, the execution time of a complex query can
-    be reduced to few seconds.
+    be reduced to few seconds. 3/3
   
   3) A Number of crucial information was writed down in the requirement
-    analisis.
+    analisis. 2/4
 	
   4) Database administrators perform a great deal of performance tuning 
-    activities to make use of database more effective.
+    activities to make use of database more effective. 1/2
 
   5) Embeded databases are databases which are integrade within an aplication
-    software and aren't accessible for the end-users of application.
+    software and aren't accessible for the end-users of application. 2/2
 
   6) The simplest type od database is a set of flat files which are being
-    stored computer disk.
+    stored computer disk. 1/3
+
+Result: 9/14
 
 Exercise C:
   1) key uniqueness = unikatowość klucza
@@ -51,6 +57,8 @@ Exercise C:
   8) performance tuning = poprawienie/zwiększenie wydajności
   9) foreign key = klucz obcy
   10) unique identifier = unikatowy identyfikator
+  
+Result: 8/9
 
 Exercise D:
   2 between, with
@@ -60,6 +68,8 @@ Exercise D:
   6 by, over, by
   7 for, with, into
   8 to, over, to 
+
+Result: 11/17
 
 Exercise E:
   1) Entities, their attributes and relationship between those entities are
@@ -76,12 +86,26 @@ Exercise E:
   5) Primary and foreing keys for each entity are indentified by the system
     analyst.
 
+Result: 3/5
+
 Exercise F:
 
   1) Inforamtion retrieval into database are taking advantage by user to make
-    business decisions.
+    business decisions. 3/5
 
   2) Integrity constraints are used to ensure accuracy and consistency in
-    relational databases.
+    relational databases. 5/5
 
-  3)  
+  3) Cloud-based DBMS it is management system of distributed database based on 
+    cloud computing platform, so it can be accessed remotely. 2/5
+
+  4) Providers of DBMS delivers a various drivers which enable access to
+    database engine. 4/5
+
+  5) For minimise risk of data loss, just create database backup, this is the
+    simplest way. You can also replicate data from main to backup server.
+    0/5
+
+Result 14/25
+
+Result of all: 56/85 = 66% = 4
