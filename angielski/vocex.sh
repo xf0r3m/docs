@@ -60,9 +60,14 @@ if [ -f $1 ]; then
   elif [ $(echo $pointsPercentage | cut -c 3) -eq 0 ]; then
     result=0;
   else 
-    roundIndicator=$(echo "$pointsPercentage" | cut -c 5);
-    result=$(echo "$pointsPercentage" | cut -c 3-4);
-    if [ $roundIndicator -ge 5 ]; then result=$((result + 1)); fi
+    if [ $(echo "$pointsPercentage" | wc -c) -eq 4 ]; then
+      result=$(echo "$pointsPercentage" | cut -c 3);
+      result="${result}0";
+    else
+      roundIndicator=$(echo "$pointsPercentage" | cut -c 5);
+      result=$(echo "$pointsPercentage" | cut -c 3-4);
+      if [ $roundIndicator -ge 5 ]; then result=$((result + 1)); fi
+    fi
   fi
 
   if [ $result -ge 98 ] && [ $result -le 100 ]; then grad=6; color="1;32";
