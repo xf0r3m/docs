@@ -108,4 +108,6 @@ Exercise F:
 
 Result 14/25
 
-Result of all: 56/85 = 66% = 4
+Result of exercieses: 56/85 = 66% = 4
+Result of vocabulary exam: 28/30 = 93% = 5
+Result of all: (4+5)/2 = 4.5 = 5
