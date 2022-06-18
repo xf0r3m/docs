@@ -1,0 +1,9 @@
+vital=istotny
+platter=talerz
+magnetic particle=cząstka magnetyczna
+pie-shaped=wycinek koła
+consist=składa się
+actuator=serwomechanizm
+abovementioned=wyżej wymienione
+in case of=w przypadku
+in the case of=jeśli chodzi
