@@ -1,0 +1,111 @@
+Exercise A:
+  1) b J
+  2) d F
+  3) j E
+  4) i H
+  5) h C
+  6) g G
+  7) a D
+  8) c I
+  9) f B
+  10) e A
+
+10/10
+
+Exercise B:
+  ROM - Read Only Memory (Pamięc zawierająca dane których nie można zmienić).
+  AGP - Advanced Graphics Port (Port służący do podłaczania kart graficznych).
+  PSU - Power Supply Unit (Zasilacz komputera).
+  SSD - Solid State Drive (Dysk oparty o technologie półprzewodnikowe).
+  SATA - Serial Advanced Technology Attachment or Serial ATA (Technologia
+  podłaczania dysków do komputera)
+  HDD - Hard Disk Drive - (Dysk twardy oparty na magnetyźmie)
+  OS - Operating System - (Nadrzędny program komputera, udostępniający
+  zasoby komputera użytkownikom)
+  CPU - Central Processing Unit - (Procesor komputera)
+
+8/8
+
+Exercise C:
+
+  1. c - zasilacz
+  2. d - przewody zasilające
+  3. i - wentylator systemowy
+  4. f - procesor z wentylatorem
+  5. g - pamięc operacyjna
+  6. h - karta dźwiekowa
+  7. j - płyta główna
+  8. i - bateria RTC
+  9. a - obudowa
+  10. b - stacja dyskietek 3,5"
+  11. e - dysk twardy
+  12. k - napęd optyczny
+
+12/12
+
+Exercise D:
+
+  2. on
+  3. for, on, in, to
+  4. of, on 
+  5. for
+  6. for, at
+
+10/10
+
+Exercise E:
+
+  1. g - urządzenie wyjściowe
+  2. b - zatoka na napęd
+  3. i - przewód zasilający
+  4. b - pamięć ulotna
+  5. c - ramie serwomechanizmu
+  6. a - płytka drukowana
+  7. j - uszkodzenie głowicy
+  9. h - gniazdo procesora
+  10. f - karta sieciowa
+
+8/9
+
+Exercise F:
+  1) Data on hard drive are stored on datapath in pie-shaped sectors, which are 
+      located on platter. 0.5/1
+  
+  2) You not lose content of ROM, even if power failure occurs, whereas in the 
+     case of RAM memory, disconnection from power source, cause data loss.
+     0.5/1
+
+  3) Circuits which looks like networks of copper wires and connects various 
+     of elements on motherboard are called paths. 0.5/1
+
+  4) Southbridge is a chip, used for communication with i/o devices. 1/1
+
+  5) We have to used to a fact, the computers becomes much smaller. 0/1
+
+3/5
+
+Exercise G:
+
+  2. like
+  3. As
+  4. as
+  5. like
+
+3/6
+
+Exercise H:
+
+  1. CPU specification / Specyfikacja procesora
+  2. Preinstalled operating system / Preinstalowany system operacyjny
+  3. amount of RAM and her specification. / Ilość pamięci RAM oraz jej specyfikacja
+  4. size and specification of HDD / Wielkość i specyfikacja dysku
+  5. Installed graphics card / Zainstalowana karta graficzna.
+  6. Display specs. / Specyfikacja wyświetlacza/matrycy.
+  7. Case color
+  8. Information about additional software for instance antivirus.
+
+0/8
+
+Exercise result: 54/67 = 81 = 4
+Vocab result: 9/9 = 100 = 6
+Result of all: (4+6) / 2 = 5
