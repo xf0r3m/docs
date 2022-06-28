@@ -3,3 +3,6 @@ rely=polegać
 bear on mind=pamiętać mieć na uwadze
 move about=poruszać się
 obstacle=przeszkoda
+relatively=stosunkowo
+both=zarówno
+effort=wysiłek

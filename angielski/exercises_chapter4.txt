@@ -1,0 +1,97 @@
+Exercise A:
+  1. e
+  2. i
+  3. d
+  4. b
+  5. c
+  6. a
+  7. h
+  8. f
+  9. g
+
+9/9
+
+Exercise B:
+  1. in
+  2. to
+  3. about, in, for
+  4. among, on
+  5. over, on
+  6. from, in
+  7. over, around, on
+  8. in
+
+7/15
+
+Exercise C:
+  reliable  unreliable
+  expensive inexpensive
+  available unavalable
+  operable  inoperable
+  connected disconnected
+  shielded  unshielded
+  enabled   disabled
+  attached  unattached
+  direct    indirect
+
+9/9
+
+Exercise D:
+  1.g shared key - klucz współdzielony
+  2.h communication standard - standard komunikacyjny
+  3.a coaxial cabel - kabel koncentryczny
+  4.d network protocol - protokół sieciowy
+  5.b ultra wideband - szerokopasmowy
+  6.c copper wire - przewód miedziany
+  7.e broadband connection - połączenie szerokopasmowe
+  8.j remote system - system zdalny
+  9.f Ethernet adapter - adapter Ethernet (karta sieci Ethernet).
+
+4/9
+
+Exercise E:
+  2. doesn't return, means
+  3. assign, doesn't work
+  4. should consider, fits
+  5. can get, signs up
+  6. use, haven't, cannot split
+
+5/11
+
+Exercise F:
+  1. Building both private network and local area network  are relatively cheap, 
+     whereas creating a wide networks involves much more effort and resources
+     1/1
+ 
+  2. The communication link of the Ethernet are ordinary coaxial cable 
+     connected to every node via T-connector. Therefore the Ethernet is the 
+     one of the most popular network based on bus topology. 1/1
+
+  3. 10GBASE-T standard enable data transmission with 10Gb/s speed, using 
+     shielded or unshielded twisted pair. Moreover signal is sent on 
+     distance up to 100 meters. 0.5/1
+
+  4. By and large, the mesh network is type of network, in which every node 
+      are connected with one node at least. 1/1
+
+  5. When the DHCP protocol is not use, to the computer a static IP address 
+      are assigned. 0.5/1
+
+4/5
+
+Exercise G:
+  For small company, the most suitable topology can be a star topology, because
+  we can achieve a reliable connections with a little bit of effort. First of 
+  all,  in new generation of star topology, which use the Ethernet, we use 
+  switches instead of hubs, therefore the Ethernet becomes more efficient. 
+  Moreover we don't need an aditional hardware to us nodes, because every 
+  computer are equiped with Ethernet adapter. Even though prices of copper 
+  unshielded twisted pairs are much bigger then fibre optics, as i said before 
+  we don't need a suplementary devices, like a fiber optics network adapters or 
+  media converters.
+
+1/1
+
+Exercise result = 35/59 = 3
+Vocab test result = 8/8 = 6
+Result of all = (3+6)/2 = 4.5 = 4
