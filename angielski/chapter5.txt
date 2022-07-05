@@ -1,7 +1,7 @@
 slew of data=ogromna ilość danych
 predictive analytics=analiza predykcyjna
 click-throughs=klikalność
-spot=dostrzega/zauważać
+spot=dostrzegać zauważać
 veracity=wiarygodność
 disparate=różny
 tackle challenge=podjąć wyzwanie
@@ -12,5 +12,5 @@ inventive=pomysłowy
 fault-tolerant=odporny na błędy
 last but not least=ostatni, ale nie mniej ważny
 strategic insight=strategiczny wgląd
-issue=kwestia, problem
-making sense=wyciągnąć wnioski, nadać sens
+issue=kwestia problem
+making sense=wyciągnąć wnioski nadać sens
