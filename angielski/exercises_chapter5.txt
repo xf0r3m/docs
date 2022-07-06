@@ -1,0 +1,96 @@
+Exercise A:
+  1 e - tabelaryczna baza danych
+  2 a - dane nieustrukturyzowne
+  3 f - plik wejściowy
+  4 d - oczyszczanie danych
+  5 b - transmisja w czasie rzeczywistym
+  7 j - kwestia sporna
+  8 g - analiza predykcyjna 
+  9 i - przetwarzania danych
+  10 h - moduł podstawowy
+
+  9/9
+
+Exercise B:
+  1. f
+  2. e
+  3. b
+  4. a
+  5. c
+  6. d
+  7. g
+  8. h
+
+  8/8
+
+Exercise C:
+
+  2. Rarely does existing infrastructure is replaced, 
+      Hadoop enables users to do more with existing data
+
+  3. Under no circumstances any files should be added to this directory.
+
+  4. Only when it's time to start a Hadoop DataNode service the Hadoop 
+      NodeName service should be started.
+
+  5. Project manager know little about increasing number of risks in the 
+      project.
+
+  6. Integration Hadoop platform with other system is easy, so the 
+      company will require little support.
+
+  0/5
+
+Exercise D:
+
+  2. have finished
+  3. has invested
+  4. tackled the challenge
+  5. has been estimating
+  6. been
+
+  4/5
+
+Exercise E:
+
+  1 e - wiarygodność
+  2 a - dostępny
+  3 f - rozwiązać/rozwiązanie
+  4 b - częściowo uporządkowany
+  5 d - wyjście
+
+  5/5
+
+Exercise F:
+  
+  2. on
+  3. for 
+  4. from, on
+  5. Across, into, to
+  6. in, across, in
+
+  6/10
+
+Exercise G
+
+  1. Necessity is mother of invention, a big data is answer for trying 
+     analysing massive amount of data: transactions, search results, 
+     sells data, sites click-throughs and so on.
+
+  2. Data being subject of big data analysis are in various forms include 
+      unstructured, semi-structured, structured and hierarchical data.
+
+  3. Unlike to traditional relational databases, data in Hadoop are 
+      distributed on many nodes.
+
+  4. HDFS is distributed file system based on Java, which enable 
+     appropriate data store.
+
+  5. Companies are using data researching including predictive analysis 
+      and machine learning for spot new business trends.
+
+  2/5
+
+Result of exercises: 34/47 = 72% = 4
+Result of vocabs: 16/16 = 100% = 6
+Result of all: (4+6)/2 = 5
