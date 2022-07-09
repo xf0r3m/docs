@@ -1,0 +1,13 @@
+encompasses=obejmuje
+slice-and-dice pivot table analysis=analiza danych za pomocą tabeli przestawnej
+dashboard=panel sterowania
+forecast=prognoza
+guesstimate=szacować na oko
+cross-selling=sprzedaż krzyżowa
+up-selling=sprzedaż produktów droższych
+leveraging=wykorzystywanie
+staging area=obszar tymczasowy
+caried out=przeprowadzać
+time-variant=zmienny w czasie
+visually appealing=atrakcyjny wizualnie
+slice-and-dice=przekroje i rzuty
