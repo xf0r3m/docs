@@ -1,0 +1,66 @@
+Exercise A:
+  1→) NORMALIZATION
+  1↓) CLEANSING
+  2→) DATAMART
+  2↓) TEXTMINING
+  3→) DASHBOARD
+  3↓) DRILLDOWN
+  4→) SCORECARD
+  4↓) HISTORIC
+  5→) STAGING
+  5↓) WAREHOUSE
+  6→) VALIDATION
+  6↓) CROSS
+  7→) OPTIMIZATION
+  7↓) PROCESSING
+  8→) STANDARDIZATION
+  8↓) STAR
+  9→) SURROGATE
+  10→) QUERY
+
+PASSWORD: DATA ANALIYSIS EXPRESSIONS
+
+ 19/19
+
+Exercise B:
+  1c - schemat bazy danych
+  2e - tabela faktów
+  3a - zapytanie ad hoc
+  5d - oczyszczanie danych
+  6b - obciążenie wskutek wykonywania zapytania
+  7j - warstwa prezentacji
+  8f - tematyczna hurtowania danych
+  9g - docelowa baza danych
+  10i - gracz niszowy
+
+ 9/9
+
+Exercise C:
+  0/9
+Exercise D:
+  1d - sprzedaż krzyżowa
+  3e - drążenie w poprzek
+  4b - czasochłonny
+  5a - nieultony
+  6c - zmienny w czasie
+  
+  5/5
+
+Exercise E:
+  2. with
+  3. on
+  4. on, on
+  5. for
+  6. with
+  7. in
+  8. for, against, in
+
+  11/11
+
+Exercise F:
+
+  0/1
+
+Result of exercise: 44/56 = 4 (Rozwiązania spisane z opowiedzi do ćwiczeń = 2)
+Result of vocab: 13/13 = 6
+Result of all: 3
