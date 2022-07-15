@@ -1,0 +1,16 @@
+harness=ujarzmić okiełznać
+time series analysis=analiza szeregów czasowych
+quantitative modelling=modelowanie ilościowe
+mimic=naśladować
+a priori assumption=założenie a priori
+underlying=zasadniczy
+diverse=rożnorodne rozmaite
+network pruning=przycinanie sieci
+descriptive=opisowy
+hyperplane=hiperpłaszczyzna
+explanatory=wyjaśniający
+outlieres=wartość skrajna
+residual=pozostały
+robust=solidny
+spurious=fałszywy
+concerning=odnośnie do
