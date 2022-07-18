@@ -1,0 +1,71 @@
+Exercise A:
+
+1 c
+2 f
+3 a
+4 g
+5 b
+6 e
+7 d
+
+7/7
+
+Exercise B:
+
+1 in, of
+2 to, of, by
+3 to, of, to
+4 of, for, in
+5 of
+6 of, on
+7. in
+8. of
+
+15/16
+
+Exercise C:
+
+Znaczyć | to mean | a meaning | meaningful
+Wyzywać | challenge | a challenge | challenging
+być liniowym | linearize | a linearity | linear
+być pewnym | certanize | a certainity | certain
+mieć charakter
+niejednorodny | heterogenize | a heterogeneity | heterogeneous
+wizualizować | to visualize | a visuality | visual
+
+9/13 
+
+Exercise D:
+
+1 b - odkrywanie wiedzy
+2 g - sztuczna inteligencja
+3 a - zmienna niezależna
+4 j - rozpoznawanie wzorców
+5 c - równanie regresji
+6 i - wsteczna propagacja błedów
+8 f - szereg czasowe
+9 h - liść/węzeł liścia
+10 e - sieć neuronowa
+
+9/9
+
+
+Exercise E:
+ 2) Neural networks are to mimic the learning process of the 
+    biological neural network, which is particularly useful for 
+    identifying fundamental relationships among patterns in data.
+ 3) Discovered knowledge among other things should expose 
+    imperfectness of database, which should be expressed by measures 
+    of uncertainty.
+ 4) A predictive data mining method called linear regression, which is
+    used to determine the linear relationship and linear data model 
+    for two or more variables.
+ 5) A constant expansion of huge databases, which are distributed and 
+    heterogeneous. Their expansion poses new challenges to data 
+    mining.
+
+2/4
+
+Result of exercises: 42/49 =  86% = 5
+Result of vocab: 15/16 = 94 % = 5
+Result of all: (5+5)/2 = 5
