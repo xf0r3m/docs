@@ -1,0 +1,7 @@
+limitation of liability=ograniczenie odpowiedzialności
+shrink-wrap=folia termokurczliwa
+remain in force=pozostawać w mocy
+refinement=udoskonalenie
+clarify=wyjaśnić doprecyzować
+disclaimer=zrzeczenie się zastrzeżenie
+if applicable=jeśli dotyczą
