@@ -1,0 +1,111 @@
+1. Instalacja pakietów podczas pobierania systemu bazowego:
+  pacstrap: base linux linux-firmware networkmanager vim grub man-db man-pages texinfo lvm2
+  
+  pacstrap /mnt base linux linux-firmware networkmanager vim grub man-db man-pages textinfo lvm2
+
+2. Podstawowe czynności wykonywane po instalacji systemu bazowego:
+  
+  - Ustawienie odpowiedniej strefy czasowej: Europe/Warsaw
+    ln -sf /usr/share/zoneinfo/Europe/Warsaw /etc/localtime
+  
+  - Wygenerowanie "locale"-i:
+    W pliku /etc/locale.gem, odnajdujemy ciąg znaków: pl_PL.UTF-8 UTF-8
+    i usuwamy znak komentarza na początku tej linii. Zapisujemy zmiany w
+    pliku. Wydajemy polecenie: locale-gen
+
+    Ustawienie zmiennej LANG na pl_PL.UTF-8 w pliku /etc/locale.conf
+
+  - Ustawienia konsoli:
+    W pliku /etc/vconsole.conf zapisujemy poniższe linie:
+    KEYMAP=pl
+    FONT=lat2-16
+    FONTMAP=8859-2
+
+  - Nazwa hosta:
+    Dowolny ciąg znaków. Na przykład arch701 <-obraz płyty z 01.07.2022.
+
+  - Utworzenie użytkownika:
+    useradd -m xf0r3m 
+    passwd xf0r3m
+
+  - Zmiana hasła root:
+    passwd root
+
+  - Włączenie jednostki NetworkManager:
+    systemctl enable NetworkManager.service
+
+3. Uprawnienia administratora dla użytkownika:
+  - Instalacja polecenia sudo:
+    pacman -Sy sudo
+
+  - Nadanie uprawnień:
+    echo "xf0r3m ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+4. Instalacja środowiska graficznego:
+
+  - Instalacja podstawowych pakietów: 
+    pacman -Syu xorg fluxbox xorg-xinit xterm slim archlinux-wallpaper
+    W razie pytań wszystko pozostawiamy domyślnie.
+
+  - Konfiguracja plików .xinitrc orax .xsession użytkownika:
+    echo "exec startfluxbox" > .xinitrc
+    cp .xinitrc .xsession
+
+  - Włączenie jednostki slim:
+    systemctl enable slim.service
+
+5. Instalacja oprogramowania:
+
+  pacman -Sy qutebrowser firefox shotwell gimp qmmp vlc arandr pulseaudio
+  pavucontrol xscrensaver ranger htop neofetch zathura zathura-pdf-poppler
+  leafpad virt-manager wget
+
+6. Pobranie tapety:
+ 
+  wget https://pkgbuild.com/~foxboron/ArchlinuxGraphics/wall_style1_logo.png -O
+  /usr/share/backgrounds/wall_style1_logo.png
+
+7. Przepisanie plików konfiguracyjnych użytkownika:
+  
+  - Uruchomienie xscreensaver:
+    echo "xscreensaver --no-splash &" > .xinitrc
+  
+  - Ustawienie tapety:
+    echo "feh --no-fehbg --bg-fill /usr/share/backgrounds/wall_style1_logo.png &" >> .xinitrc
+
+  - Ustawienie polskich znaków:
+    echo "setxkbmap pl" >> .xinitrc
+
+  - Uruchomienie fluxbox:
+    echo "exec startfluxbox" >> .xinitrc
+
+  - skopiowanie pliki .xinitrc do .xsession
+    cp .xinitrc .xsession
+
+8. Przeniesienie danych:
+
+  - Skopiowanie katalogu fluxbox jako ~/.fluxbox
+    cp -prvv archflux/fluxbox ~/.fluxbox
+
+  - Zmiana tła manadżera SLiM:
+    sudo mv /usr/share/slim/themes/default/background.jpg /usr/share/slim/theme/default/background.jpg1
+    sudo cp archflux/split.jpg /usr/share/slim/there/default/background.jpg
+
+  - Zmiana ustawień xterm:
+    cp archflux/XTerm ~
+
+9. Neofetch uruchamiane wraz ze startem terminala:
+
+    echo "/usr/bin/neofetch" >> ~/.bashrca
+
+10. Instalacja ncspot z AUR:
+
+  - Instalacja zależności:
+    sudo pacman -Sy dbus libpulse libxcb ncurses openssl alsa-lib cargo git pkgconf python rust base-devel
+
+  - Pobranie pakietu oprogramowania:
+    git clone https://aur.archlinux.org/ncspot.git
+
+  - Komplacja oraz instalacja stworzonego pakietu:
+    cd ncspot
+    makepkg -si
