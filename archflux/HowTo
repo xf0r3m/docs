@@ -1,7 +1,7 @@
 1. Instalacja pakietów podczas pobierania systemu bazowego:
-  pacstrap: base linux linux-firmware networkmanager vim grub man-db man-pages texinfo lvm2
+  pacstrap: base linux linux-firmware networkmanager vim grub man-db man-pages texinfo wget git
   
-  pacstrap /mnt base linux linux-firmware networkmanager vim grub man-db man-pages textinfo lvm2
+  pacstrap /mnt base linux linux-firmware networkmanager vim grub man-db man-pages textinfo wget git
 
 2. Podstawowe czynności wykonywane po instalacji systemu bazowego:
   
@@ -58,14 +58,34 @@
 
   pacman -Sy qutebrowser firefox shotwell gimp qmmp vlc arandr pulseaudio
   pavucontrol xscrensaver ranger htop neofetch zathura zathura-pdf-poppler
-  leafpad virt-manager wget
+  leafpad virt-manager wget x11-ssh-askpass
 
-6. Pobranie tapety:
- 
-  wget https://pkgbuild.com/~foxboron/ArchlinuxGraphics/wall_style1_logo.png -O
-  /usr/share/backgrounds/wall_style1_logo.png
+7. Przeniesienie danych:
 
-7. Przepisanie plików konfiguracyjnych użytkownika:
+  - Skopiowanie katalogu fluxbox jako ~/.fluxbox
+    cp -prvv archflux/fluxbox ~/.fluxbox
+
+  - Zmiana tła manadżera SLiM:
+    sudo mv /usr/share/slim/themes/default/background.jpg /usr/share/slim/themes/default/background.jpg1
+    sudo cp archflux/split.jpg /usr/share/slim/themes/default/background.jpg
+
+  - Zmiana ustawień xterm:
+    cp archflux/XTerm ~
+
+  - Zmiana ustawień vim:
+    cp archflux/vimrc ~/.vimrc
+
+  - Skopiowanie skryptu toggleTheme:
+    sudo cp archflux/toggleTheme /usr/local/bin
+    sudo chmod +x /usr/local/bin/toggleTheme
+  
+  - Skopiowanie tapety dla tematu niebieskiego:
+    sudo cp ~/archflux/wall_style1_logo.png /usr/share/backgrounds
+
+  - Skopiowanie tapety dla tematy zielonego:
+    sudo cp ~/archlinux/gnome_wallpaper.jpg /usr/share/backgrounds
+  
+8. Przepisanie plików konfiguracyjnych użytkownika:
   
   - Uruchomienie xscreensaver:
     echo "xscreensaver --no-splash &" > .xinitrc
@@ -82,21 +102,9 @@
   - skopiowanie pliki .xinitrc do .xsession
     cp .xinitrc .xsession
 
-8. Przeniesienie danych:
-
-  - Skopiowanie katalogu fluxbox jako ~/.fluxbox
-    cp -prvv archflux/fluxbox ~/.fluxbox
-
-  - Zmiana tła manadżera SLiM:
-    sudo mv /usr/share/slim/themes/default/background.jpg /usr/share/slim/theme/default/background.jpg1
-    sudo cp archflux/split.jpg /usr/share/slim/there/default/background.jpg
-
-  - Zmiana ustawień xterm:
-    cp archflux/XTerm ~
-
 9. Neofetch uruchamiane wraz ze startem terminala:
 
-    echo "/usr/bin/neofetch" >> ~/.bashrca
+    echo "/usr/bin/neofetch" >> ~/.bashrc
 
 10. Instalacja ncspot z AUR:
 
