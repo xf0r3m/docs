@@ -1,6 +1,7 @@
 192.168.8.4 wyse3040.morketsmerke.net 6C:2B:59:37:6C:54
 192.168.8.5 hp-z600.morketsmerke.net d4:85:64:15:02:fd
 192.168.8.6 hp-xw6400.morketsmerke.net 00:1a:4b:ca:1e:c4
+192.168.8.7 primeB450.morketsmerke.net b0:6e:bf:2c:52:78
 192.168.8.3 z90d7.morketsmerke.net 00:80:64:df:16:69
 192.168.8.2 nas.morketsmerke.net 88:AC:C0:2A:75:4D
 192.168.8.1 huawei.morketsmerke.net 0C:E4:A0:AE:44:60
