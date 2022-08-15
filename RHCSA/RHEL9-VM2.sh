@@ -11,8 +11,11 @@ $vboxmanage createvm --name $vmname --ostype RedHat_64 --register;
 $vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/OS.vdi" --size \
 10240 --format VDI --variant Standard;
 
-$vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/VDO.vdi" --size \
-4096 --format VDI --variant Standard;
+$vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/VDO1.vdi" --size \
+10240 --format VDI --variant Standard;
+$vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/VDO2.vdi" --size \
+10240 --format VDI --variant Standard;
+
 $vboxmanage createhd --filename "$HOME/VirtualBox VMs/${vmname}/Stratis.vdi" \
 --size 1024 --format VDI --variant Standard;
 
@@ -38,8 +41,11 @@ while [ $i -le 5 ]; do
 done
 
 $vboxmanage storageattach $vmname --storagectl SATA0 --port 6 --type hdd --medium \
-"$HOME/VirtualBox VMs/${vmname}/VDO.vdi";
+"$HOME/VirtualBox VMs/${vmname}/VDO1.vdi";
 $vboxmanage storageattach $vmname --storagectl SATA0 --port 7 --type hdd --medium \
+"$HOME/VirtualBox VMs/${vmname}/VDO2.vdi";
+
+$vboxmanage storageattach $vmname --storagectl SATA0 --port 8 --type hdd --medium \
 "$HOME/VirtualBox VMs/${vmname}/Stratis.vdi";
 
 
