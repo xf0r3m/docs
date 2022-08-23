@@ -1,0 +1,62 @@
+Tryb EFI:
+
+  1. Dzielimy dysk na dwie partycje:
+    - Partycja nr. 1: ok. 100M; typ: ef = efi; boot flag
+    - Partycja nr. 2: ok. 4GB; typ: 83 = Linux;
+
+  2. Formatujemy partycje:
+    - Partycja nr. 1: vfat -F32 
+    - Patrycja nr. 2: ext4
+
+  3. Montujemy partycję nr. 2 w katalogu /media.
+  
+  4. Tworzymy strukturę katalogową:
+    - mkdir -p /media/boot/efi
+
+  5. Montujemy partycję nr.1 w katalogu /media/boot/efi.
+
+  6. Montujemy obraz płyty immudex w katalogu /mnt.
+  
+  7. Kopiujemy całą zawartość płyty do katalogu /media.
+
+  8. Usuwamy:
+    - /media/isolinux
+    - /media/EFI
+
+  9. Instalujemy GRUB-a:
+    - sudo grub-install --target=x86_64-efi --root-directory=/media \
+      --boot-directory=/media/boot --efi-directory=/media/boot/efi \
+      --bootloader-id=debian --removable
+
+  10. Dodajemy wpis do firmware-u EFI komputera:
+    - sudo efibootmgr -c -d /dev/vda -p 1 -L "Debian" -l '\EFI\BOOT\grubx64.efi'
+
+Tryb MBR:
+
+  1. Tworzymy na dysku jedną partycję:
+    - Partycja nr. 1: ok. 4GB; typ: 83 = Linux;
+
+  2. Formatujemy partycję oraz montujemy w katalogu /media;
+
+  3. Tworzymy strukturę katalogowa:
+    - mkdir -p /media/extlinux
+
+  4. Nadajemy partycji etykietę:
+    - sudo e2label /dev/vda1 "immudex"
+
+  5. Instalujemy extlinux we wcześniej utworzonym katalogu:
+    - sudo extlinux --install /media/extlinux
+
+  6. Montujemy plytę w katalogu /mnt.
+
+  7. Kopiujemy z płyty katalog live.
+
+  8. Instalacja extlinux w pierwszym sektorze dysku:
+    - sudo dd if=/usr/lib/EXTLINUX/mbr.bin of=/dev/vda
+
+  9. Tworzymy plik konfiguracyjny extlinux
+    - /media/extlinux/extlinux.conf 
+      default immudex
+      label immudex
+      kernel /live/vmlinuz
+      append initrd=/live/initrd boot=live
