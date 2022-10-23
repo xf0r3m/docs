@@ -1,0 +1,174 @@
+1. System operacyjny: Debian/Ubuntu, testowano na debian 11. Dla testów
+najwygodniej jest zainstalować jakieś środowisko graficzne, ponieważ w pewnym
+momencie będzie nam potrzebny Thunderbird, aby dodać kilka wydarzeń do kalendarza.
+
+2. Instalujemy apache2, postgresql oraz pakiety wymagane do prawidłowego
+działania.
+	sudo apt update && sudo apt install apache2 libapache2-mod-php postgresql libyaml-perl libdbd-pg-perl libdbi-perl php php-pgsql php-imap php-curl php-cgi php-xml
+
+3. Pobranie kodu DAViCal oraz potrzebnej do jego działania biblioteki.
+	git clone https://gitlab.com/davical-project/davical.git
+	git clone https://gitlab.com/davical-project/awl.git
+
+4. Usuwamy podkatalog z repozytorium git.
+	rm -rf ./davical/.git
+	rm -rf ./awl/.git
+
+5. Przenosimy te katalogi do katalogu /usr/share
+	sudo mv davical/ /usr/share
+	sudo mv awl /usr/share
+
+6. Nadajemy odpowiednie uprawnienia do katalogów
+	chown -R root:www-data /usr/share/davical
+	cd /usr/share/davical
+	find ./ -type d -exec chmod 755 {} \;
+	find ./ -type f -exec chmod 644 {} \;
+	
+	chown -R root:www-data /usr/share/awl
+	cd /usr/share/awl
+	find ./ -type d -exec chmod 755 {} \;
+	find ./ -type f -exec chmod 644 {} \;
+
+7*. Utworzenie uzytkowników sytemowych, korzystających z bazy danych:
+	sudo useradd -M -s /sbin/nologin davical_app
+	sudo useradd -M -s /sbin/nologin davical_dba
+
+8. Nadanie użytkownikom bazodanowym możliwości połączenia. W pliku /etc/postgresql/13/main/pg_hba.conf 
+(nad local	all	postgres	trust).
+	local	davical	davical_app	trust
+	local	davical davical_dba	trust
+	
+9. Restart usługi postgresql
+	sudo systemctl restart postgresql
+	
+10. Dodanie bitu wykonania
+	sudo chmod +x /usr/share/davical/dba/create-database.sh
+	sudo chmod +x /usr/share/davical/dba/update-davical-database
+	
+10. Instalacja bazy dnaych
+	sudo su - postgres
+	cd /usr/share/davical/dba
+	chmod +x create-database.sh
+	chmod +x update-davical-database
+	bash create-database.sh
+	Po instalacji bazy zostanie wyświetlone hasło administratora
+	...
+	* The password for the admin user has been set to 'JLWgGvMi'
+	Należy zapisać to hasło.
+	
+11. Konfiguracja Apache
+	sudo ln -s /usr/share/davical/htdocs /var/www/davical
+	
+	W pliku /etc/apache2/sites-available/davical.conf zapisujemy poniższą konfigurację:
+	<VirtualHost *:80>
+		DocumentRoot /usr/share/davical/htdocs
+		DirectoryIndex index.php index.html
+		ServerName davical.example.com
+		Alias /images/ /usr/share/davical/htdocs/images
+		<Directory /usr/share/davical/htdocs/>
+			AllowOverride None
+			Order allow,deny
+			Allow from all
+		</Directory>
+		AcceptPathInfo On
+	</VirtualHost>
+	
+	sudo a2ensite davical.conf
+	sudo systemctl restart apache2 
+	
+	W pliku /etc/apache2/sites-available/000-default.conf zapisujemy poniższą
+	konfiguracj:
+	<VirtualHost 127.0.0.1:80>
+		ServerAdmin webmaster@localhost
+		DocumentRoot /var/www
+		ErrorLog ${APACHE_LOG_DIR}/error.log
+		CustomLog ${APACHE_LOG_DIR}/access.log combined	
+	</VirtualHost>
+
+12. Konfiguracja davicala. 
+	sudo mkdir /etc/davical.
+	sudo cp /etc/share/davical/config/example-config.conf
+/etc/davical/config.conf
+
+	W pliku ustawiamy:
+	$c->pg_connect[] = "dbname=davical user=davical_app"; #Pozostawiamy
+bez zmian
+	$c->system_name = "DAViCAL CalDAV Server"; #Wystarczy odblkować
+	$c->admin_email = 'calendar-admin@example.com'; #Pozostawiamy bez
+zmian
+	$c->domain_name = 'example.com'; #Wystarczy odblokować
+
+13. Testowy kalendarz.
+	Aby móc sprawdzić czy wszystko działa, potrzebny jest jakiś kalendarz.
+	Kalendarz należy lekko zmodyfikować, aby było widać jakieś wydarzenia.
+	
+	W davicalu należy utworzyć użytkownika. Wraz znim zostanie utworzony
+	kalendarz. Jako administrator DAViCala, na pasku w górze strony,
+	najeżdzamy na "User Functions", następnie "Create principle".
+	Domyślnie tworzony jest użytkownik, dlatego też podajemy w polu
+	"Username" podajemy nazwę użytkownika, w "Change Password" podajemy
+	hasło, które potwierdzamy w polu poniżej. Davical wymaga aby pola
+	"Fullname" oraz "Email Address" nie były puste. Resztę pozostawiamy
+	bez zmian.
+
+	Kalendarze dostępne są pod adresem:
+	http://127.0.0.1/davical/caldav.php/<username>/calendar/
+
+	Kalendarzem możemy zarządzać z poziomu Thunderbirda. W zakładce Home,
+	klikamy "Calendar", następnie "On the Network". W polu Username
+	podajemy nazwę użytkownika, w "Location" odpowiedni dla kalendarza
+	użytkownika adres. Klikamy przycisk "Find Calendars". Powinno pojawić
+	się okno proszące o hasło, podajemy hasło użytkownika. W następny
+	oknie klika przycisk "Subscribe". 
+
+	W tak podłączony kalendarz, możemy zmodyfikować.
+
+14. Instalacja CalDAVZap
+
+	Pobieramy paczkę ze strony projektu:
+	wget https://inf-it.com/open-source/download/CalDavZAP_0.13.1.zip
+	
+	Rozpakowujemy ją:
+	unzip CalDavZAP_0.13.1.zip
+
+	Przenosimy zawartość tego katalogu to katalogu /var/www/html
+	cd ~/caldavzap
+	sudo cp -rvv * /var/www/html
+
+	Nadajemy skopiowanym plikom odpowiednie uprawnienia:
+	sudo chmod -R 755 /var/www/html
+
+15. Konfiguracja CalDAVZap
+	
+	Cała konfiguracja sprowadza się do edycji jednego. CalDAVZap ma
+	możliwość pracy w trzech trybach opisanych w pliku konfiguracyjnym.
+
+	Z racji tego, iż serwer kalendarza ma mieć tutaj specjalne znaczenie.
+	Dlatego też użyje trybu globalAccountSettings, gdzie definiując
+	kalendarz podajemy dane logowania w pliku konfiguracyjnym.
+
+	Domyślnie plik CalDAVZap, posiada już jakąś konfigurację, trzeba ją
+	odnaleźć i ująć w komentarz.
+
+	Aby odpowiednio ustawić CalDAVZap, odnajdujemy zmienną
+	globalAccountSettings.
+
+	Zmieniamy klucze:
+		- href:
+		  'http://127.0.0.1/davical/caldav.php/<davical_username>/calendar'
+		- userAuth:
+		{
+			userName: '<davical_user>'
+			userPassword: '<davical_password>'
+		}
+		- forceReadOnly: true
+	Ta konfiguracja wymaga aby kalenadarz był widoczny na stronie. 
+	temu ma właśnie służyć CalDAVZap. Chcąc dodać więcej niż jeden
+	kalendarz i wystarczy skopiować całą tą sekcję i wkleić pod
+	po przecniku w tej samej liście (zmiennej globalAccountSettings).
+	Zmieniamy tylko adres kalendarza oraz dane dostępowe do niego.
+
+16. Spolszczenie CalDAVZap
+
+	Spolszcznie CalDAVZap znajduje się na moim koncie Github:
+						
