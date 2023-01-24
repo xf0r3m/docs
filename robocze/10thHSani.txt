@@ -191,7 +191,8 @@ napędu i sprawdziłęm czy nie tam czegoś ciekawego.
 
 Mimo to w 2008 roku, wraz z pomocą Ojca, który zadeklarował się, że będzie
 płacić tego 30-40 zł miesięcznie za internet. Udało mi się zdobyć dostęp do
-tego łącza. Wówczas Internet w domu u nas był. Miała go starsza siostra, która
+stałego łącza. Wówczas Internet w domu u nas był. Miała go starsza siostra, 
+która
 mogła zapłacić za niego z własnych pieniędzy, ale niestety ja nie byłem w
 stanie za niego zapłacić więc po prostu nie miałem do niego dostępu. 
 
@@ -212,4 +213,90 @@ Lecz w tamty okresie sieci osiedlowe oferowały 1, 2 lub 8 Mb/s. Łącza z któr
 ja korzystałem raczej można było umieścić w granicach do 1 Mb/s. W większości
 przypadku łącze nie złączyło się powyżej 1 "mega" na sekundę.
 
+Któregoś dnia prawdopodobnie znów zostałem bez internetu. Albo pakiet się
+skończył (tak łącza oparte na sieciach komórkowych posiadają limit danych,
+są dostępne oferty bez limitów, ale albo kosztują albo nie są dostępne dla 
+nowych abonentów.) albo nie wiem, nie pamiętam dokładnie co się z tym łączem
+stało? Było na ojca, może przestał płacić albo ja uznałem że to "crap" oj
+było z nim ciężko i on rozwiązał umowę. Pozostając bez internetu, poszedłem
+do mojego osiedlowego ISP zapytać się ile kosztowało by podłączenie drugiego
+niezależnego łącza pod mój adres. Na co dostałem odpowiedź, że lepiej będzie
+się dogadać postawiać za modemem (DOCSIS - internet po CATV) router. Więc
+kupiłem taki podstawowy router DSL - D-Link DIR-100 (mam go, do dzisiaj
+niestety zawiesza się), przyjachał technik skonfigurował go i powiedział, że
+jeśli chce mieć internet w swoim pokoju muszę przeciągnąć sobie kabel oni
+przyjadą i zarobią mi wtyczki. Zapytałem się co to ma być za kabel a oni mi
+mówią, że skrętka 8-mio żyłowa. Zapisałem sobie na kartce i poszedłem do
+sklepu budowalnego i kupiłem ze 30 metrów, akurat to jescze były te czasy
+kiedy metr kabla UTP kosztował może złotówkę. Ta praca wykonana przeze mnie
+była pierwszą pracą związaną z siecią komputerową. Wówczas nawet nie wiedziałem,
+że to się tak nazwywa i taką mała sieć z dwoma hostami miałem u siebie w domu.
+Całe 1 Mbps, ale przynajmniej stabilne. Czy wykorzystałem to łącze w jakiś
+szczytnym celu? Oczywiście że nie, ale to łącze zostało ze mną do 2020 roku.
+Obecnie żałuje, że nie przemyślałem sprawy i zostawiłem go sobie. Wówczas wiele
+obecnych problemów udało by się rozwiązać za pomocą tego łącza. Ale cóż trzeba
+sobie jakoś radzić.
+
+5. Miedzyczas II
+  ~Welcome to the elder ruins again. The wind whispers beside the deep forest. 
+    Darkness will show us the way - De Mysteriis Dom Sathanas, Mayhem, 1994
+
+Za załamany nos w 2007 roku, dostałem odszkodowanie z ubezpieczalni, ponieważ w
+szkole (przynajmniej w naszej) każdy dzieciak był ubezpieczony. Za te pieniądze
+kupiłem sobie w lombardzie odtwarzacz MP4. Nie byłem jakimś melomanen w tam
+czasie i zadowało mnie energiczne "umca, umca". Nie słuchałem innych gatunków
+byłem zwykłym ignoratem. Do czasu. Pewnego wieczora ówczesny chłopak mojej
+siosty wział mój odtwarzacz do ręki, chciał go włączyć, ale nie wiedział jak
+z lewej strony znajdował się przycisk resetu, nacisnął go kilka razy i odkrył
+funkcję, o której ja nie wiedziałem. Otóż wyczyścił mi całą pamięć. A muzyka,
+która się tam znajdowała należała jescze do poprzedniego właściciela tego 
+odtwarzacza. Słuchałem tego co gość słuchał, po muzyką w katalogu "Video"
+znajdowały się jakże - pornosy, więc to też zostało utracone :(.
+
+Nie wiem co mnie wtedy podkusiło, ale dziadkowie wybierali się do Cioci więc
+dałem im kilka czystych płyt, żeby kuzyn zgrał mi płyty Red Hot Chilli Peppers
+kiedyś będąc u nich na wakacjach musiałem zasłyszeć parę kawałków, które jakoś
+podświadomie wpadły mi w ucho. Najwidoczniej nie miałem w domy jeszcze takiego
+łącza, które pozwało na pobieranie muzyki. Dziadkowie wrócili a ja dostałem
+swoje płytki. Przegrałem je na komputerze na odtwarzacz i tak się zaczęło.
+Swój gust muzyczny skierowałem bardziej w stronę rocka, a poźniej metalu a
+niżeli muzyki elektronicznej. Nie mniej jednak sentyment do niej pozostał dalej
+lubiłem takie zespoły jak np. The Prodigy, czy później za sprawą remixu utworu
+"Voodoo People" australiskiego zespołu Drum'N'Base oraz rocka elektronicznego
+Pendulum.
+
+Gdzieś tam w okolicach początków nauki w gimnazujum jeździłem na dekorolce, a
+raczej próbowałem. Nie zawiele z tego wyszło. Deskorolkę sprzedałem parę
+miesięcy później. Nie mniej jednak zamiast na moich umiejętnościach jazdy,
+bardziej interesowała mnie subkultura skate'owców, a szególnie muzyka jakiej
+słuchali. Dzięki nim poznałem takie zespoły jak Slipknot, czy KoRn. Zespół
+KoRn znałem od dawna, ale jakoś zabardzo ich brzmienie mi nie podeszło. Do
+dziś może raz przesłuchałem jedną płytę. Ale za to zespół Slipknot to krok w
+stronę cieższych brzmień. W tym okresie do bractwa ryceskiego, które prowadził
+mój ojciec. Nie zależało mi na walorach historycznych, ale raczej na możliwość
+spotkania ciekawych ludzi, słuchających takiej samej muzyki jak ja. Temat
+wyjazdów na róznego rodzaju gdzieś tam interesował mnie na początku. Później
+już coraz mniej, znajomi z którymi się ta spotykałem porozjeżdzali się na
+studia, czy nie mieli zbytnio czasu na wyjazdy ze względu na pracę. Propozycje
+wyjazdów ciągneły się jeszcze przez kilka lat, ale ja wtedy już siedziałem
+przy komputerze i zagłębiałem się w meandry informatyki.
+
+W gimnazjum stałem się metalowcem, mosiłem glany, wojskowy plecak "kostkę" i
+zapuszczałem długie włosy. Na którąś gwiazdkę zarzyczyłem sobie gitarę i
+w ten sposób można powiedzieć, że wyklarowała się moja pierwsza realna pasja.
+Grać uczyłem się sam i do tej pory tak naprawdę jest mi cieżko stwierdzić czy
+potrafię grać. Gram po dziś dzień, kiedy najdzie mnie ochota, ale raczej ma to
+formę brzdękania, tak dla zabawy żeby się odstresować. Ale wcześniej kiedy
+miało to dla mnie więcej znaczenia. Brzmienie gitary klasycznej szybko się
+mi znudziło. Próbowałem namówić Mamę aby kupiła mi na raty tanią gitarę z 
+popularnego serwisu aukcyjnego, niestety nie zgodziła się. Ale udało mi się
+przekonać babcię do tego. I tak za parę dni miałem gitarę z ruchomym mostkiem
+dwoma Humbuckerami oraz jednym Single Coil. Ta gitara to generalnie bubel jeśli
+chodzi o hardware. Ale ma ciekawe brzmienie i mam ją do dzisiaj. Początkowo
+załatwiłem sobie kabel i przejściówkę za parę groszy i mogłem grać przez
+komputer. Później kupiłem chinski tani wzmacniacz 10 W, odsprzedałem go
+potem koledze za jakieś grosze on używał go do basu. Ja natomiast grałem przez
+wieże Hi-Fi. Żeby podłączyć gitarę do wieży potrzebny jest preamp
+(przedwzmacniacz). Takim urządzenim może być dowolny efekt gitarowy i jeśli
+mówimy o graniu metalu to potrzebujemy przesteru.
 
