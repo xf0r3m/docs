@@ -83,12 +83,15 @@ function api() {
         'v_node') if is_vpn_connected; then
                       nodesFile="/tmp/nodes.txt";
                       if [ ! -f $nodesFile ]; then
-                          wget https://vpn.morketsmerke.net/nodes.txt -O $nodesFile;
+                          wget -q https://vpn.morketsmerke.net/nodes.txt -O $nodesFile;
                       fi
                       openVPNConfigFile="/etc/openvpn/client/client.conf";
                       vpnNode=$(grep -o 'remote\ [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*' $openVPNConfigFile | awk '{printf $2}');
                       value=$(grep "$vpnNode" $nodesFile | awk '{printf $2}');
                   fi;;
+          'v_country') if is_vpn_connected; then
+                          value=$(whois $(curl ifconfig.me/ip 2> /dev/null) | grep -o '^country:.*$' | awk '{printf $2}')
+                        fi;;
 			esac
       if [ ! "$value" ]; then value="N/A"; fi
       echo $value; 
@@ -149,6 +152,7 @@ function output() {
   echo "OpenVPN:";
   echo -e "\tVPN state: $(api 'eth0' 'v_state')";
   echo -e "\tVPN node: $(api 'eth0' 'v_node')";
+  echo -e "\tVPN country: $(api 'eth0' 'v_country')";
 }
 
 clear > /dev/tty0;
