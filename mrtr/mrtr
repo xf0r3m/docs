@@ -1,0 +1,128 @@
+#!/bin/bash
+
+function changeOption() {
+  baseOption=$(grep "$1" $2);
+  option=$(echo $baseOption | cut -d "=" -f 1);
+  sed -i "s/$baseOption/${option}=${3}/" $2;
+}
+
+if ping -q -c 1 mrtr.local > /dev/null 2>&1; then
+  if [ "$1" ]; then
+    case $1 in
+      'interface') if [ "$2" ] && echo $2 | grep -Eq '(eth[0-9]*|wlan[0-9]*)'; then
+                      if [ "$3" ] && echo $3 | grep -q '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*\/[0-9]*'; then
+                        ssh pi@mrtr.local "sudo ip address replace $3 dev $2";
+                        if echo $2 | grep 'wlan[0-9]*'; then
+                          msg="interface $2\n\tstatic ip_address $3\n\tnohook wpa_supplicant";
+                        else
+                          msg="interface $2\n\tstatic ip_address $3";
+                        fi
+                          ssh pi@mrtr.local "echo -e \"$msg\" | sudo tee -a /etc/dhcpcd.conf";
+                      elif [ "$3" ] && [ "$3" = "dhcp" ]; then
+                        ssh pi@mrtr.local "sudo ip address flush dev $2";
+                        ssh pi@mrtr.local "sudo dhclient $2 -v";
+                      else
+                        echo "Given IP address isn't valid for CIDR notation";
+                      fi
+                   else
+                      echo "Given interface name isn't valid for Rasperry Pi OS interface naming";
+                   fi;;
+      'password') if [ "$2" ]; then
+                      ssh pi@mrtr.local "echo\"pi:$2\" | chpasswd";
+                  fi;;
+      'service') if [ "$2" ] && ([ $2 = "dnsmasq" ] || [ $2 = "hostapd" ]); then
+                  if [ "$3" ] && ([ $3 = "on" ] || [ $3 = "off" ]); then
+                      if [ $3 = "on" ]; then action="start"; else action="stop"; fi
+                      if [ $2 = "hostapd" ] && [ $3 = "on" ]; then
+                        ssh pi@mrtr.local "sudo systemctl unmask hostpad.service";
+                      fi 
+                      ssh pi@mrtr.local "sudo systemctl $action ${2}.service";
+                  fi
+                 fi;;
+      'wlan') ssh pi@mrtr.local "if [ -f /etc/hostapd/hostapd.conf ]; then exit 0; else exit 1; fi";
+                  if [ $? -eq 0 ]; then
+                    scp pi@mrtr.local:/etc/hostapd/hostpad.conf /tmp/hostapd.conf;
+                  else
+                    cat > /tmp/hostapd.conf <<EOF
+country_code=PL
+interface=wlan0
+ssid=NameOfNetwork
+hw_mode=g
+channel=7
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=AardvarkBadgerHedgehog
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+EOF
+                  fi
+                  if [ "$2" ]; then
+                    case $2 in
+                      'ssid') if [ "$3" ]; then
+                                changeOption '^ssid=' /tmp/hostapd.conf $3;
+                              else
+                                echo "You need to put option value";
+                              fi;;
+                      'mode') if [ "$3" ] && echo $3 | grep -Eq 'a|b|g'; then
+                                changeOption '^hw_mode=' /tmp/hostpad.conf $3;
+                              else
+                                echo "You need to put valid option value";
+                              fi;;
+                      'channel') if [ "$3" ] && echo $3 | grep -q '[0-9]*'; then
+                                  changeOption '^channel=' /tmp/hostapd.conf $3;
+                                 else
+                                  echo "You need to put valid option value";
+                                 fi;;
+                      'hide_ssid') if [ "$3" ] && echo $3 | grep -Eq '0|1'; then
+                                    changeOption '^ignore_broadcast_ssid=' /tmp/hostapd.conf $3;                                   else
+                                    echo "You need to put valid option value";
+                                   fi;;
+                      'psk') if [ "$3" ]; then
+                              changeOption '^wpa_passphrase=' /tmp/hostapd.conf $3;
+                             else
+                              echo "You need to put option value";
+                             fi;;
+                    esac
+                    scp /tmp/hostapd.conf pi@mrtr.local:/home/pi;
+                    ssh pi@mrtr.local "sudo cp ~/hostapd.conf /etc/hostapd";
+                  else
+                    help;
+                    exit 1;
+                  fi;;
+      'dhcp')  ssh pi@mrtr.local "if [ -f /etc/dnsmasq.conf ]; then exit 0; else exit 1; fi";
+                  if [ $? -eq 0 ]; then
+                    scp pi@mrtr.local:/etc/dnsmasq.con /tmp/dnsmasq.conf;
+                  else
+                    cat > /tmp/dnsmasq.conf <<EOF
+inteface=eth0
+dhcp-range=192.168.4.2,192.168.4.20,255.255.255.0,12h
+dhcp-option=3,192.168.4.1
+dhcp-option=6,192.168.4.1
+EOF
+                  fi
+                  if [ "$2" ]; then
+                    regexForIP='[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
+                    case $2 in
+                      'range') if [ "$3" ] && echo $3 | grep -E "${regexForIP}-${regexForIP}"; then
+                                ipRange=$(echo $3 | sed 's/-/,/');
+                                changeOption '^dhcp-range' /tmp/dnsmasq.conf "${ipRange},255.255.255.0,12h";
+                               else
+                                echo "You need to put valid option value";
+                               fi
+                    esac
+                  else
+                    help;
+                    exit 1;
+                  fi;;
+    esac
+  else
+    help;
+    exit 1;
+  fi
+else
+  echo "MRTR device isn't available now.";
+fi
+
