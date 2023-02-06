@@ -2,9 +2,32 @@
 
 function changeOption() {
   baseOption=$(grep "$1" $2);
-  option=$(echo $baseOption | cut -d "=" -f 1);
+  if [ "$2" = "/tmp/client.conf" ]; then delimiter=" "; else delimiter="="; fi
+  option=$(echo $baseOption | cut -d "$delimiter" -f 1);
   sed -i "s/$baseOption/${option}=${3}/" $2;
 }
+
+function err_InvalidValue() {
+  echo "You need to put valid option value";
+}
+
+function err_InvalidOrAbsValue() {
+  echo "You need to put option value";
+}
+
+function send() {
+  scp $1 pi@mrtr.local:$2;
+}
+
+function copy() {
+  ssh pi@mrtr.local "sudo cp $1 $2";
+}
+
+function fetch() {
+  scp pi@mrtr.local:$1 $2;
+}
+
+regexForIP='[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 
 if ping -q -c 1 mrtr.local > /dev/null 2>&1; then
   if [ "$1" ]; then
@@ -29,6 +52,8 @@ if ping -q -c 1 mrtr.local > /dev/null 2>&1; then
                    fi;;
       'password') if [ "$2" ]; then
                       ssh pi@mrtr.local "echo\"pi:$2\" | chpasswd";
+                  else
+                    err_InvalidOrAbsValue;
                   fi;;
       'service') if [ "$2" ] && ([ $2 = "dnsmasq" ] || [ $2 = "hostapd" ]); then
                   if [ "$3" ] && ([ $3 = "on" ] || [ $3 = "off" ]); then
@@ -41,7 +66,8 @@ if ping -q -c 1 mrtr.local > /dev/null 2>&1; then
                  fi;;
       'wlan') ssh pi@mrtr.local "if [ -f /etc/hostapd/hostapd.conf ]; then exit 0; else exit 1; fi";
                   if [ $? -eq 0 ]; then
-                    scp pi@mrtr.local:/etc/hostapd/hostpad.conf /tmp/hostapd.conf;
+                    #scp pi@mrtr.local:/etc/hostapd/hostpad.conf /tmp/hostapd.conf;
+                    fetch /etc/hostpad/hostapd.conf /tmp/hostapd.conf;
                   else
                     cat > /tmp/hostapd.conf <<EOF
 country_code=PL
@@ -64,37 +90,40 @@ EOF
                       'ssid') if [ "$3" ]; then
                                 changeOption '^ssid=' /tmp/hostapd.conf $3;
                               else
-                                echo "You need to put option value";
+                                eerr_InvalidOrAbsValue;
                               fi;;
                       'mode') if [ "$3" ] && echo $3 | grep -Eq 'a|b|g'; then
                                 changeOption '^hw_mode=' /tmp/hostpad.conf $3;
                               else
-                                echo "You need to put valid option value";
+                                eerr_InvalidValue;
                               fi;;
                       'channel') if [ "$3" ] && echo $3 | grep -q '[0-9]*'; then
                                   changeOption '^channel=' /tmp/hostapd.conf $3;
                                  else
-                                  echo "You need to put valid option value";
+                                  eerr_InvalidValue;
                                  fi;;
                       'hide_ssid') if [ "$3" ] && echo $3 | grep -Eq '0|1'; then
                                     changeOption '^ignore_broadcast_ssid=' /tmp/hostapd.conf $3;                                   else
-                                    echo "You need to put valid option value";
+                                    err_InvalidValue;
                                    fi;;
                       'psk') if [ "$3" ]; then
                               changeOption '^wpa_passphrase=' /tmp/hostapd.conf $3;
                              else
-                              echo "You need to put option value";
+                              err_InvalidOrAbsValue;
                              fi;;
                     esac
-                    scp /tmp/hostapd.conf pi@mrtr.local:/home/pi;
-                    ssh pi@mrtr.local "sudo cp ~/hostapd.conf /etc/hostapd";
+                    #scp /tmp/hostapd.conf pi@mrtr.local:/home/pi;
+                    send /tmp/hostapd.conf /home/pi;
+                    #ssh pi@mrtr.local "sudo cp ~/hostapd.conf /etc/hostapd";
+                    copy /home/pi/hostapd.conf /etc/hostapd.conf
                   else
                     help;
                     exit 1;
                   fi;;
       'dhcp')  ssh pi@mrtr.local "if [ -f /etc/dnsmasq.conf ]; then exit 0; else exit 1; fi";
                   if [ $? -eq 0 ]; then
-                    scp pi@mrtr.local:/etc/dnsmasq.con /tmp/dnsmasq.conf;
+                    #scp pi@mrtr.local:/etc/dnsmasq.conf /tmp/dnsmasq.conf;
+                    fetch /etc/dnsmasq.conf /tmp/dnsmasq.conf
                   else
                     cat > /tmp/dnsmasq.conf <<EOF
 inteface=eth0
@@ -104,14 +133,70 @@ dhcp-option=6,192.168.4.1
 EOF
                   fi
                   if [ "$2" ]; then
-                    regexForIP='[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
                     case $2 in
-                      'range') if [ "$3" ] && echo $3 | grep -E "${regexForIP}-${regexForIP}"; then
+                      'range') if [ "$3" ] && echo $3 | grep -Eq "${regexForIP}-${regexForIP}"; then
                                 ipRange=$(echo $3 | sed 's/-/,/');
                                 changeOption '^dhcp-range' /tmp/dnsmasq.conf "${ipRange},255.255.255.0,12h";
                                else
-                                echo "You need to put valid option value";
-                               fi
+                                err_InvalidValue;
+                               fi;;
+                      'gateway') if [ "$3" ] && echo $3 | grep -Eq "${regexForIP}"; then
+                                  changeOption '^dhcp-option=3' /tmp/dnsmasq.conf "3,${3}";
+                                 else
+                                  err_InvalidValue;
+                                 fi;;
+                      'dns') if [ "$3" ] && echo $3 | grep -Eq "${regexForIP}"; then
+                              changeOption '^dhcp-option=6' /tmp/dnsmasq.conf "6,${3}";
+                             else
+                              err_InvalidValue;
+                             fi;;
+                      'interface') if [ "$3" ] && echo $3 | grep -Eq "(eth[0-9]* | wlan[0-9])"; then
+                                    changeOption '^interface' /tmp/dnsmasq.conf $3;
+                                   else
+                                    err_InvalidValue;
+                                   fi;;
+                    esac
+                    #scp /tmp/dnsmasq.conf pi@mrtr.local:/home/pi;
+                    send /tmp/dnsmasq.conf /home/pi;
+                    #ssh pi@mrtr.local "sudo cp ~/dnsmasq.conf /etc";
+                    copy /home/pi/dnsmasq.conf /etc;
+                  else
+                    help;
+                    exit 1;
+                  fi;;
+      'openvpn') ssh pi@mrtr.local "if [ -f /etc/openvpn/client/client.conf ]; then exit 0 else exit 1; fi"
+                 if [ $? -eq 0 ]; then
+                  #scp pi@mrtr.local:/etc/openvpn/client/client.conf /tmp;
+                  fetch /etc/openvpn/client/client.conf /tmp;
+                 else
+                  cat > /tmp/client.conf <<EOF
+dev tun
+client
+remote 54.37.235.189
+proto udp
+port 17003
+nobind
+ca cacert.pem
+cert immudex_cert.pem
+key immudex_key.pem_nopass
+verb 3
+EOF
+                  fi
+                  if [ "$2" ]; then
+                    case $2 in
+                      'server') if [ "$3" ] && echo $3 | grep -Eq "${regexForIP}"; then
+                                 changeOption '^remote' /tmp/client.conf $3;
+                                else
+                                 err_InvalidValue;
+                                fi;;
+                      'cacert') if [ "$3" ] && echo $3 | grep -Eq "[a-z]*\/[a-z]\.pem"; then
+                                  filename=$(basename $3);
+                                  changeOption '^cacert' /tmp/client.conf $filename;
+                                  send $3 /home/pi;
+                                  copy /home/pi/$filename /etc/openvpn/client/$filename;
+                                else
+                                  err_InvalidValue;
+                                fi;;
                     esac
                   else
                     help;
