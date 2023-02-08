@@ -35,16 +35,16 @@ function api() {
                           fi;;
         'a_get_dhcpd_ip') dhcpConfFlag=$(api $interface 'a_is_dhcp_conf');
                           if [ "$dhcpConfFlag" = "YES" ]; then
-                            value=$(dhcpcd -U $interface 2> /dev/null | grep 'server_identifier' | cut -d "=" -f 2 | sed "s/'//g");
+                            value=$(/usr/sbin/dhcpcd -U $interface 2> /dev/null | grep 'server_identifier' | cut -d "=" -f 2 | sed "s/'//g");
                           fi;;
         'e_get_link_speed') if is_eth $interface; then
-                              value=$(ethtool $interface 2>/dev/null | grep 'Speed:\ ' | awk '{printf $2}');
+                              value=$(/usr/sbin/ethtool $interface 2>/dev/null | grep 'Speed:\ ' | awk '{printf $2}');
                             fi;;
         'e_get_duplex') if is_eth $interface; then
-                          value=$(ethtool $interface 2>/dev/null | grep 'Duplex:\ ' | awk '{printf $2}');
+                          value=$(/usr/sbin/ethtool $interface 2>/dev/null | grep 'Duplex:\ ' | awk '{printf $2}');
                         fi;;
         'e_link_detect') if is_eth $interface; then
-                          value=$(ethtool $interface 2>/dev/null | grep 'detected:\ ' | awk '{printf $3}' | tr [a-z] [A-Z]);
+                          value=$(/usr/sbin/ethtool $interface 2>/dev/null | grep 'detected:\ ' | awk '{printf $3}' | tr [a-z] [A-Z]);
                          fi;;
         'w_essid') if is_wlan $interface; then
                           value=$(iwconfig $interface | grep -o 'ESSID:.*$' | cut -d ":" -f 2);
@@ -140,7 +140,7 @@ function output() {
   if ! echo $activeIfList | grep -q 'wlan[0-9]*'; then
     iface=$(ip address | grep -o 'wlan[0-9]*');
     if [ "$iface" ]; then
-      numberOfNetworks=$(iwlist $iface scan | grep -o 'Cell\ [0-9]*' | tail -1 | awk '{printf $2}')
+      numberOfNetworks=$(/usr/sbin/iwlist $iface scan | grep -o 'Cell\ [0-9]*' | tail -1 | awk '{printf $2}')
       echo "${iface}:";
       echo -e "\tDiscovered wireless networks: ${numberOfNetworks}";
       echo;
@@ -155,5 +155,9 @@ function output() {
   echo -e "\tVPN country: $(api 'eth0' 'v_country')";
 }
 
-clear > /dev/tty0;
-output > /dev/tty0;
+if ([ "$1" ] && [ "$1" = "-o" ]) && ([ "$2" ] && [ "$2" = "stdout" ]); then
+  output;
+else
+  clear > /dev/tty0;
+  output > /dev/tty0;
+fi
