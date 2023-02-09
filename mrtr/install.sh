@@ -13,10 +13,8 @@ sudo apt upgrade;
 
 sudo apt install dnsmasq hostapd iptables netfilter-persistent iptables-persistent;
 
-cat >> /etc/dhcpcd.conf <<EOF
-interface eth0
-static ip_address=192.168.4.1/24
-EOF
+echo "interface eth0" | sudo tee -a /etc/dhcpcd.conf;
+echo -e "\tstatic ip_address=192.168.4.1/24" | sudo tee -a /etc/dhcpcd.conf;
 
 sudo useradd -m -s /bin/bash pi
 echo "pi ALL=(ALL:ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers;
@@ -25,3 +23,13 @@ defaultListenAddressLine=$(grep '^#ListenAddress\ 0\.0\.0\.0' /etc/ssh/sshd_conf
 newListenAddressLine="ListenAddress 192.168.4.1";
 sudo sed -i "s/${defaultListenAddressLine}/${newListenAddressLine}/" /etc/ssh/sshd_config;
 
+echo "net.ipv4.ip_forward=1" | sudo tee -a /etc/sysctl.d/mrtr.conf;
+
+sudo iptables -t nat -A POSTROUTING -o wlan0 -j MASQUERADE;
+sudo iptables -A INPUT -i wlan0 -p udp -j DROP;
+sudo iptables -A INPUT -i wlan0 -p tcp --syn -j DROP;
+sudo iptables -A INPUT -p udp --sport 53 -j ACCEPT;
+sudo iptables -A INPUT -p udp --sport 67 -j ACCEPT;
+sudo iptables -A INPUT -p udp --sport 17003 -j ACCEPT;
+
+sudo netfilter-persistent save;
