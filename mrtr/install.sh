@@ -19,6 +19,11 @@ echo -e "\tstatic ip_address=192.168.4.1/24" | sudo tee -a /etc/dhcpcd.conf;
 sudo useradd -m -s /bin/bash pi
 echo "pi ALL=(ALL:ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers;
 
+sudo mkdir /etc/wlanconn;
+sudo groupadd wlanconn;
+sudo chown root:wlanconn /etc/wlanconn;
+sudo chmod 775 /etc/wlanconn;
+
 defaultListenAddressLine=$(grep '^#ListenAddress\ 0\.0\.0\.0' /etc/ssh/sshd_config);
 newListenAddressLine="ListenAddress 192.168.4.1";
 sudo sed -i "s/${defaultListenAddressLine}/${newListenAddressLine}/" /etc/ssh/sshd_config;
