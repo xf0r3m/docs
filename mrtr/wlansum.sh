@@ -12,7 +12,7 @@ if ip a | grep -q 'wlan[0-9]*'; then
   if [ "$1" ]; then 
     wlansList=$1;
   else 
-    /usr/sbin/iwlist wlan0 scan > /tmp/wlanList.txt;
+    sudo /usr/sbin/iwlist wlan0 scan > /tmp/wlanList.txt;
     wlansList="/tmp/wlanList.txt";
   fi
   countWlans=$(grep 'Cell\ [0-9]*' $wlansList | tail -1 | awk '{printf $2}');

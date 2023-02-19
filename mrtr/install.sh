@@ -15,6 +15,10 @@ sudo apt install dnsmasq hostapd iptables netfilter-persistent iptables-persiste
 
 echo "interface eth0" | sudo tee -a /etc/dhcpcd.conf;
 echo -e "\tstatic ip_address=192.168.4.1/24" | sudo tee -a /etc/dhcpcd.conf;
+echo | sudo tee -a /etc/dhcpcd.conf;
+echo "nohook wpa_supplicant" | sudo tee -a /etc/dhcpcd.conf;
+sudo systemctl stop wpa_supplicant.service;
+sudo systemctl disable wpa_suplicant.service;
 
 sudo useradd -m -s /bin/bash pi
 echo "pi ALL=(ALL:ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers;
