@@ -1,0 +1,140 @@
+1. Przygotowanie radia internetowe na RPi rozpoczynami od nagrania na kartę
+    systemu RaspiOS i przygotowania go do uruchomienia:
+    $ sudo dd if=/dev/zero bs=1M of=/dev/mmcblk0 count=1
+    $ sudo dd if=Smieci/2023-05-03-raspios-bullseye-armhf-lite.img bs=1M of=/dev/mmcblk0 status=progress
+    $ sudo mount LABEL="bootfs" /mnt
+    $ echo "rpi:$(openssl passwd -6 'sUP3RT4jn3H4sl0')" | sudo tee /mnt/userconf.txt
+    $ sudo touch /mnt/ssh
+    $ sudo umount /mnt
+
+2. Uciągamy kartę z czytnika kart i wkładamy ją do RPi, urchamiamy urządzenie.
+    Po uruchomieniu możemy sprawdzić adres IP na stronie konfiguracyjnego
+    naszego domowego routera lub wyszukać go w sieci za pomocą polecenia
+    'nmap'
+    $ sudo nmap -sP 192.168.0.0/24
+
+3. Po uruchomieniu aktualizujemy system i dla celów kosmetycznych możemy
+    zmienić nazwę hosta.
+    rpi$ sudo apt update && sudo apt upgrade -y
+    rpi$ sudo raspi-config -> 'System Options' -> Hostname
+    Po zmianie nazwy hosta zostaniemy zapytanii czy restartować systemy.
+    Odpowiadamy, że tak.
+
+4. Po ponownym uruchomieniu systemu, przechodzimy do instalacji środowiska
+    graficznego. Do tego celu użyjemy środowiska ratpoison wraz z managerem
+    lxdm.
+    rpi$ sudo apt install xserver-xorg-core xserver-xorg xinit xterm ratpoison lxdm -y
+
+5. Następnie przechodzimy do konfiguracji naszego środowiska graficznego.
+    # Na początek tworzymy użytkownika, który będzie wykorzystany do
+    # automatycznego logowania:
+    rpi$ sudo useradd -m -s /bin/bash radio
+    # Następnie w pliku konfiguracyjnym lxdm (/etc/lxdm/default.conf), 
+    # odblokowywujemy opcję automatycznego logowania podając naszego
+    # użytkownika i wskazujemy główny plik wykonywalny 'ratpoison'
+    # (/usr/bin/ratpoison)
+    autologin=radio
+    ...
+    session=/usr/bin/ratpoison
+    # Generalnie lxdm nie jest chyba przystosowany do uruchamiania za pomocą
+    # 'systemd', trzeba do pisać do dostarczonego pliku jednostki
+    # (/usr/lib/systemd/system/lxdm.service) 'target' do którego uruchomienie
+    # 'lxdm' zostanie dodane jako zależność najprostsze jest 
+    # 'default.target'
+    [Install]
+    WantedBy=default.target
+    # Teraz możemy włączyć 'lxdm'
+    rpi$ sudo systemctl daemon-reload
+    rpi$ sudo systemctl enable lxdm.service
+    # Do ukończenia konfiguracji środowiska testowego potrzebujemy jeszcze
+    # umożliwienia innym użytkownikom otwierania okien w środowisku
+    # uruchomionym przez naszego użytkownika 'radio' (na jego pulpicie będzie
+    # wyświetlany odtwarzacz). Dzięki temu będziemy mogli kontrolować nasze
+    # radio za pomocą SSH, a poźniej aplikacji WWW. Do tej czynności
+    # potrzebujemu polecenia 'xhost', które wchodzi w skład pakietu
+    # 'x11-xserver-utils', który trzeba do instalować.
+    rpi$ sudo apt install -y x11-xserver-utils
+    # 'Lxdm' podczas startu środowiska, nie przeszukuje standardowych plików,
+    # (~/.xinitrc oraz ~/.xsession) pod kątem poleceń, które mają być wykonane
+    # podczas uruchamiania sesji użytkownika. Wykorzystuje za to plik:
+    # '~/.xprofile'. W nim zapisujemy nasze polecenie 'xhost +', ten '+'
+    # umożliwi pozostałym użytkownikom systemu otwieranie okien, oczywiście
+    # możemy to ograniczyć do konkretnych użytkowników. Stosując taką o to
+    # składnię: 'xhost +SI:localuser:nazwa_uzytkownika'
+    rpi$ sudo su radio
+    radio$ cd
+    radio$ echo "xhost +SI:localuser:rpi" | tee ~/.xprofile
+    # Ja dla celów estetycznych dodałem, również tapetę. Ustawienie tapety w
+    # takich środowiskach jak 'ratpoison' wymaga zewnętrznego programu.
+    # Najprostrzym programem dla tego typy zadań jest 'feh', jest on
+    # jednocześnie przeglądarką plików graficznych z możliwością ustawienia
+    # tapety dla menedżerów okien. Tapete zapisałem wśród graficznych plików
+    # systemowych.
+    rpi$ sudo apt install -y feh
+    rpi$ sudo wget https://raw.githubusercontent.com/xf0r3m/immudex-lhe/main/images/000/immudex_lhe_wallpaper.png -O /usr/share/images/desktop-base/default-desktop.png
+    rpi$ sudo su radio
+    radio$ echo "feh --no-fehbg --bg-fill /usr/share/images/desktop-base/default-desktop.png &" | tee -a ~/.xprofile
+    # Teraz nasze środowisko jest gotowe do pracy.
+
+6. Konfiguracja wyświetlacza
+    # Do swojego komputera RPi podłączyłem wyświetlacz 3,5 poprzez GPIO.
+    # Wyświetlacz ten nie będzie nadawał się oglądania filmów bo dynamiczny
+    # obraz wyświetlany jest w postaci pokazu slajdów. Jednak do w miarę
+    # statycznej animacji ze streamu LoFi z YT nada się znakomicie.
+    # Do konfiguracji wyświetlacza potrzebujemy projektu z GitHuba, a co za
+    # tym idzie narzędzia 'git'
+    rpi$ sudo apt install -y git;
+    rpi$ git clone https://github.com/goodtft/LCD-show.git
+    rpi$ cd LCD-show
+    rpi$ sudo ./LCD35-show
+    # Po skompilowaniu odpowienich plików
+
+6a. Problemy z wystartowaniem serwera wyświetlania X Window.
+    # Po ponowym uruchomieniu RPi, możemy doświadczyć problemów z uruchomieniem
+    # środowiska graficznego. Najprawdopodbniej brakuje modułu 'fbturbo', z
+    # które korzysta wyświetlacz. Jest on dostępny w repozytorium zatem 
+    # wystarczy wydać poniższe polecenie i uruchomić komputer ponownie.
+    rpi$ sudo apt install xserver-xorg-video-fbturbo
+
+7. Odwrócenie ekranu i zatrzymanie wygaszenia.
+    # Nie wiem czy bez tapety będziemy to stanie doświadczyć, ale obraz jest
+    # odwrócony o 180 stopni (wg. naszego punktu widzenia, jeśli złącza takie
+    # jak HDMI znajdują się na górze urządzenia). Inaczej ciężko będzie nasze
+    # urządzenie ustawić. Aby odwrócić ekran, w przypadku Raspberry Pi musimy
+    # użyć pliku konfiguracyjnego znajdującego się na partycji 'bootfs'
+    # (/boot/config.txt), odszukujemy w nim taką linię:
+    # 'dtoverlay=tft35a:rotate=90' i zmieniamy z 90 na 270. Dlatego, że dla
+    # komputera krawędź 0 stopni znajduje po lewej stronie (przy złączach USB)
+    dtoverlay=tft35a:rotate=270
+    # Drugą kwestią jest wygaszenie ekranu. Tutaj musimy skorzystać skorzystać
+    # ponowie z pliku '~/.xprofile'. Dodajemy do niego poniższą linię.
+    radio$ echo "xset s off && xset -dpms"
+    
+
+8. Oprogramowanie.
+    # Aby móc uruchamiać streamy z LoFi z YT potrzebujemy yt-dlp, jednak
+    # ten skrypt nie jest dostępny w repozytoriach RaspiOS bazującego na
+    # Debianie 11. Dlatego zainstalujemy go z repozytorium modułów Pythona -
+    # PIP.
+    rpi$ sudo apt install python3-pip
+    rpi$ sudo pip install yt-dlp
+    # Po zainstalowaniu 'yt-dlp' przydał by sie jakiś odtwarzacz i w tym celu
+    # wykorzystamy popularny dla uniksów 'mpv'. MPV zawiera bardzo dużo
+    # zależności ze względu na to, że potrafi on otworzyć prawie każdy format
+    # z prawie każdego źródła. Dlatego czeka nas dłuższa przerwa.
+    rpi$ sudo apt install mpv
+    # Innym dość ciekawym programem jest skrypt 'immudex-pl', pozwala on na
+    # Zdefiniowanie prostej listy, z której wybiera się czy link z YT czy
+    # radio internetowe. Po uruchomieniu skryptu dostajemy listę z numerkami
+    # wybieramy numerek i link jest odtwarzany, jeśli chcemy zmienić numerek
+    # to wystarczy go podać skrypt dalej oczekuje na nasz wybór mimo że jeden
+    # linków jest odtwarzany jeśli chemy zakończyć wystarczy podać 'q'. 
+
+9. Cisza...
+    # Za pewne po zainstalowaniu oprogramowania raczyliśmy je sobie
+    # przetestować i na głośnikach lub słuchawkach mamy ciszę. Dzieje się tak
+    # dlatego, że w RPi domyślnym wyjściem dla kanału audio jest 'HDMI'. Aby
+    # zmienić domyślne wyjście na 'Jack 3.5' musimy posłużyć się narzędziem
+    # 'raspi-config'
+    rpi$ sudo raspi-config -> 'System Options' -> 'Audio' -> '1 bcm2835 Headphones'
+    # Teraz wszystko powinno działać.
