@@ -129,6 +129,14 @@
     # wybieramy numerek i link jest odtwarzany, jeśli chcemy zmienić numerek
     # to wystarczy go podać skrypt dalej oczekuje na nasz wybór mimo że jeden
     # linków jest odtwarzany jeśli chemy zakończyć wystarczy podać 'q'. 
+    # Podczas instalowania mpv zostanie zainstalowany także pakiet 'youtube-dl'.
+    # Z tym pakietem linki z YT nie zostaną w ogóle uruchomione, sam 'mpv'
+    # stwierdzi że ta wersja jest za stara. Dlatego musimy podłączyć
+    # zainstalowany wcześniej 'yt-dlp' pod 'youtube-dl', dokonamy tego za
+    # pomocą poniższych poleceń:
+    rpi$ sudo rm /usr/bin/youtube-dl;
+    rpi$ sudo apt-mark hold youtube-dl;
+    rpi$ sudo ln -s /usr/local/bin/yt-dlp /usr/bin/youtube-dl;
 
 9. Cisza...
     # Za pewne po zainstalowaniu oprogramowania raczyliśmy je sobie
