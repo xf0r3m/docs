@@ -26,7 +26,7 @@
 # https://github.com/rasdark/xf86-video-sis671 (driver)
 # https://ubuntuforums.org/showthread.php?t=2350126&page=4&p=13599531#post13599531 (how-to)
 
-XORG_VERSION="1.20"
+XORG_VERSION="21.1"
 
 # Check for /etc/X11/xorg.conf
 if [ ! -f "/etc/X11/xorg.conf" ]; then
@@ -41,8 +41,7 @@ cd ~/
 git clone https://github.com/rasdark/xf86-video-sis671.git
 cd xf86-video-sis671/
 git checkout for-xorg-$XORG_VERSION
-autoreconf
-automake
+autoreconf -vi
 ./configure --prefix=/usr --disable-static
 make
 make install
