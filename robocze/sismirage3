@@ -1,0 +1,98 @@
+#!/bin/bash
+
+# Bash script to install SiS Mirage 3+ graphics drivers on Linux
+# Supports 671/672MX graphics cards
+#
+# Created in March 2019
+#
+# Tested on:
+# - Lubuntu 18.04 (32-bit) with X.Org v1.19
+# - Xubuntu 18.04 (64-bit) with X.Org v1.20
+# installed on a Fujitsu-Siemens Esprimo Mobile v5535 laptop (specs: https://www.notebookcheck.net/Fujitsu-Siemens-Esprimo-Mobile-V5535.9149.0.html)
+#
+# Execute as root user with:
+#
+# $ sudo su
+# (then type your password)
+# $ cd ~/
+# $ wget --no-check-certificate https://gist.githubusercontent.com/fevangelou/46a2885233c45011ad5c8752f18eac73/raw/79b407db60589d98e78cd131b56a1652756fb7b2/install_sis_graphics_on_linux.sh
+# $ chmod +x install_sis_graphics_on_linux.sh
+# $ ./install_sis_graphics_on_linux.sh
+#
+# IMPORTANT:
+# If you X.Org version is not 1.20, edit the variable "XORG_VERSION" below accordingly and re-run the script.
+#
+# References:
+# https://github.com/rasdark/xf86-video-sis671 (driver)
+# https://ubuntuforums.org/showthread.php?t=2350126&page=4&p=13599531#post13599531 (how-to)
+
+XORG_VERSION="1.20"
+
+# Check for /etc/X11/xorg.conf
+if [ ! -f "/etc/X11/xorg.conf" ]; then
+    touch /etc/X11/xorg.conf
+fi
+
+# Install required packages
+apt-get -y install build-essential xorg-dev autoconf automake git libtool-bin xutils-dev inxi
+
+# Build the driver
+cd ~/
+git clone https://github.com/rasdark/xf86-video-sis671.git
+cd xf86-video-sis671/
+git checkout for-xorg-$XORG_VERSION
+autoreconf
+automake
+./configure --prefix=/usr --disable-static
+make
+make install
+
+# Check if the drivers were installed
+ls -la /usr/lib/xorg/modules/drivers/sis671*
+
+echo ""
+echo ""
+
+inxi -G
+
+echo ""
+echo ""
+
+if [ -f "/usr/lib/xorg/modules/drivers/sis671_drv.so" ]; then
+    # Setup the SiS graphics driver
+    cat > "/etc/X11/xorg.conf" <<EOF
+Section "Device"
+    Identifier      "Configured Video Device"
+    Driver          "sis671"
+EndSection
+
+Section "Monitor"
+    Identifier      "Configured Monitor"
+EndSection
+
+Section "Screen"
+    Identifier      "Default Screen"
+    Monitor         "Configured Monitor"
+    Device          "Configured Video Device"
+EndSection
+EOF
+
+    # Now reboot
+    echo ""
+    echo ""
+    echo "  *** The installation for SiS graphics drivers is now complete *** "
+    echo ""
+    echo "  === --------------------------------------------------------- === "
+    echo "  ===               PLEASE REBOOT YOUR SYSTEM NOW               === "
+    echo "  === --------------------------------------------------------- === "
+    echo ""
+else
+    echo ""
+    echo ""
+    echo "  *** The installation for SiS graphics drivers FAILED *** "
+    echo ""
+    echo "  === ---------------------------------------------------- === "
+    echo "  ===                Check your X.Org version!             === "
+    echo "  === ---------------------------------------------------- === "
+    echo ""
+fi
