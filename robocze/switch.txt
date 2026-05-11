@@ -1,0 +1,225 @@
+<Huawei>system-view
+[Huawei]sysname S1
+<S1>clock datetime 09:20:00 2026-05-11
+<S1>clock timezone Warsaw add 02:00:00
+<S1>display clock
+2026-05-11 09:21:02+02:00
+Monday
+Time Zone(Warsaw) : UTC+02:00
+<S1>system-view
+[S1]display vlan
+The total number of vlans is : 1
+--------------------------------------------------------------------------------
+U: Up;         D: Down;         TG: Tagged;         UT: Untagged;
+MP: Vlan-mapping;               ST: Vlan-stacking;
+#: ProtocolTransparent-vlan;    *: Management-vlan;
+--------------------------------------------------------------------------------
+
+VID  Type    Ports                                                          
+--------------------------------------------------------------------------------
+1    common  UT:GE0/0/1(D)      GE0/0/2(D)      GE0/0/3(D)      GE0/0/4(D)      
+                GE0/0/5(D)      GE0/0/6(D)      GE0/0/7(D)      GE0/0/8(D)      
+                GE0/0/9(D)      GE0/0/10(D)     GE0/0/11(D)     GE0/0/12(D)     
+                GE0/0/13(D)     GE0/0/14(D)     GE0/0/15(D)     GE0/0/16(D)     
+                GE0/0/17(D)     GE0/0/18(D)     GE0/0/19(D)     GE0/0/20(D)     
+                GE0/0/21(D)     GE0/0/22(D)     GE0/0/23(D)     GE0/0/24(D)     
+
+
+VID  Status  Property      MAC-LRN Statistics Description      
+--------------------------------------------------------------------------------
+1    enable  default       enable  disable    VLAN 0001  
+[S1] interface Vlanif 1
+[S1-Vlanif1]ip address 10.10.10.2 255.255.255.0
+[S1-Vlanif1]quit
+[S1]ip route-static 0.0.0.0 0 10.10.10.1
+[S1]display ip interface brief
+*down: administratively down
+^down: standby
+(l): loopback
+(s): spoofing
+The number of interface that is UP in Physical is 2
+The number of interface that is DOWN in Physical is 1
+The number of interface that is UP in Protocol is 2
+The number of interface that is DOWN in Protocol is 1
+
+Interface                         IP Address/Mask      Physical   Protocol  
+MEth0/0/1                         unassigned           down       down      
+NULL0                             unassigned           up         up(s)     
+Vlanif1                           10.10.10.2/24        up         up        
+[S1]display ip routing-table
+Route Flags: R - relay, D - download to fib
+------------------------------------------------------------------------------
+Routing Tables: Public
+         Destinations : 5        Routes : 5        
+
+Destination/Mask    Proto   Pre  Cost      Flags NextHop         Interface
+
+        0.0.0.0/0   Static  60   0          RD   10.10.10.1      Vlanif1
+     10.10.10.0/24  Direct  0    0           D   10.10.10.2      Vlanif1
+     10.10.10.2/32  Direct  0    0           D   127.0.0.1       Vlanif1
+      127.0.0.0/8   Direct  0    0           D   127.0.0.1       InLoopBack0
+      127.0.0.1/32  Direct  0    0           D   127.0.0.1       InLoopBack0
+
+[S1]user-interface vty 0 4
+[S1-ui-vty0-4]authentication-mode aaa
+[S1-ui-vty0-4]protocol inbound ssh
+[S1-ui-vty0-4]quit
+[S1]aaa
+[S1-aaa]local-user admin password cipher admin@123
+[S1-aaa]local-user admin service-type ssh terminal
+[S1-aaa]local-user admin privilege level 15
+[S1-aaa]quit
+[S1]ssh user admin
+[S1]ssh user admin authentication-type password
+[S1]ssh user admin service-type stelnet 
+[S1]stelnet server enable
+<S1>save
+The current configuration will be written to the device.
+Are you sure to continue?[Y/N]y
+Info: Please input the file name ( *.cfg, *.zip ) [vrpcfg.zip]:
+May 11 2026 09:44:03+02:00 S1 %%01CFM/4/SAVE(l)[3]:The user chose Y when decidin
+g whether to save the configuration to the device.
+Now saving the current configuration to the slot 0.
+Save the configuration successfully.
+<S1>system-view 
+Enter system view, return user view with Ctrl+Z.
+[S1]vlan batch 10 20 30 40
+Info: This operation may take a few seconds. Please wait for a moment...done.
+[S1]vlan 10
+[S1-vlan10]description GREEN
+[S1-vlan10]vlan 20
+[S1-vlan20]description BLUE
+[S1-vlan20]vlan 30
+[S1-vlan30]description IPMI
+[S1-vlan30]vlan 40	
+[S1-vlan40]description CCTV
+[S1]display vlan
+The total number of vlans is : 5
+--------------------------------------------------------------------------------
+U: Up;         D: Down;         TG: Tagged;         UT: Untagged;
+MP: Vlan-mapping;               ST: Vlan-stacking;
+#: ProtocolTransparent-vlan;    *: Management-vlan;
+--------------------------------------------------------------------------------
+
+VID  Type    Ports                                                          
+--------------------------------------------------------------------------------
+
+1    common  UT:GE0/0/1(U)      GE0/0/2(D)      GE0/0/3(D)      GE0/0/4(D)      
+                GE0/0/5(D)      GE0/0/6(D)      GE0/0/7(D)      GE0/0/8(D)      
+                GE0/0/9(D)      GE0/0/10(D)     GE0/0/11(D)     GE0/0/12(D)     
+                GE0/0/13(D)     GE0/0/14(D)     GE0/0/15(D)     GE0/0/16(D)     
+                GE0/0/17(D)     GE0/0/18(D)     GE0/0/19(D)     GE0/0/20(D)     
+                GE0/0/21(D)     GE0/0/22(D)     GE0/0/23(D)     GE0/0/24(D)     
+
+10   common  
+20   common  
+30   common  
+40   common  
+
+VID  Status  Property      MAC-LRN Statistics Description      
+--------------------------------------------------------------------------------
+
+1    enable  default       enable  disable    VLAN 0001                         
+10   enable  default       enable  disable    GREEN                             
+20   enable  default       enable  disable    BLUE                              
+30   enable  default       enable  disable    IPMI                              
+40   enable  default       enable  disable    CCTV
+[S1]interface g0/0/1
+[S1-GigabitEthernet0/0/1]port link-type access 
+[S1-GigabitEthernet0/0/1]port default vlan 10
+[S1-GigabitEthernet0/0/1]interface g0/0/7
+[S1-GigabitEthernet0/0/7]port link-type access
+[S1-GigabitEthernet0/0/7]port defa
+May 11 2026 09:58:02+02:00 S1 DS/4/DATASYNC_CFGCHANGE:OID 1.3.6.1.4.1.2011.5.25.
+191.3.1 configurations have been changed. The current change number is 23, the c
+hange loop count is 0, and the maximum number of records
+[S1-GigabitEthernet0/0/7]port default vlan 20
+[S1-GigabitEthernet0/0/7]quit
+[S1]undo info-center enable
+Info: Information center is disabled.
+[S1]int g0/0/15
+[S1-GigabitEthernet0/0/15]port link-type access
+[S1-GigabitEthernet0/0/15]port default vlan 30
+[S1-GigabitEthernet0/0/15]int g0/0/22
+[S1-GigabitEthernet0/0/22]port link-type access
+[S1-GigabitEthernet0/0/22]port default vlan 40
+[S1-GigabitEthernet0/0/22]quit
+[S1]display vlan
+The total number of vlans is : 5
+--------------------------------------------------------------------------------
+U: Up;         D: Down;         TG: Tagged;         UT: Untagged;
+MP: Vlan-mapping;               ST: Vlan-stacking;
+#: ProtocolTransparent-vlan;    *: Management-vlan;
+--------------------------------------------------------------------------------
+
+VID  Type    Ports                                                          
+--------------------------------------------------------------------------------
+
+1    common  UT:GE0/0/2(D)      GE0/0/3(D)      GE0/0/4(D)      GE0/0/5(D)      
+                GE0/0/6(D)      GE0/0/8(D)      GE0/0/9(D)      GE0/0/10(D)     
+                GE0/0/11(D)     GE0/0/12(D)     GE0/0/13(D)     GE0/0/14(D)     
+                GE0/0/16(D)     GE0/0/17(D)     GE0/0/18(D)     GE0/0/19(D)     
+                GE0/0/20(D)     GE0/0/21(D)     GE0/0/23(D)     GE0/0/24(U)     
+
+10   common  UT:GE0/0/1(D)                                                      
+
+20   common  UT:GE0/0/7(D)                                                      
+
+30   common  UT:GE0/0/15(D)                                                     
+
+40   common  UT:GE0/0/22(D)                                                     
+
+
+VID  Status  Property      MAC-LRN Statistics Description      
+--------------------------------------------------------------------------------
+
+1    enable  default       enable  disable    VLAN 0001                         
+10   enable  default       enable  disable    GREEN                             
+20   enable  default       enable  disable    BLUE                              
+30   enable  default       enable  disable    IPMI                              
+40   enable  default       enable  disable    CCTV                              
+[S1]
+[S1]int g0/0/24
+[S1-GigabitEthernet0/0/24]port link-type trunk
+[S1-GigabitEthernet0/0/24]port trunk allow-pass vlan all
+[S1-GigabitEthernet0/0/24]quit
+[S1]display vlan
+The total number of vlans is : 5
+--------------------------------------------------------------------------------
+U: Up;         D: Down;         TG: Tagged;         UT: Untagged;
+MP: Vlan-mapping;               ST: Vlan-stacking;
+#: ProtocolTransparent-vlan;    *: Management-vlan;
+--------------------------------------------------------------------------------
+
+VID  Type    Ports                                                          
+--------------------------------------------------------------------------------
+1    common  UT:GE0/0/2(D)      GE0/0/3(D)      GE0/0/4(D)      GE0/0/5(D)      
+                GE0/0/6(D)      GE0/0/8(D)      GE0/0/9(D)      GE0/0/10(D)     
+                GE0/0/11(D)     GE0/0/12(D)     GE0/0/13(D)     GE0/0/14(D)     
+                GE0/0/16(D)     GE0/0/17(D)     GE0/0/18(D)     GE0/0/19(D)     
+                GE0/0/20(D)     GE0/0/21(D)     GE0/0/23(D)     GE0/0/24(U)     
+10   common  UT:GE0/0/1(D)                                                      
+             TG:GE0/0/24(U)                                                     
+
+20   common  UT:GE0/0/7(D)                                                      
+
+             TG:GE0/0/24(U)                                                     
+
+30   common  UT:GE0/0/15(D)                                                     
+
+             TG:GE0/0/24(U)                                                     
+
+40   common  UT:GE0/0/22(D)                                                     
+
+             TG:GE0/0/24(U)                                                     
+
+
+VID  Status  Property      MAC-LRN Statistics Description      
+--------------------------------------------------------------------------------
+
+1    enable  default       enable  disable    VLAN 0001                         
+
+10   enable  default       enable  disable    GREEN                             
+20   enable  default       enable  disable    BLUE                              
+30   enable  default       enable  disable    IPMI                              
+40   enable  default       enable  disable    CCTV 

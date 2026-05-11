@@ -1,0 +1,85 @@
+[Huawei]sysname R1
+[R1]display ip interface brief
+*down: administratively down
+^down: standby
+(l): loopback
+(s): spoofing
+The number of interface that is UP in Physical is 1
+The number of interface that is DOWN in Physical is 3
+The number of interface that is UP in Protocol is 1
+The number of interface that is DOWN in Protocol is 3
+
+Interface                         IP Address/Mask      Physical   Protocol  
+GigabitEthernet0/0/0              unassigned           down       down      
+GigabitEthernet0/0/1              unassigned           down       down      
+GigabitEthernet0/0/2              unassigned           down       down      
+NULL0                             unassigned           up         up(s) 
+[R1]interface g0/0/0
+[R1-GigabitEthernet0/0/0]ip address 10.10.10.1 255.255.255.0
+[R1-GigabitEthernet0/0/0]quit
+[R1]quit
+<R1>save
+  The current configuration will be written to the device. 
+  Are you sure to continue? (y/n)[n]:y
+  It will take several minutes to save configuration file, please wait..........
+..
+  Configuration file had been saved successfully
+  Note: The configuration file will take effect after being activated
+<R1>ping 10.10.10.2
+  PING 10.10.10.2: 56  data bytes, press CTRL_C to break
+    Reply from 10.10.10.2: bytes=56 Sequence=1 ttl=255 time=560 ms
+    Reply from 10.10.10.2: bytes=56 Sequence=2 ttl=255 time=50 ms
+    Reply from 10.10.10.2: bytes=56 Sequence=3 ttl=255 time=40 ms
+    Reply from 10.10.10.2: bytes=56 Sequence=4 ttl=255 time=40 ms
+    Reply from 10.10.10.2: bytes=56 Sequence=5 ttl=255 time=40 ms
+
+  --- 10.10.10.2 ping statistics ---
+    5 packet(s) transmitted
+    5 packet(s) received
+    0.00% packet loss
+    round-trip min/avg/max = 40/146/560 ms
+	<R1>system-view
+Enter system view, return user view with Ctrl+Z.
+[R1]
+[R1]ste	
+[R1]stelnet 10.10.10.2
+Please input the username:admin
+Trying 10.10.10.2 ...
+Press CTRL+K to abort
+Connected to 10.10.10.2 ...
+Error: Failed to verify the server's public key.
+Please run the command "ssh client first-time enable"to enable the first-time ac
+cess function and try again.
+[R1]ssh client first-time enable 
+[R1]stelnet 10.10.10.2
+Please input the username:admin
+Trying 10.10.10.2 ...
+Press CTRL+K to abort
+Connected to 10.10.10.2 ...
+The server is not authenticated. Continue to access it? (y/n)[n]:y
+May 11 2026 15:42:57-08:00 R1 %%01SSH/4/CONTINUE_KEYEXCHANGE(l)[0]:The server ha
+d not been authenticated in the process of exchanging keys. When deciding whethe
+r to continue, the user chose Y. 
+[R1]
+Save the server's public key? (y/n)[n]:y
+The server's public key will be saved with the name 10.10.10.2. Please wait...
+May 11 2026 15:43:01-08:00 R1 %%01SSH/4/SAVE_PUBLICKEY(l)[1]:When deciding wheth
+er to save the server's public key 10.10.10.2, the user chose Y. 
+[R1]
+
+Enter password:
+Info: The max number of VTY users is 5, and the number
+      of current VTY users on line is 1.
+      The current login time is 2026-05-11 09:43:00.
+<S1>quit
+Info: The max number of VTY users is 5, and the number
+      of current VTY users on line is 0.
+[R1]quit
+<R1>save
+  The current configuration will be written to the device. 
+  Are you sure to continue? (y/n)[n]:y
+  It will take several minutes to save configuration file, please wait..........
+.
+  Configuration file had been saved successfully
+  Note: The configuration file will take effect after being activated
+<R1>
