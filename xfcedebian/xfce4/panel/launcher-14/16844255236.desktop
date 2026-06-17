@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Padlock
+Comment=Otwiera i zamyka partycje LUKS
+Exec=xfce4-terminal -x /usr/local/bin/immudex-padlock
+Icon=/usr/share/icons/padlock-icon.png
+Path=
+Terminal=false
+StartupNotify=false
